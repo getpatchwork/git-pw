@@ -8,8 +8,14 @@ from __future__ import print_function
 
 import argparse
 import os
+import subprocess
 import sys
+import xml
 
+if sys.version < '3':
+    import xmlrpclib
+else:
+    import xmlrpc.client as xmlrpclib
 
 import pkg_resources
 
@@ -22,8 +28,80 @@ def get_version():
         return 0
 
 
+class GitPWException(Exception):
+    msg_fmt = 'An unknown exception occured'
+
+    def __init__(self, message=None, **kwargs):
+        if not message:
+            try:
+                message = self.msg_fmt % kwargs
+            except KeyError:
+                # someone did something silly, but print the message anyway
+                message = self.msg_fmt
+
+        self.message = message
+        super(GitPWException, self).__init__(message)
+
+
+class ConnectionFailed(GitPWException):
+    msg_fmt = 'Unable to connect to \'%(host)s\': %(reason)s'
+
+
+class InvalidPatchID(GitPWException):
+    msg_fmt = 'The patch \'%(patch_id)s\' was not found'
+
+
+def _get_connection(host):
+    """Creates an connection to the XML-RPC API."""
+    try:
+        api = xmlrpclib.ServerProxy(host)
+        version = api.pw_rpc_version()
+    except xmlrpclib.ProtocolError:
+        raise ConnectionFailed(host=host, reason='protocol error')
+    except xml.parsers.expat.ExpatError:
+        raise ConnectionFailed(host=host, reason='invalid response')
+    except Exception:
+        raise ConnectionFailed(host=host, reason='unknown error')
+
+    # NOTE(stephenfin): Older versions of the API return an int, hence
+    # need to cast
+    version = version if type(version) is tuple else (version, )
+    if version < (1, 1, 0):
+        # TODO(stephenfin): Some graceful degradation would be nice
+        # TODO(stephenfin): Use an exception here
+        print('Your version of patchwork is too old. Please upgrade it.')
+        sys.exit(1)
+
+    return api
+
+
+def _run_command(args, stdin=None):
+    p = subprocess.Popen(
+        args,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        stdin=subprocess.PIPE if stdin else None)
+    (out, _) = p.communicate(stdin)
+    out = out.decode('utf-8', 'replace').strip()
+
+    return (p.returncode, out)
+
+
 def cherrypick_patch(patch_id):
-    pass
+    # TODO(stephenfin): Parse hostnames from...somewhere...
+    api = _get_connection('http://patchwork.ozlabs.org/xmlrpc/')
+    patch = api.patch_get_mbox(patch_id)
+    if not patch:
+        raise InvalidPatchID(patch_id=patch_id)
+
+    # TODO(stephenfin): We should probably make sure the patch applies
+    # cleanly before doing so. Maybe '--dry-run'?
+    cmd = ['git', 'am']
+    code, output = _run_command(cmd, patch)
+    # TODO(stephenfin): Use an exception here
+    if code:
+        print(output)
+        sys.exit(1)
 
 
 def download_patch(patch_id):
