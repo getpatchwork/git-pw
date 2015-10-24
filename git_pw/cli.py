@@ -11,7 +11,15 @@ import os
 import sys
 
 
-VERSION = '0.1'
+import pkg_resources
+
+
+def get_version():
+    try:
+        return pkg_resources.get_provider(
+            pkg_resources.Requirement.parse('git-pw'))
+    except pkg_resources.DistributionNotFound:
+        return 0
 
 
 def cherrypick_patch(patch_id):
@@ -87,7 +95,7 @@ def main():
     parser.add_argument('--version',
                         action='version',
                         version='%s version %s' %
-                        (os.path.split(sys.argv[0])[-1], VERSION))
+                        (os.path.split(sys.argv[0])[-1], get_version()))
 
     options = parser.parse_args()
 
