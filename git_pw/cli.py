@@ -115,7 +115,20 @@ def download_series(series_id):
 
 
 def list_patches():
-    pass
+    # TODO(stephenfin): Parse hostnames from...somewhere...
+    api = _get_connection('http://patchwork.ozlabs.org/xmlrpc/')
+
+    # TODO(stephenfin): Limit patches to current project and open status, then
+    # the hard 100 limit below can be removed
+    # TODO(stephenfin): Parse project IDs from...somewhere...
+    patches = api.patch_list({'project_id': 16})
+    patches = [(patch['id'], patch['project'], patch['name']) for patch in patches]
+
+    for patch in patches:
+        # TODO(stephenfin): It would be good to calculate the length of these
+        # fields dynamically
+        # TODO(stephenfin): Colour is good. We should use some.
+        print('%6s  %12s  %s' % patch)
 
 
 def main():
