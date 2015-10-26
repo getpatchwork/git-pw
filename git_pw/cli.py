@@ -65,7 +65,9 @@ def _get_connection(host):
 
     # NOTE(stephenfin): Older versions of the API return an int, hence
     # need to cast
-    version = version if type(version) is tuple else (version, )
+    if version == 1:
+        version = (1, 0, 0)
+
     if version < (1, 1, 0):
         # TODO(stephenfin): Some graceful degradation would be nice
         # TODO(stephenfin): Use an exception here
