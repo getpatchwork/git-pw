@@ -105,11 +105,11 @@ def cherrypick_patch(patch_id):
 
 
 def download_patch(patch_id):
-    pass
+    raise NotImplementedError('Series support is still in limbo')
 
 
 def download_series(series_id):
-    pass
+    raise NotImplementedError('Series support is still in limbo')
 
 
 def list_patches():
