@@ -47,6 +47,11 @@ class ConnectionFailed(GitPWException):
     msg_fmt = 'Unable to connect to \'%(host)s\': %(reason)s'
 
 
+class UnsupportedOperation(GitPWException):
+    msg_fmt = ('Your patchwork version is too old. '
+               'Expected: %(expected)s, Actual: %(actual)s')
+
+
 class InvalidPatchID(GitPWException):
     msg_fmt = 'The patch \'%(patch_id)s\' was not found'
 
@@ -95,9 +100,7 @@ def require_api_version(version):
                 pw_version = (1, 0, 0)
 
             if pw_version < version:
-                # TODO(stephenfin): Use an exception here
-                print('Your version of patchwork is too old. Please upgrade it.')
-                sys.exit(1)
+                raise UnsupportedOperation(expected=version, actual=pw_version)
 
             func(*args, **kwargs)
 
