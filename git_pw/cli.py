@@ -56,8 +56,15 @@ class InvalidPatchID(GitPWException):
     msg_fmt = 'The patch \'%(patch_id)s\' was not found'
 
 
-def _get_connection(host):
+class MissingConfig(GitPWException):
+    msg_fmt = 'The key \'%(name)s\' was not found. Did you set it?'
+
+
+def _get_connection(host=None):
     """Creates an connection to the XML-RPC API."""
+    if not host:
+        host = get_config('pw.server')
+
     try:
         api = xmlrpclib.ServerProxy(host)
         api.pw_rpc_version()  # ensure the connection is actually valid
@@ -91,7 +98,7 @@ def require_api_version(version):
     """
     def _require_api_version_inner(func):
         def _validation_wrapper(*args, **kwargs):
-            api = _get_connection('http://patchwork.ozlabs.org/xmlrpc/')
+            api = _get_connection()
             pw_version = api.pw_rpc_version()
 
             # NOTE(stephenfin): Older versions of the API return an int, hence
@@ -109,9 +116,23 @@ def require_api_version(version):
     return _require_api_version_inner
 
 
+def get_config(name, default=None):
+    cmd = ['git', 'config', '--get', name]
+    code, output = _run_command(cmd)
+
+    # TODO(stephenfin): Handle non-'1' return codes:
+    #   https://www.kernel.org/pub/software/scm/git/docs/git-config.html
+    if code:
+        if default:
+            return default
+        raise MissingConfig(name=name)
+
+    return output
+
+
 def cherrypick_patch(patch_id):
-    # TODO(stephenfin): Parse hostnames from...somewhere...
-    api = _get_connection('http://patchwork.ozlabs.org/xmlrpc/')
+    # TODO(stephenfin): Document this variable
+    api = _get_connection()
     patch = api.patch_get_mbox(patch_id)
     if not patch:
         raise InvalidPatchID(patch_id=patch_id)
@@ -141,13 +162,12 @@ def download_series(series_id):
 
 
 def list_patches():
-    # TODO(stephenfin): Parse hostnames from...somewhere...
-    api = _get_connection('http://patchwork.ozlabs.org/xmlrpc/')
+    # TODO(stephenfin): Document this variable
+    api = _get_connection()
 
-    # TODO(stephenfin): Limit patches to current project and open status, then
-    # the hard 100 limit below can be removed
-    # TODO(stephenfin): Parse project IDs from...somewhere...
-    patches = api.patch_list({'project_id': 16})
+    # TODO(stephenfin): Limit patches to open status
+    # TODO(stephenfin): Document this variable
+    patches = api.patch_list({'project_id': get_config('pw.projectid')})
     patches = [(patch['id'], patch['project'], patch['name']) for patch in patches]
 
     for patch in patches:
