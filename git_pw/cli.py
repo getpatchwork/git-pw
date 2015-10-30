@@ -55,24 +55,13 @@ def _get_connection(host):
     """Creates an connection to the XML-RPC API."""
     try:
         api = xmlrpclib.ServerProxy(host)
-        version = api.pw_rpc_version()
+        api.pw_rpc_version()  # ensure the connection is actually valid
     except xmlrpclib.ProtocolError:
         raise ConnectionFailed(host=host, reason='protocol error')
     except xml.parsers.expat.ExpatError:
         raise ConnectionFailed(host=host, reason='invalid response')
     except Exception:
         raise ConnectionFailed(host=host, reason='unknown error')
-
-    # NOTE(stephenfin): Older versions of the API return an int, hence
-    # need to cast
-    if version == 1:
-        version = (1, 0, 0)
-
-    if version < (1, 1, 0):
-        # TODO(stephenfin): Some graceful degradation would be nice
-        # TODO(stephenfin): Use an exception here
-        print('Your version of patchwork is too old. Please upgrade it.')
-        sys.exit(1)
 
     return api
 
@@ -87,6 +76,34 @@ def _run_command(args, stdin=None):
     out = out.decode('utf-8', 'replace').strip()
 
     return (p.returncode, out)
+
+
+def require_api_version(version):
+    """Ensure PW API is correct version for command.
+
+    This allows the application to gracefully degrade, based on the features
+    of the API.
+    """
+    def _require_api_version_inner(func):
+        def _validation_wrapper(*args, **kwargs):
+            api = _get_connection('http://patchwork.ozlabs.org/xmlrpc/')
+            pw_version = api.pw_rpc_version()
+
+            # NOTE(stephenfin): Older versions of the API return an int, hence
+            # need to cast
+            if pw_version == 1:
+                pw_version = (1, 0, 0)
+
+            if pw_version < version:
+                # TODO(stephenfin): Use an exception here
+                print('Your version of patchwork is too old. Please upgrade it.')
+                sys.exit(1)
+
+            func(*args, **kwargs)
+
+        return _validation_wrapper
+
+    return _require_api_version_inner
 
 
 def cherrypick_patch(patch_id):
@@ -106,10 +123,16 @@ def cherrypick_patch(patch_id):
         sys.exit(1)
 
 
+# TODO(stephenfin): Series support has still not merged so this version should
+# be updated when appropriate
+@require_api_version((1, 1, 0))
 def download_patch(patch_id):
     raise NotImplementedError('Series support is still in limbo')
 
 
+# TODO(stephenfin): Series support has still not merged so this version should
+# be updated when appropriate
+@require_api_version((1, 1, 0))
 def download_series(series_id):
     raise NotImplementedError('Series support is still in limbo')
 
