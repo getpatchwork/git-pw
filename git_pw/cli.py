@@ -65,6 +65,15 @@ class InvalidPatchID(GitPWException):
     msg_fmt = 'The patch \'%(patch_id)s\' was not found'
 
 
+class CommandFailed(GitPWException):
+    msg_fmt = (
+        'The following command failed:\n'
+        'Command: %(args)s\n'
+        'Retcode: %(code)d\n'
+        'Output:\n'
+        '%(out)s')
+
+
 class MissingConfig(GitPWException):
     msg_fmt = 'The key \'%(name)s\' was not found. Did you set it?'
 
@@ -97,6 +106,12 @@ def _run_command(args, stdin=None):
     out = out.decode('utf-8', 'replace').strip()
 
     return (p.returncode, out)
+
+
+def _run_command_w_exception(args, stdin=None):
+    code, output = _run_command(args, stdin)
+    if code:
+        raise CommandFailed(code=code, args=args, out=output)
 
 
 def require_api_version(version):
@@ -145,33 +160,20 @@ def cherrypick_patch(patch_id):
     if not patch:
         raise InvalidPatchID(patch_id=patch_id)
 
-    # TODO(stephenfin): Resolve duplication
     cmd = ['git', 'checkout', CFG['branch']]
-    code, output = _run_command(cmd)
-    # TODO(stephenfin): Use an exception here
-    if code:
-        print(output)
-        sys.exit(1)
+    _run_command_w_exception(cmd)
 
     patch_id = patch['id']
 
     cmd = ['git', 'checkout', '-b', 'review/patch/%d' % patch_id]
-    code, output = _run_command(cmd)
-    # TODO(stephenfin): Use an exception here
-    if code:
-        print(output)
-        sys.exit(1)
+    _run_command_w_exception(cmd)
 
     mbox = api.patch_get_mbox(patch_id)
 
     # TODO(stephenfin): We should probably make sure the patch applies
     # cleanly before doing so. Maybe '--dry-run'?
     cmd = ['git', 'am']
-    code, output = _run_command(cmd, mbox)
-    # TODO(stephenfin): Use an exception here
-    if code:
-        print(output)
-        sys.exit(1)
+    _run_command_w_exception(cmd)
 
 
 # TODO(stephenfin): Series support has still not merged so this version should
