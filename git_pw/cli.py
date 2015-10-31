@@ -165,7 +165,8 @@ def list_patches():
 
     # TODO(stephenfin): Limit patches to open status
     patches = api.patch_list({'project_id': get_config('pw.projectid')})
-    patches = [(patch['id'], patch['project'], patch['name']) for patch in patches]
+    patches = [
+        (patch['id'], patch['project'], patch['name']) for patch in patches]
 
     for patch in patches:
         # TODO(stephenfin): It would be good to calculate the length of these
