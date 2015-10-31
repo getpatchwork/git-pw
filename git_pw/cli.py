@@ -131,7 +131,6 @@ def get_config(name, default=None):
 
 
 def cherrypick_patch(patch_id):
-    # TODO(stephenfin): Document this variable
     api = _get_connection()
     patch = api.patch_get_mbox(patch_id)
     if not patch:
@@ -162,11 +161,9 @@ def download_series(series_id):
 
 
 def list_patches():
-    # TODO(stephenfin): Document this variable
     api = _get_connection()
 
     # TODO(stephenfin): Limit patches to open status
-    # TODO(stephenfin): Document this variable
     patches = api.patch_list({'project_id': get_config('pw.projectid')})
     patches = [(patch['id'], patch['project'], patch['name']) for patch in patches]
 
