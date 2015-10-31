@@ -20,6 +20,15 @@ else:
 import pkg_resources
 
 
+# NOTE(stephenfin): We need to keep track of these IDs because the API doesn't
+# currently expose the 'action_required' property required determine if a user
+# should care about any given state.
+# These correspond to the following states in a default configuration:
+#     New, Under Review, RFC
+ACTION_REQUIRED_STATES = [1, 2, 5]
+
+
+
 def get_version():
     try:
         return pkg_resources.get_provider(
@@ -163,10 +172,13 @@ def download_series(series_id):
 def list_patches():
     api = _get_connection()
 
-    # TODO(stephenfin): Limit patches to open status
     patches = api.patch_list({'project_id': get_config('pw.projectid')})
+    # NOTE(stephenfin): While it may seem wasteful to retrieve all results
+    # for a project and *then* filter them, it is not possible to filter
+    # on more than one state server-side
     patches = [
-        (patch['id'], patch['project'], patch['name']) for patch in patches]
+        (patch['id'], patch['project'], patch['name']) for patch in patches
+        if patch['state_id'] in ACTION_REQUIRED_STATES]
 
     for patch in patches:
         # TODO(stephenfin): It would be good to calculate the length of these
