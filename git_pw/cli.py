@@ -20,13 +20,13 @@ else:
 import pkg_resources
 
 
+CFG = None
 # NOTE(stephenfin): We need to keep track of these IDs because the API doesn't
 # currently expose the 'action_required' property required determine if a user
 # should care about any given state.
 # These correspond to the following states in a default configuration:
 #     New, Under Review, RFC
 ACTION_REQUIRED_STATES = [1, 2, 5]
-
 
 
 def get_version():
@@ -141,14 +141,33 @@ def get_config(name, default=None):
 
 def cherrypick_patch(patch_id):
     api = _get_connection()
-    patch = api.patch_get_mbox(patch_id)
+    patch = api.patch_get(patch_id)
     if not patch:
         raise InvalidPatchID(patch_id=patch_id)
+
+    # TODO(stephenfin): Resolve duplication
+    cmd = ['git', 'checkout', CFG['branch']]
+    code, output = _run_command(cmd)
+    # TODO(stephenfin): Use an exception here
+    if code:
+        print(output)
+        sys.exit(1)
+
+    patch_id = patch['id']
+
+    cmd = ['git', 'checkout', '-b', 'review/patch/%d' % patch_id]
+    code, output = _run_command(cmd)
+    # TODO(stephenfin): Use an exception here
+    if code:
+        print(output)
+        sys.exit(1)
+
+    mbox = api.patch_get_mbox(patch_id)
 
     # TODO(stephenfin): We should probably make sure the patch applies
     # cleanly before doing so. Maybe '--dry-run'?
     cmd = ['git', 'am']
-    code, output = _run_command(cmd, patch)
+    code, output = _run_command(cmd, mbox)
     # TODO(stephenfin): Use an exception here
     if code:
         print(output)
@@ -188,6 +207,8 @@ def list_patches():
 
 
 def main():
+    global CFG
+
     usage = 'git pw [OPTIONS...] [BRANCH]'
 
     class DownloadAction(argparse.Action):
@@ -247,6 +268,7 @@ def main():
                         (os.path.split(sys.argv[0])[-1], get_version()))
 
     options = parser.parse_args()
+    CFG = vars(options)
 
     if options.list:
         list_patches()
