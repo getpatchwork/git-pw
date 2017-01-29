@@ -5,7 +5,7 @@ Configure application logging.
 import logging
 
 logging.basicConfig(level=logging.ERROR,
-                        format='%(asctime)s - %(levelname)s - %(message)s')
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 LOG = logging.getLogger(__name__)
 
