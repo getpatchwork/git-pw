@@ -30,11 +30,28 @@ def _get_data(url):
 
     rsp = requests.get(url, auth=(CONF.username, CONF.password))
     if rsp.status_code == 403:
-        LOG.error('Failed to fetch URL: Invalid credentials')
+        LOG.error('Failed to fetch resource: Invalid credentials')
         LOG.error('Is your git-config correct?')
         sys.exit(1)
     elif rsp.status_code != 200:
-        LOG.error('Failed to fetch URL: Invalid URL')
+        LOG.error('Failed to fetch resource: Invalid URL')
+        LOG.error('Is your git-config correct?')
+        sys.exit(1)
+
+    return rsp
+
+
+def _patch_data(url, data):
+    """Make PUT request and handle errors."""
+    LOG.debug('Putting: %s, data=%r', url, data)
+
+    rsp = requests.patch(url, auth=(CONF.username, CONF.password), data=data)
+    if rsp.status_code == 403:
+        LOG.error('Failed to update resource: Invalid credentials')
+        LOG.error('Is your git-config correct?')
+        sys.exit(1)
+    elif rsp.status_code != 200:
+        LOG.error('Failed to update resource: Invalid URL')
         LOG.error('Is your git-config correct?')
         sys.exit(1)
 
@@ -135,9 +152,12 @@ def show_cmd(patch_id):
 @click.option('--state', metavar='STATE',
               help='Set the patch state. Should be a slugified representation '
               'of a state. The available states are instance dependant.')
+@click.option('--delegate', metavar='DELEGATE',
+              help='Set the patch delegate. Should be unique user identifier: '
+              'either a username or a user\'s email address.')
 @click.option('--archived', metavar='ARCHIVED', type=click.BOOL,
               help='Set the patch archived state.')
-def update_cmd(patch_id, commit_ref, state, archived):
+def update_cmd(patch_id, commit_ref, state, delegate, archived):
     """Update a patch.
 
     Updates a Patch on the Patchwork instance. Some operations may
@@ -145,6 +165,58 @@ def update_cmd(patch_id, commit_ref, state, archived):
     """
     LOG.info('Updating patch: id=%d, commit_ref=%s, state=%s, archived=%s',
              patch_id, commit_ref, state, archived)
+
+    # FIXME(stephenfin): Support the 'api_server' config value
+    server = CONF.server.rstrip('/')
+
+    if delegate:
+        url = '/'.join([server, 'api', '1.0', 'users', '?q=%s' % delegate])
+        users = _get_data(url).json()
+        if len(users) == 0:
+            LOG.error('No matching delegates found: %s', delegate)
+            sys.exit(1)
+        elif len(users) > 1:
+            LOG.error('More than one delegate found: %s', delegate)
+            sys.exit(1)
+
+        delegate = users[0]['id']
+
+    url = '/'.join([server, 'api', '1.0', 'patches', str(patch_id), ''])
+    data = {}
+    for key, value in [('commit_ref', commit_ref), ('state', state),
+                       ('archived', archived), ('delegate', delegate)]:
+        if value is None:
+            continue
+
+        data[key] = str(value)
+
+    patch = _patch_data(url, data).json()
+
+    # TODO(stephenfin): Ideally we shouldn't have to make three requests
+    # to do this operation. Perhaps we should nest these fields in the
+    # response
+    submitter = _get_data(patch['submitter']).json()
+    project = _get_data(patch['project']).json()
+    if not delegate:
+        delegate = {}
+        if patch['delegate']:
+            delegate = _get_data(patch['delegate']).json()
+
+    output = [
+        ('ID', patch.get('id')),
+        ('Message ID', patch.get('msgid')),
+        ('Date', patch.get('date')),
+        ('Name', patch.get('name')),
+        ('Submitter', '%s (%s)' % (
+            submitter.get('name'), submitter.get('email'))),
+        ('State', patch.get('state')),
+        ('Archived', patch.get('archived')),
+        ('Project', project.get('name')),
+        ('Delegate', delegate.get('username')),
+        ('Commit Ref', patch.get('commit_ref'))]
+
+    # TODO(stephenfin): We might want to make this machine readable?
+    click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
 
 
 @click.command(name='list')
