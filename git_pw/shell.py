@@ -97,11 +97,11 @@ def show_cmd(patch_id):
     """
     LOG.debug('Showing patch: id=%d', patch_id)
 
-    # TODO(stephenfin): Support the 'api_server' config value
+    # FIXME(stephenfin): Support the 'api_server' config value
     server = CONF.server.rstrip('/')
     url = '/'.join([server, 'api', '1.0', 'patches', str(patch_id)])
 
-    # FIXME(stephenfin): Ideally we shouldn't have to make three requests
+    # TODO(stephenfin): Ideally we shouldn't have to make three requests
     # to do this operation. Perhaps we should nest these fields in the
     # response
     patch = _get_data(url).json()
@@ -158,8 +158,8 @@ def update_cmd(patch_id, commit_ref, state, archived):
 @click.option('--delegate', metavar='DELEGATE', multiple=True,
               help='Show only patches by these delegates. Should be an '
               'email or username.')
-@click.option('--archived/--no-archived', default=False,
-              help='Show only patches that are archived.')
+@click.option('--archived', default=False, is_flag=True,
+              help='Include patches that are archived.')
 def list_cmd(state, submitter, delegate, archived):
     """List patches.
 
@@ -168,6 +168,92 @@ def list_cmd(state, submitter, delegate, archived):
     LOG.info('List patches: states=%s, submitters=%s, delegates=%s, '
              'archived=%r', ','.join(state), ','.join(submitter),
              ','.join(delegate), archived)
+
+    # FIXME(stephenfin): Support the 'api_server' config value
+    server = CONF.server.rstrip('/')
+
+    # Generate filter strings
+
+    # TODO(stephenfin): It should be possible to filter patches by project
+    # using the project list-id, submitters by email
+    submitter_filters = []
+    for subm in submitter:
+        url = '/'.join([server, 'api', '1.0', 'people', '?q=%s' % subm])
+        people = _get_data(url).json()
+        if len(people) == 0:
+            LOG.error('No matching submitter found: %s', subm)
+            sys.exit(1)
+        elif len(people) > 1:
+            LOG.error('More than one submitter found: %s', subm)
+            sys.exit(1)
+
+        submitter_filters.append('submitter=%d' % people[0]['id'])
+
+    delegate_filters = []
+    for delg in delegate:
+        url = '/'.join([server, 'api', '1.0', 'users', '?q=%s' % delg])
+        users = _get_data(url).json()
+        if len(users) == 0:
+            LOG.error('No matching delegates found: %s', delg)
+            sys.exit(1)
+        elif len(users) > 1:
+            LOG.error('More than one delegate found: %s', delg)
+            sys.exit(1)
+
+        delegate_filters.append('delegate=%s' % users[0]['id'])
+
+    url = '/'.join([server, 'api', '1.0', 'projects', CONF.project])
+    project_filter = 'project=%d' % _get_data(url).json()['id']
+
+    # TODO(stephenfin): Perhaps we could use string values. Refer to
+    # https://github.com/carltongibson/django-filter/pull/378
+    archived_filter = 'archived=%d' % (3 if archived else 1)
+
+    # FIXME(stephenfin): We're not currently supporting pagination. We must
+    # fix this.
+    qs = '&'.join(submitter_filters + delegate_filters + [archived_filter,
+                                                          project_filter])
+    url = '/'.join([server, 'api', '1.0', 'patches', '?%s' % qs])
+    patches = _get_data(url).json()
+
+    # Fetch matching users/people
+
+    people = {}
+    users = {}
+
+    for patch in patches:
+        if patch['submitter'] not in people:
+            subm = _get_data(patch['submitter']).json()
+            people[patch['submitter']] = '%s (%s)' % (
+                subm.get('name'), subm.get('email'))
+
+        patch['submitter'] = people[patch['submitter']]
+
+        if patch['delegate'] and patch['delegate'] not in users:
+            delg = _get_data(patch['delegate']).json()
+            users[patch['delegate']] = delg.get('username')
+        elif not patch['delegate']:
+            continue
+
+        patch['delegate'] = users[patch['delegate']]
+
+    # Format and print output
+
+    headers = ['ID', 'Date', 'Name', 'Submitter', 'State', 'Archived',
+               'Delegate', 'Commit Ref']
+
+    output = [[
+        patch.get('id'),
+        patch.get('date'),
+        patch.get('name'),
+        patch.get('submitter'),
+        patch.get('state'),
+        patch.get('archived'),
+        patch.get('delegate'),
+        patch.get('commit_ref'),
+    ] for patch in patches]
+
+    click.echo(tabulate(output, headers, tablefmt='psql'))
 
 
 cli.add_command(apply_cmd)
