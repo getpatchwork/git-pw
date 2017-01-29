@@ -44,6 +44,14 @@ pw.project
 
       https:://patchwork.ozlabs.org/project/{project_name}/list/
 
+pw.username
+
+  The username for your Patchwork account.
+
+pw.password
+
+  The password for your Patchwork account.
+
 The following settings are **optional**:
 
 pw.states
@@ -59,12 +67,12 @@ pw.api_server
    The URL for the Patchwork REST API root endpoint. This defaults to::
 
 
-       {server}/api/v1/
+       {server}/api/1.0/
 
    where ``{{server}}`` is the value of ``pw.server``. If defined, this should
    be an absolute URL. For example::
 
-       https://api.example.com/v1/
+       https://api.example.com/1.0/
 
 You can set these settings using the ``git config`` command. This should be
 done in the repo in which you intend to apply patches. For example, to
@@ -72,7 +80,7 @@ configure the Patchwork project, run:
 
 .. code-block:: bash
 
-   $ git config pw.server 'https://patchwork.ozlabs.org/api/v1/'
+   $ git config pw.server 'https://patchwork.ozlabs.org/api/1.0/'
    $ git config pw.project 'patchwork'
 
 Development

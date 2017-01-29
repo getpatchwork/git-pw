@@ -7,6 +7,7 @@ import sys
 
 import click
 import requests
+from tabulate import tabulate
 
 from git_pw import config
 from git_pw import logger
@@ -19,7 +20,25 @@ LOG = logger.LOG
 @click.option('--debug', default=False, is_flag=True,
               help="Output more information about what's going on.")
 def cli(debug):
+    """Interact with Patchwork instance."""
     logger.configure_verbosity(debug)
+
+
+def _get_data(url):
+    """Make GET request and handle errors."""
+    LOG.debug('Fetching: %s', url)
+
+    rsp = requests.get(url, auth=(CONF.username, CONF.password))
+    if rsp.status_code == 403:
+        LOG.error('Failed to fetch URL: Invalid credentials')
+        LOG.error('Is your git-config correct?')
+        sys.exit(1)
+    elif rsp.status_code != 200:
+        LOG.error('Failed to fetch URL: Invalid URL')
+        LOG.error('Is your git-config correct?')
+        sys.exit(1)
+
+    return rsp
 
 
 @click.command(name='apply')
@@ -42,12 +61,7 @@ def apply_cmd(patch_id, series, deps):
     if deps:
         url += '?include_deps'
 
-    LOG.debug('Fetching: %s', url)
-
-    rsp = requests.get(url)
-    if rsp.status_code != 200:
-        LOG.error('Failed to fetch patch. Is the URL correct?')
-        sys.exit(1)
+    rsp = _get_data(url)
 
     p = subprocess.Popen(['git', 'am', '-3'], stdin=subprocess.PIPE)
     p.communicate(rsp.content)
@@ -69,12 +83,7 @@ def download_cmd(patch_id, fmt):
     server = CONF.server.rstrip('/')
     url = '/'.join([server, 'patch', str(patch_id), fmt])
 
-    LOG.debug('Fetching: %s', url)
-
-    rsp = requests.get(url)
-    if rsp.status_code != 200:
-        LOG.error('Failed to fetch patch. Is the URL correct?')
-        sys.exit(1)
+    rsp = _get_data(url)
 
     click.echo_via_pager(rsp.text)
 
@@ -87,6 +96,36 @@ def show_cmd(patch_id):
     Retrieve Patchwork metadata for a patch.
     """
     LOG.debug('Showing patch: id=%d', patch_id)
+
+    # TODO(stephenfin): Support the 'api_server' config value
+    server = CONF.server.rstrip('/')
+    url = '/'.join([server, 'api', '1.0', 'patches', str(patch_id)])
+
+    # FIXME(stephenfin): Ideally we shouldn't have to make three requests
+    # to do this operation. Perhaps we should nest these fields in the
+    # response
+    patch = _get_data(url).json()
+    submitter = _get_data(patch['submitter']).json()
+    project = _get_data(patch['project']).json()
+    delegate = {}
+    if patch['delegate']:
+        delegate = _get_data(patch['delegate']).json()
+
+    output = [
+        ('ID', patch.get('id')),
+        ('Message ID', patch.get('msgid')),
+        ('Date', patch.get('date')),
+        ('Name', patch.get('name')),
+        ('Submitter', '%s (%s)' % (
+            submitter.get('name'), submitter.get('email'))),
+        ('State', patch.get('state')),
+        ('Archived', patch.get('archived')),
+        ('Project', project.get('name')),
+        ('Delegate', delegate.get('username')),
+        ('Commit Ref', patch.get('commit_ref'))]
+
+    # TODO(stephenfin): We might want to make this machine readable?
+    click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
 
 
 @click.command(name='update')
