@@ -9,14 +9,17 @@ import click
 import requests
 
 from git_pw import config
+from git_pw import logger
 
 CONF = config.CONF
+LOG = logger.LOG
 
 
 @click.group()
-def cli():
-    """Interact with Patchwork instance."""
-    pass
+@click.option('--debug', default=False, is_flag=True,
+              help="Output more information about what's going on.")
+def cli(debug):
+    logger.configure_verbosity(debug)
 
 
 @click.command(name='apply')
@@ -31,17 +34,19 @@ def apply_cmd(patch_id, series, deps):
 
     Apply a patch locally using the 'git-am' command.
     """
-    click.echo('Apply patch %d (series=%s, deps=%r)' % (
-        patch_id, series, deps))
+    LOG.info('Applying patch: id=%d, series=%s, deps=%r', patch_id, series,
+             deps)
 
     server = CONF.server.rstrip('/')
     url = '/'.join([server, 'patch', str(patch_id), 'mbox'])
     if deps:
         url += '?include_deps'
 
+    LOG.debug('Fetching: %s', url)
+
     rsp = requests.get(url)
     if rsp.status_code != 200:
-        click.echo('Failed to fetch patch. Is the URL correct?')
+        LOG.error('Failed to fetch patch. Is the URL correct?')
         sys.exit(1)
 
     p = subprocess.Popen(['git', 'am', '-3'], stdin=subprocess.PIPE)
@@ -57,17 +62,18 @@ def apply_cmd(patch_id, series, deps):
 def download_cmd(patch_id, fmt):
     """Download a patch diff/mbox.
 
-    Download a patch but do not apply it."""
-    click.echo('Download patch %d (format=%s)' % (patch_id, fmt))
+    Download a patch but do not apply it.
+    """
+    LOG.info('Downloading patch: id=%d, format=%s', patch_id, fmt)
 
     server = CONF.server.rstrip('/')
     url = '/'.join([server, 'patch', str(patch_id), fmt])
 
-    click.echo(url)
+    LOG.debug('Fetching: %s', url)
 
     rsp = requests.get(url)
     if rsp.status_code != 200:
-        click.echo('Failed to fetch patch. Is the URL correct?')
+        LOG.error('Failed to fetch patch. Is the URL correct?')
         sys.exit(1)
 
     click.echo_via_pager(rsp.text)
@@ -80,7 +86,7 @@ def show_cmd(patch_id):
 
     Retrieve Patchwork metadata for a patch.
     """
-    click.echo('Show patch %d' % (patch_id))
+    LOG.debug('Showing patch: id=%d', patch_id)
 
 
 @click.command(name='update')
@@ -98,8 +104,8 @@ def update_cmd(patch_id, commit_ref, state, archived):
     Updates a Patch on the Patchwork instance. Some operations may
     require admin or maintainer permissions.
     """
-    click.echo('Update patch %d (commit_ref=%s, state=%s, archived=%s)' % (
-        patch_id, commit_ref, state, archived))
+    LOG.info('Updating patch: id=%d, commit_ref=%s, state=%s, archived=%s',
+             patch_id, commit_ref, state, archived)
 
 
 @click.command(name='list')
@@ -120,9 +126,9 @@ def list_cmd(state, submitter, delegate, archived):
 
     List patches on the Patchwork instance.
     """
-    click.echo('List patches (states=%s, submitters=%s, delegates=%s, '
-               'archived=%r)' % (','.join(state), ','.join(submitter),
-                                 ','.join(delegate), archived))
+    LOG.info('List patches: states=%s, submitters=%s, delegates=%s, '
+             'archived=%r', ','.join(state), ','.join(submitter),
+             ','.join(delegate), archived)
 
 
 cli.add_command(apply_cmd)

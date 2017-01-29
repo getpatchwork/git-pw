@@ -4,9 +4,9 @@ Configuration loader using 'git-config'.
 
 import subprocess
 
-from git_pw import git
+from git_pw import logger
 
-
+LOG = logger.LOG
 # TODO(stephenfin): We should eventually download and store these
 # automagically
 DEFAULT_STATES = [
@@ -23,9 +23,13 @@ def _get_config(key):
     try:
         output = subprocess.check_output(['git', 'config', 'pw.%s' % key])
     except subprocess.CalledProcessError:
-        output = None
+        output = ''
 
-    return output.strip()
+    output = output.strip()
+
+    LOG.debug('Reading option from git-config: pw.%s=%s', key, output)
+
+    return output
 
 
 class Config(object):
