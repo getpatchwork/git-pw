@@ -61,3 +61,6 @@ target/
 # pbr
 AUTHORS
 ChangeLog
+
+# virtualenv
+/.venv
