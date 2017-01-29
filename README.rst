@@ -93,7 +93,7 @@ If you're interested in contributing to git-pw, first clone the repo:
    $ git clone https://github.com/stephenfin/git-pw
    $ cd git-pw
 
-Create a virtualenv, then install the package in `editable`__ mode::
+Create a virtualenv, then install the package in `editable`__ mode:
 
 .. code-block:: bash
 
