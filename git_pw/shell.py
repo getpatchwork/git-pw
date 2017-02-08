@@ -237,7 +237,10 @@ def update_cmd(patch_id, commit_ref, state, delegate, archived):
 @click.option('--page', metavar='PAGE', type=click.INT,
               help='Page to retrieve patches from. This is influenced by the '
               'size of LIMIT.')
-def list_cmd(state, submitter, delegate, archived, limit, page):
+@click.option('--sort', metavar='FIELD', default='-date', type=click.Choice(
+                  ['id', '-id', 'name', '-name', 'date', '-date']),
+              help='Sort output on given field.')
+def list_cmd(state, submitter, delegate, archived, limit, page, sort):
     """List patches.
 
     List patches on the Patchwork instance.
@@ -288,9 +291,11 @@ def list_cmd(state, submitter, delegate, archived, limit, page):
 
     page_filter = 'page=%s' % page if page else ''
     per_page_filter = 'per_page=%s' % limit if limit else ''
+    order_filter = 'order=%s' % sort
 
     qs = '&'.join(submitter_filters + delegate_filters + [
-        archived_filter, project_filter, page_filter, per_page_filter])
+        archived_filter, project_filter, page_filter, per_page_filter,
+        order_filter])
     url = '/'.join([server, 'api', '1.0', 'patches', '?%s' % qs])
     patches = _get_data(url).json()
 
