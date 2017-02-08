@@ -232,7 +232,12 @@ def update_cmd(patch_id, commit_ref, state, delegate, archived):
               'email or username.')
 @click.option('--archived', default=False, is_flag=True,
               help='Include patches that are archived.')
-def list_cmd(state, submitter, delegate, archived):
+@click.option('--limit', metavar='LIMIT', type=click.INT,
+              help='Maximum number of patches to show.')
+@click.option('--page', metavar='PAGE', type=click.INT,
+              help='Page to retrieve patches from. This is influenced by the '
+              'size of LIMIT.')
+def list_cmd(state, submitter, delegate, archived, limit, page):
     """List patches.
 
     List patches on the Patchwork instance.
@@ -281,10 +286,11 @@ def list_cmd(state, submitter, delegate, archived):
     # https://github.com/carltongibson/django-filter/pull/378
     archived_filter = 'archived=%d' % (3 if archived else 1)
 
-    # FIXME(stephenfin): We're not currently supporting pagination. We must
-    # fix this.
-    qs = '&'.join(submitter_filters + delegate_filters + [archived_filter,
-                                                          project_filter])
+    page_filter = 'page=%s' % page if page else ''
+    per_page_filter = 'per_page=%s' % limit if limit else ''
+
+    qs = '&'.join(submitter_filters + delegate_filters + [
+        archived_filter, project_filter, page_filter, per_page_filter])
     url = '/'.join([server, 'api', '1.0', 'patches', '?%s' % qs])
     patches = _get_data(url).json()
 
