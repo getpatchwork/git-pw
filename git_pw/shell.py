@@ -5,12 +5,14 @@ TODO.
 import subprocess
 import sys
 
+import arrow
 import click
 import requests
 from tabulate import tabulate
 
 from git_pw import config
 from git_pw import logger
+from git_pw import utils
 
 CONF = config.CONF
 LOG = logger.LOG
@@ -323,20 +325,19 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort):
     # Format and print output
 
     headers = ['ID', 'Date', 'Name', 'Submitter', 'State', 'Archived',
-               'Delegate', 'Commit Ref']
+               'Delegate']
 
     output = [[
         patch.get('id'),
-        patch.get('date'),
-        patch.get('name'),
+        arrow.get(patch.get('date')).humanize(),
+        utils.trim(patch.get('name')),
         patch.get('submitter'),
         patch.get('state'),
-        patch.get('archived'),
+        'yes' if patch.get('archived') else 'no',
         patch.get('delegate'),
-        patch.get('commit_ref'),
     ] for patch in patches]
 
-    click.echo(tabulate(output, headers, tablefmt='psql'))
+    click.echo_via_pager(tabulate(output, headers, tablefmt='psql'))
 
 
 cli.add_command(apply_cmd)

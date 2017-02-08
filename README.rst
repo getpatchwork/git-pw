@@ -30,13 +30,13 @@ On Fedora, run:
 
 .. code-block:: bash
 
-   $ sudo dnf install python-requests python-click python-pbr
+   $ sudo dnf install python-requests python-click python-pbr python-arrow
 
 On Ubuntu, run:
 
 .. code-block:: bash
 
-   $ sudo apt-get install python-requests python-click python-pbr
+   $ sudo apt-get install python-requests python-click python-pbr python-arrow
 
 Once dependencies are installed, clone this repo and run ``setup.py``:
 
