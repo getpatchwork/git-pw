@@ -30,6 +30,10 @@ var/
 *.manifest
 *.spec
 
+# SublimeText
+*.sublime-project
+*.sublime-workspace
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
