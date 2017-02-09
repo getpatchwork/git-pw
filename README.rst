@@ -74,28 +74,6 @@ pw.password
 
   The password for your Patchwork account.
 
-The following settings are **optional**:
-
-pw.states
-
-  A comma-separated list of slugified patch states. This defaults to the
-  default Patchwork states::
-
-      new,under-review,accepted,rejected,rfc,not-applicable,changes-requested,
-      awaiting-upstream,superseded,deferred
-
-pw.api_server
-
-   The URL for the Patchwork REST API root endpoint. This defaults to::
-
-
-       {server}/api/1.0/
-
-   where ``{{server}}`` is the value of ``pw.server``. If defined, this should
-   be an absolute URL. For example::
-
-       https://api.example.com/1.0/
-
 You can set these settings using the ``git config`` command. This should be
 done in the repo in which you intend to apply patches. For example, to
 configure the Patchwork project, run:
