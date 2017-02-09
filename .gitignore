@@ -68,3 +68,6 @@ ChangeLog
 
 # virtualenv
 /.venv
+
+# man pages
+/man
