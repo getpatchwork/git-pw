@@ -7,9 +7,9 @@ import sys
 
 import arrow
 import click
-import requests
 from tabulate import tabulate
 
+from git_pw import api
 from git_pw import config
 from git_pw import logger
 from git_pw import utils
@@ -24,40 +24,6 @@ LOG = logger.LOG
 def cli(debug):
     """Interact with Patchwork instance."""
     logger.configure_verbosity(debug)
-
-
-def _get_data(url):
-    """Make GET request and handle errors."""
-    LOG.debug('Fetching: %s', url)
-
-    rsp = requests.get(url, auth=(CONF.username, CONF.password))
-    if rsp.status_code == 403:
-        LOG.error('Failed to fetch resource: Invalid credentials')
-        LOG.error('Is your git-config correct?')
-        sys.exit(1)
-    elif rsp.status_code != 200:
-        LOG.error('Failed to fetch resource: Invalid URL')
-        LOG.error('Is your git-config correct?')
-        sys.exit(1)
-
-    return rsp
-
-
-def _patch_data(url, data):
-    """Make PUT request and handle errors."""
-    LOG.debug('Putting: %s, data=%r', url, data)
-
-    rsp = requests.patch(url, auth=(CONF.username, CONF.password), data=data)
-    if rsp.status_code == 403:
-        LOG.error('Failed to update resource: Invalid credentials')
-        LOG.error('Is your git-config correct?')
-        sys.exit(1)
-    elif rsp.status_code != 200:
-        LOG.error('Failed to update resource: Invalid URL')
-        LOG.error('Is your git-config correct?')
-        sys.exit(1)
-
-    return rsp
 
 
 @click.command(name='apply')
@@ -75,33 +41,23 @@ def apply_cmd(patch_id, series, deps):
     LOG.info('Applying patch: id=%d, series=%s, deps=%r', patch_id, series,
              deps)
 
-    server = CONF.server.rstrip('/')
-    url = '/'.join([server, 'api', '1.0', 'patches', str(patch_id)])
+    patch = api.get_detail('patches', patch_id)
 
-    patch = _get_data(url).json()
-
-    if not series and patch.get('series'):
-        # latest series
-        series = _get_data(patch['series'][-1]).json()
-    elif series:
-        url = '/'.join([server, 'api', '1.0', 'series', str(series_id)])
-        series = _get_data(url).json()
-
+    series = None
     if series:
-        url = '?'.join([patch['mbox'], 'series=%d' % series['id']])
-    else:
-        url = patch['mbox']
+        series = api.get_detail('series', series)
+    elif patch.get('series'):
+        series = api.get(patch['series'][-1]).json()
 
-    LOG.debug('Fetching: %s', url)
-    mbox = requests.get(url).content
+    mbox = api.get(patch['mbox'], {'series': series}).content
 
     p = subprocess.Popen(['git', 'am', '-3'], stdin=subprocess.PIPE)
-    p.communicate(rsp)
+    p.communicate(mbox)
 
 
 @click.command(name='download')
 @click.argument('patch_id', type=click.INT)
-@click.option('--diff', 'fmt', flag_value='raw', default=True,
+@click.option('--diff', 'fmt', flag_value='diff', default=True,
               help='Show patch in diff format.')
 @click.option('--mbox', 'fmt', flag_value='mbox',
               help='Show patch in mbox format.')
@@ -112,16 +68,12 @@ def download_cmd(patch_id, fmt):
     """
     LOG.info('Downloading patch: id=%d, format=%s', patch_id, fmt)
 
-    server = CONF.server.rstrip('/')
-    url = '/'.join([server, 'api', '1.0', 'patches', str(patch_id)])
-
-    patch = _get_data(url).json()
+    patch = api.get_detail('patches', patch_id)
 
     if fmt == 'diff':
         output = patch['diff']
     else:
-        LOG.debug('Fetching: %s', url)
-        output = requests.get(patch['mbox']).text
+        output = api.get(patch['mbox']).text
 
     click.echo_via_pager(output)
 
@@ -135,19 +87,14 @@ def show_cmd(patch_id):
     """
     LOG.debug('Showing patch: id=%d', patch_id)
 
-    # FIXME(stephenfin): Support the 'api_server' config value
-    server = CONF.server.rstrip('/')
-    url = '/'.join([server, 'api', '1.0', 'patches', str(patch_id)])
-
-    # TODO(stephenfin): Ideally we shouldn't have to make three requests
-    # to do this operation. Perhaps we should nest these fields in the
-    # response
-    patch = _get_data(url).json()
-    submitter = _get_data(patch['submitter']).json()
-    project = _get_data(patch['project']).json()
+    # TODO(stephenfin): Ideally we shouldn't have to make three requests to do
+    # this operation. Perhaps we should nest these fields in the response
+    patch = api.get_detail('patches', patch_id)
+    submitter = api.get(patch['submitter']).json()
+    project = api.get(patch['project']).json()
     delegate = {}
     if patch['delegate']:
-        delegate = _get_data(patch['delegate']).json()
+        delegate = api.get(patch['delegate']).json()
 
     output = [
         ('ID', patch.get('id')),
@@ -187,12 +134,8 @@ def update_cmd(patch_id, commit_ref, state, delegate, archived):
     LOG.info('Updating patch: id=%d, commit_ref=%s, state=%s, archived=%s',
              patch_id, commit_ref, state, archived)
 
-    # FIXME(stephenfin): Support the 'api_server' config value
-    server = CONF.server.rstrip('/')
-
     if delegate:
-        url = '/'.join([server, 'api', '1.0', 'users', '?q=%s' % delegate])
-        users = _get_data(url).json()
+        users = api.get_list('users', {'q': delegate})
         if len(users) == 0:
             LOG.error('No matching delegates found: %s', delegate)
             sys.exit(1)
@@ -202,7 +145,6 @@ def update_cmd(patch_id, commit_ref, state, delegate, archived):
 
         delegate = users[0]['id']
 
-    url = '/'.join([server, 'api', '1.0', 'patches', str(patch_id), ''])
     data = {}
     for key, value in [('commit_ref', commit_ref), ('state', state),
                        ('archived', archived), ('delegate', delegate)]:
@@ -211,17 +153,21 @@ def update_cmd(patch_id, commit_ref, state, delegate, archived):
 
         data[key] = str(value)
 
-    patch = _patch_data(url, data).json()
+    data = [('commit_ref', commit_ref), ('state', state),
+            ('archived', archived), ('delegate', delegate)]
+
+    patch = api.update('patches', patch_id, data)
 
     # TODO(stephenfin): Ideally we shouldn't have to make three requests
     # to do this operation. Perhaps we should nest these fields in the
     # response
-    submitter = _get_data(patch['submitter']).json()
-    project = _get_data(patch['project']).json()
-    if not delegate:
+    submitter = api.get(patch['submitter']).json()
+    project = api.get(patch['project']).json()
+    if patch['delegate'] and not delegate:
+        # only fetch delegate if we haven't done so already
+        delegate = api.get(patch['delegate']).json()
+    elif not delegate:
         delegate = {}
-        if patch['delegate']:
-            delegate = _get_data(patch['delegate']).json()
 
     output = [
         ('ID', patch.get('id')),
@@ -270,17 +216,12 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort):
              'archived=%r', ','.join(state), ','.join(submitter),
              ','.join(delegate), archived)
 
-    # FIXME(stephenfin): Support the 'api_server' config value
-    server = CONF.server.rstrip('/')
-
-    # Generate filter strings
+    params = []
 
     # TODO(stephenfin): It should be possible to filter patches by project
     # using the project list-id, submitters by email
-    submitter_filters = []
     for subm in submitter:
-        url = '/'.join([server, 'api', '1.0', 'people', '?q=%s' % subm])
-        people = _get_data(url).json()
+        people = api.get_list('people', {'q': subm})
         if len(people) == 0:
             LOG.error('No matching submitter found: %s', subm)
             sys.exit(1)
@@ -288,12 +229,10 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort):
             LOG.error('More than one submitter found: %s', subm)
             sys.exit(1)
 
-        submitter_filters.append('submitter=%d' % people[0]['id'])
+        params.append(('submitter', people[0]['id']))
 
-    delegate_filters = []
     for delg in delegate:
-        url = '/'.join([server, 'api', '1.0', 'users', '?q=%s' % delg])
-        users = _get_data(url).json()
+        users = api.get_list('users', {'q': delg})
         if len(users) == 0:
             LOG.error('No matching delegates found: %s', delg)
             sys.exit(1)
@@ -301,24 +240,21 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort):
             LOG.error('More than one delegate found: %s', delg)
             sys.exit(1)
 
-        delegate_filters.append('delegate=%s' % users[0]['id'])
+        params.append(('delegate', users[0]['id']))
 
-    url = '/'.join([server, 'api', '1.0', 'projects', CONF.project])
-    project_filter = 'project=%d' % _get_data(url).json()['id']
+    project = api.get_detail('projects', CONF.project)
 
-    # TODO(stephenfin): Perhaps we could use string values. Refer to
-    # https://github.com/carltongibson/django-filter/pull/378
-    archived_filter = 'archived=%d' % (3 if archived else 1)
+    params.extend([
+        ('project', project['id']),
+        # TODO(stephenfin): Perhaps we could use string values. Refer to
+        # https://github.com/carltongibson/django-filter/pull/378
+        ('archived', 3 if archived else 1),
+        ('page', page),
+        ('per_page', limit),
+        ('order', sort),
+    ])
 
-    page_filter = 'page=%s' % page if page else ''
-    per_page_filter = 'per_page=%s' % limit if limit else ''
-    order_filter = 'order=%s' % sort
-
-    qs = '&'.join(submitter_filters + delegate_filters + [
-        archived_filter, project_filter, page_filter, per_page_filter,
-        order_filter])
-    url = '/'.join([server, 'api', '1.0', 'patches', '?%s' % qs])
-    patches = _get_data(url).json()
+    patches = api.get_list('patches', params)
 
     # Fetch matching users/people
 
@@ -327,17 +263,18 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort):
 
     for patch in patches:
         if patch['submitter'] not in people:
-            subm = _get_data(patch['submitter']).json()
+            subm = api.get(patch['submitter']).json()
             people[patch['submitter']] = '%s (%s)' % (
                 subm.get('name'), subm.get('email'))
 
         patch['submitter'] = people[patch['submitter']]
 
-        if patch['delegate'] and patch['delegate'] not in users:
-            delg = _get_data(patch['delegate']).json()
-            users[patch['delegate']] = delg.get('username')
-        elif not patch['delegate']:
+        if not patch['delegate']:
             continue
+
+        if patch['delegate'] not in users:
+            delg = api.get(patch['delegate']).json()
+            users[patch['delegate']] = delg.get('username')
 
         patch['delegate'] = users[patch['delegate']]
 
