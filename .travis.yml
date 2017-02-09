@@ -11,4 +11,4 @@ python:
 install:
   - pip install tox-travis
 script:
-  - tox
+  - tox -e pep8
