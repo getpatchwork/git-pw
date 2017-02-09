@@ -18,11 +18,33 @@ __ http://jk.ozlabs.org/projects/patchwork/
 Installation
 ------------
 
-To install ``git-pw``, use ``pip``:
+The easiest way to install git-pw and its dependencies is using ``pip``. To do
+so, run:
 
 .. code-block:: bash
 
    $ pip install git-pw
+
+You can also install git-pw manually. First, install the required dependencies.
+On Fedora, run:
+
+.. code-block:: bash
+
+   $ sudo dnf install python-requests python-click python-pbr
+
+On Ubuntu, run:
+
+.. code-block:: bash
+
+   $ sudo apt-get install python-requests python-click python-pbr
+
+Once dependencies are installed, clone this repo and run ``setup.py``:
+
+.. code-block:: bash
+
+   $ git clone https://github.com/stephenfin/git-pw
+   $ cd git-pw
+   $ sudo python setup.py
 
 Getting Started
 ---------------
@@ -102,6 +124,16 @@ Create a virtualenv, then install the package in `editable`__ mode:
    $ pip install --editable .
 
 __ https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs
+
+TODO
+----
+
+- Add support for environment variables for username/password
+- Support ``pw.api_server``
+- General cleanup
+- Allow passthrough of options to ``git-am`` (``git-pw apply``)
+- Handle additional error codes, such as 5xx
+- Add support for Python3, if necessary
 
 Documentation
 -------------
