@@ -76,14 +76,27 @@ def apply_cmd(patch_id, series, deps):
              deps)
 
     server = CONF.server.rstrip('/')
-    url = '/'.join([server, 'patch', str(patch_id), 'mbox'])
-    if deps:
-        url += '?include_deps'
+    url = '/'.join([server, 'api', '1.0', 'patches', str(patch_id)])
 
-    rsp = _get_data(url)
+    patch = _get_data(url).json()
+
+    if not series and patch.get('series'):
+        # latest series
+        series = _get_data(patch['series'][-1]).json()
+    elif series:
+        url = '/'.join([server, 'api', '1.0', 'series', str(series_id)])
+        series = _get_data(url).json()
+
+    if series:
+        url = '?'.join([patch['mbox'], 'series=%d' % series['id']])
+    else:
+        url = patch['mbox']
+
+    LOG.debug('Fetching: %s', url)
+    mbox = requests.get(url).content
 
     p = subprocess.Popen(['git', 'am', '-3'], stdin=subprocess.PIPE)
-    p.communicate(rsp.content)
+    p.communicate(rsp)
 
 
 @click.command(name='download')
@@ -100,11 +113,17 @@ def download_cmd(patch_id, fmt):
     LOG.info('Downloading patch: id=%d, format=%s', patch_id, fmt)
 
     server = CONF.server.rstrip('/')
-    url = '/'.join([server, 'patch', str(patch_id), fmt])
+    url = '/'.join([server, 'api', '1.0', 'patches', str(patch_id)])
 
-    rsp = _get_data(url)
+    patch = _get_data(url).json()
 
-    click.echo_via_pager(rsp.text)
+    if fmt == 'diff':
+        output = patch['diff']
+    else:
+        LOG.debug('Fetching: %s', url)
+        output = requests.get(patch['mbox']).text
+
+    click.echo_via_pager(output)
 
 
 @click.command(name='show')
