@@ -25,13 +25,14 @@ LOG = logger.LOG
 @click.option('--deps/--no-deps', default=True,
               help='When applying the patch, include dependencies if '
               'available. Defaults to using the most recent series.')
-def apply_cmd(patch_id, series, deps):
+@click.argument('args', nargs=-1)
+def apply_cmd(patch_id, series, deps, args):
     """Apply patch.
 
     Apply a patch locally using the 'git-am' command.
     """
-    LOG.info('Applying patch: id=%d, series=%s, deps=%r', patch_id, series,
-             deps)
+    LOG.info('Applying patch: id=%d, series=%s, deps=%r, args=%s', patch_id,
+             series, deps, ' '.join(args))
 
     patch = api.detail('patches', patch_id)
 
@@ -43,7 +44,13 @@ def apply_cmd(patch_id, series, deps):
 
     mbox = api.get(patch['mbox'], {'series': series}).content
 
-    p = subprocess.Popen(['git', 'am', '-3'], stdin=subprocess.PIPE)
+    cmd = ['git', 'am']
+    if args:
+        cmd.extend(args)
+    else:
+        cmd.append('-3')
+
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     p.communicate(mbox)
 
 

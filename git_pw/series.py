@@ -20,17 +20,24 @@ LOG = logger.LOG
 
 @click.command(name='apply')
 @click.argument('series_id', type=click.INT)
-def apply_cmd(series_id):
+@click.argument('args', nargs=-1)
+def apply_cmd(series_id, args):
     """Apply series.
 
     Apply a series locally using the 'git-am' command.
     """
-    LOG.info('Applying series: id=%d', series_id)
+    LOG.info('Applying series: id=%d, args=%s', series_id, ' '.join(args))
 
     series = api.detail('series', series_id)
     mbox = api.get(series['mbox']).text
 
-    p = subprocess.Popen(['git', 'am', '-3'], stdin=subprocess.PIPE)
+    cmd = ['git', 'am']
+    if args:
+        cmd.extend(args)
+    else:
+        cmd.append('-3')
+
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     p.communicate(mbox)
 
 

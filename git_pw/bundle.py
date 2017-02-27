@@ -19,7 +19,8 @@ LOG = logger.LOG
 
 @click.command(name='apply')
 @click.argument('bundle_id', type=click.INT)
-def apply_cmd(bundle_id):
+@click.argument('args', nargs=-1)
+def apply_cmd(bundle_id, args):
     """Apply bundle.
 
     Apply a bundle locally using the 'git-am' command.
@@ -29,7 +30,13 @@ def apply_cmd(bundle_id):
     bundle = api.detail('bundles', bundle_id)
     mbox = api.get(bundle['mbox']).text
 
-    p = subprocess.Popen(['git', 'am', '-3'], stdin=subprocess.PIPE)
+    cmd = ['git', 'am']
+    if args:
+        cmd.extend(args)
+    else:
+        cmd.append('-3')
+
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     p.communicate(mbox)
 
 
