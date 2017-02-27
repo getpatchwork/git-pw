@@ -41,11 +41,11 @@ def apply_cmd(patch_id, series, deps):
     LOG.info('Applying patch: id=%d, series=%s, deps=%r', patch_id, series,
              deps)
 
-    patch = api.get_detail('patches', patch_id)
+    patch = api.detail('patches', patch_id)
 
     series = None
     if series:
-        series = api.get_detail('series', series)
+        series = api.detail('series', series)
     elif patch.get('series'):
         series = api.get(patch['series'][-1]).json()
 
@@ -68,7 +68,7 @@ def download_cmd(patch_id, fmt):
     """
     LOG.info('Downloading patch: id=%d, format=%s', patch_id, fmt)
 
-    patch = api.get_detail('patches', patch_id)
+    patch = api.detail('patches', patch_id)
 
     if fmt == 'diff':
         output = patch['diff']
@@ -89,7 +89,7 @@ def show_cmd(patch_id):
 
     # TODO(stephenfin): Ideally we shouldn't have to make three requests to do
     # this operation. Perhaps we should nest these fields in the response
-    patch = api.get_detail('patches', patch_id)
+    patch = api.detail('patches', patch_id)
     submitter = api.get(patch['submitter']).json()
     project = api.get(patch['project']).json()
     delegate = {}
@@ -135,7 +135,7 @@ def update_cmd(patch_id, commit_ref, state, delegate, archived):
              patch_id, commit_ref, state, archived)
 
     if delegate:
-        users = api.get_list('users', {'q': delegate})
+        users = api.index('users', {'q': delegate})
         if len(users) == 0:
             LOG.error('No matching delegates found: %s', delegate)
             sys.exit(1)
@@ -221,7 +221,7 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort):
     # TODO(stephenfin): It should be possible to filter patches by project
     # using the project list-id, submitters by email
     for subm in submitter:
-        people = api.get_list('people', {'q': subm})
+        people = api.index('people', {'q': subm})
         if len(people) == 0:
             LOG.error('No matching submitter found: %s', subm)
             sys.exit(1)
@@ -232,7 +232,7 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort):
         params.append(('submitter', people[0]['id']))
 
     for delg in delegate:
-        users = api.get_list('users', {'q': delg})
+        users = api.index('users', {'q': delg})
         if len(users) == 0:
             LOG.error('No matching delegates found: %s', delg)
             sys.exit(1)
@@ -242,7 +242,7 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort):
 
         params.append(('delegate', users[0]['id']))
 
-    project = api.get_detail('projects', CONF.project)
+    project = api.detail('projects', CONF.project)
 
     params.extend([
         ('project', project['id']),
@@ -254,7 +254,7 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort):
         ('order', sort),
     ])
 
-    patches = api.get_list('patches', params)
+    patches = api.index('patches', params)
 
     # Fetch matching users/people
 

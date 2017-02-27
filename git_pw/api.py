@@ -48,7 +48,7 @@ def put(url, data):
     return rsp.json()
 
 
-def get_list(resource_type, params=None):
+def index(resource_type, params=None):
     """List API resources.
 
     GET /{resource}/
@@ -69,7 +69,7 @@ def get_list(resource_type, params=None):
     return get(url, params).json()
 
 
-def get_detail(resource_type, resource_id, params=None):
+def detail(resource_type, resource_id, params=None):
     """Retrieve a specific API resource.
 
     GET /{resource}/{resourceID}/
