@@ -36,11 +36,10 @@ def apply_cmd(patch_id, series, deps, args):
 
     patch = api.detail('patches', patch_id)
 
-    series = None
-    if series:
-        series = api.detail('series', series)
-    elif patch.get('series'):
-        series = api.get(patch['series'][-1]).json()
+    if deps and not series:
+        series = '*'
+    elif not deps:
+        series = None
 
     mbox = api.get(patch['mbox'], {'series': series}).content
 
