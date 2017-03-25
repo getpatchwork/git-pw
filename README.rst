@@ -111,9 +111,6 @@ TODO
 ----
 
 - Add support for environment variables for username/password
-- Support ``pw.api_server``
-- General cleanup
-- Allow passthrough of options to ``git-am`` (``git-pw apply``)
 - Handle additional error codes, such as 5xx
 - Add support for Python3, if necessary
 
