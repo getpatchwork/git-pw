@@ -1,0 +1,4 @@
+---
+prelude: >
+    Initial release of `git-pw` using the new REST API provided in Patchwork
+    2.0
