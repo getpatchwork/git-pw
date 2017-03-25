@@ -2,6 +2,9 @@
 git-pw
 ======
 
+.. NOTE: If editing this, be sure to update the line numbers in
+     'doc/source/introduction'
+
 .. image:: https://badge.fury.io/py/git-pw.svg
    :target: https://badge.fury.io/py/git-pw
    :alt: PyPi Status

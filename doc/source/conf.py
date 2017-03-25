@@ -6,7 +6,7 @@
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
-# needs_sphinx = '1.0'
+needs_sphinx = '1.5'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -57,6 +57,8 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+# A list of warning types to suppress arbitrary warning messages.
+suppress_warnings = ['image.nonlocal_uri']
 
 # -- Options for HTML output ----------------------------------------------
 
