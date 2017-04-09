@@ -93,7 +93,8 @@ def show_cmd(series_id):
 @click.option('--sort', metavar='FIELD', default='-date', type=click.Choice(
                   ['id', '-id', 'name', '-name', 'date', '-date']),
               help='Sort output on given field.')
-def list_cmd(submitter, limit, page, sort):
+@click.argument('name', required=False)
+def list_cmd(submitter, limit, page, sort, name):
     """List series.
 
     List series on the Patchwork instance.
@@ -119,6 +120,7 @@ def list_cmd(submitter, limit, page, sort):
     project = api.detail('projects', CONF.project)
 
     params.extend([
+        ('q', name),
         ('project', project['id']),
         ('page', page),
         ('per_page', limit),

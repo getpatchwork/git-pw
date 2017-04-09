@@ -91,7 +91,8 @@ def show_cmd(bundle_id):
 @click.option('--sort', metavar='FIELD', default='name', type=click.Choice(
                   ['id', '-id', 'name', '-name']),
               help='Sort output on given field.')
-def list_cmd(owner, limit, page, sort):
+@click.argument('name', required=False)
+def list_cmd(owner, limit, page, sort, name):
     """List bundles.
 
     List bundles on the Patchwork instance.
@@ -117,6 +118,7 @@ def list_cmd(owner, limit, page, sort):
     project = api.detail('projects', CONF.project)
 
     params.extend([
+        ('q', name),
         ('project', project['id']),
         ('page', page),
         ('per_page', limit),

@@ -205,7 +205,8 @@ def update_cmd(patch_id, commit_ref, state, delegate, archived):
 @click.option('--sort', metavar='FIELD', default='-date', type=click.Choice(
                   ['id', '-id', 'name', '-name', 'date', '-date']),
               help='Sort output on given field.')
-def list_cmd(state, submitter, delegate, archived, limit, page, sort):
+@click.argument('name', required=False)
+def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
     """List patches.
 
     List patches on the Patchwork instance.
@@ -243,6 +244,7 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort):
     project = api.detail('projects', CONF.project)
 
     params.extend([
+        ('q', name),
         ('project', project['id']),
         # TODO(stephenfin): Perhaps we could use string values. Refer to
         # https://github.com/carltongibson/django-filter/pull/378
