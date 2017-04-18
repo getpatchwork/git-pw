@@ -66,6 +66,36 @@ def bundle():
     pass
 
 
+@cli.group()
+def help():
+    """git-pw is a tool for integrating Git with `Patchwork`
+
+    To use git-pw, you must set up your environment by configuring your
+    patchwork server url, your username, and your password.  The git-pw
+    utility is a wrapper which makes REST calls to the patchwork service.
+
+    Configuring the patchwork url:
+
+      git config pw.server http://pw.server.com/path/to/patchwork
+
+    Configuring username:\n
+
+      git config pw.username userid
+
+    Configuring password:
+
+      git config pw.password pass
+
+    git-pw can interact with individual patches, complete patch series, and
+    customized bundles.  The three major subcommands are *patch*, *bundle*,
+    and *series*.
+
+    For more information on any of these commands, simply pass --help to the
+    appropriate command.
+    """
+    pass
+
+
 patch.add_command(patch_cmds.apply_cmd)
 patch.add_command(patch_cmds.show_cmd)
 patch.add_command(patch_cmds.download_cmd)
