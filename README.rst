@@ -83,7 +83,7 @@ pw.project
   The project name or list-id. This will appear in the URL when using the web
   UI::
 
-      https:://patchwork.ozlabs.org/project/{project_name}/list/
+      https://patchwork.ozlabs.org/project/{project_name}/list/
 
 pw.username
 
