@@ -17,7 +17,7 @@ git-pw
    :target: https://travis-ci.org/stephenfin/git-pw
    :alt: Build Status
 
-git-pw is a tool for integrating Git with `Patchwork`__, the web-based patch
+`git-pw` is a tool for integrating Git with `Patchwork`__, the web-based patch
 tracking system.
 
 .. important::
@@ -35,15 +35,15 @@ __ https://patchwork.ozlabs.org/help/pwclient/
 Installation
 ------------
 
-The easiest way to install git-pw and its dependencies is using ``pip``. To do
-so, run:
+The easiest way to install `git-pw` and its dependencies is using ``pip``. To
+do so, run:
 
 .. code-block:: bash
 
    $ pip install git-pw
 
-You can also install git-pw manually. First, install the required dependencies.
-On Fedora, run:
+You can also install `git-pw` manually. First, install the required
+dependencies.  On Fedora, run:
 
 .. code-block:: bash
 
@@ -103,7 +103,7 @@ configure the Patchwork project, run:
 Development
 -----------
 
-If you're interested in contributing to git-pw, first clone the repo:
+If you're interested in contributing to `git-pw`, first clone the repo:
 
 .. code-block:: bash
 
