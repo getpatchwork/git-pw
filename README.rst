@@ -3,7 +3,7 @@ git-pw
 ======
 
 .. NOTE: If editing this, be sure to update the line numbers in
-     'doc/source/introduction'
+     'doc/introduction'
 
 .. image:: https://badge.fury.io/py/git-pw.svg
    :target: https://badge.fury.io/py/git-pw
@@ -20,7 +20,17 @@ git-pw
 git-pw is a tool for integrating Git with `Patchwork`__, the web-based patch
 tracking system.
 
+.. important::
+
+   `git-pw` only supports Patchwork 2.0+ and REST API support must be enabled
+   on the server end. You can check for support by browsing `/about` for your
+   given instance. If this page returns a 404, you are using Patchwork < 2.0.
+
+   The `pwclient`__ utility can be used to interact with older Patchwork
+   instances or instances with the REST API disabled.
+
 __ http://jk.ozlabs.org/projects/patchwork/
+__ https://patchwork.ozlabs.org/help/pwclient/
 
 Installation
 ------------
