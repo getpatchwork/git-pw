@@ -26,12 +26,33 @@ CONF = config.CONF
               help='Patchwork project.')
 @click.version_option()
 def cli(debug, username, password, server, project):
-    """Interact with a Patchwork instance.
+    """git-pw is a tool for integrating Git with Patchwork.
 
-    Patchwork is a patch tracking system for community-based projects.
-    It is intended to make the patch management process easier for both
-    the project's contributors and maintainers, leaving time for the
-    more important (and more interesting) stuff.
+    git-pw can interact with individual patches, complete patch series, and
+    customized bundles.  The three major subcommands are *patch*, *bundle*,
+    and *series*.
+
+    The git-pw utility is a wrapper which makes REST calls to the Patchwork
+    service. To use git-pw, you must set up your environment by configuring
+    your Patchwork server URL, username, and password.
+
+    Configuring the patchwork URL:
+
+      git config pw.server http://pw.server.com/path/to/patchwork
+
+    Configuring username:
+
+      git config pw.username userid
+
+    Configuring password:
+
+      git config pw.password pass
+
+    Alternatively, you can pass these options via command line parameters or
+    environment variables.
+
+    For more information on any of the commands, simply pass '--help' to the
+    appropriate command.
     """
     logger.configure_verbosity(debug)
 
