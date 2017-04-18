@@ -3,6 +3,7 @@ Configuration loader using 'git-config'.
 """
 
 import subprocess
+import os
 
 from git_pw import logger
 
@@ -24,6 +25,9 @@ def _get_config(key):
         output = subprocess.check_output(['git', 'config', 'pw.%s' % key])
     except subprocess.CalledProcessError:
         output = ''
+
+    if os.environ.get('PW_%s' % key.upper()) is not None:
+        output = os.environ.get('PW_%s' % key.upper())
 
     output = output.strip()
 

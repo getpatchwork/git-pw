@@ -115,7 +115,6 @@ __ https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs
 TODO
 ----
 
-- Add support for environment variables for username/password
 - Handle additional error codes, such as 5xx
 - Add support for Python3, if necessary
 
