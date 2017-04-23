@@ -23,7 +23,7 @@ tracking system.
 .. important::
 
    `git-pw` only supports Patchwork 2.0+ and REST API support must be enabled
-   on the server end. You can check for support by browsing `/about` for your
+   on the server end. You can check for support by browsing ``/about`` for your
    given instance. If this page returns a 404, you are using Patchwork < 2.0.
 
    The `pwclient`__ utility can be used to interact with older Patchwork
