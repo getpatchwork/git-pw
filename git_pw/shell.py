@@ -13,6 +13,7 @@ from git_pw import series as series_cmds
 @click.group()
 @click.option('--debug', default=False, is_flag=True,
               help="Output more information about what's going on.")
+@click.version_option()
 def cli(debug):
     """Interact with a Patchwork instance.
 
