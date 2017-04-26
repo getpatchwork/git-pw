@@ -47,13 +47,15 @@ dependencies.  On Fedora, run:
 
 .. code-block:: bash
 
-   $ sudo dnf install python-requests python-click python-pbr python-arrow
+   $ sudo dnf install python-requests python-click python-pbr python-arrow \
+     python-tabulate
 
 On Ubuntu, run:
 
 .. code-block:: bash
 
-   $ sudo apt-get install python-requests python-click python-pbr python-arrow
+   $ sudo apt-get install python-requests python-click python-pbr python-arrow \
+     python-tabulate
 
 Once dependencies are installed, clone this repo and run ``setup.py``:
 
@@ -81,7 +83,7 @@ pw.project
   The project name or list-id. This will appear in the URL when using the web
   UI::
 
-      https:://patchwork.ozlabs.org/project/{project_name}/list/
+      https://patchwork.ozlabs.org/project/{project_name}/list/
 
 pw.username
 
@@ -123,7 +125,6 @@ __ https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs
 TODO
 ----
 
-- Add support for environment variables for username/password
 - Handle additional error codes, such as 5xx
 - Add support for Python3, if necessary
 
