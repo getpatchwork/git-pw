@@ -13,12 +13,21 @@ CONF = config.CONF
 LOG = logger.LOG
 
 
+def _get_auth():
+    if CONF.username and CONF.password:
+        return (CONF.username, CONF.password)
+    else:
+        LOG.error('Authentication information missing')
+        LOG.error('You must configure authentication via git-config or via '
+                  '--username, --password')
+        sys.exit(1)
+
+
 def get(url, params=None):
     """Make GET request and handle errors."""
     LOG.debug('GET %s', url)
 
-    rsp = requests.get(url, auth=(CONF.username, CONF.password),
-                       params=params)
+    rsp = requests.get(url, auth=_get_auth(), params=params)
     if rsp.status_code == 403:
         LOG.error('Failed to fetch resource: Invalid credentials')
         LOG.error('Is your git-config correct?')
@@ -35,7 +44,7 @@ def put(url, data):
     """Make PUT request and handle errors."""
     LOG.debug('PUT %s, data=%r', url, data)
 
-    rsp = requests.patch(url, auth=(CONF.username, CONF.password), data=data)
+    rsp = requests.patch(url, auth=_get_auth(), data=data)
     if rsp.status_code == 403:
         LOG.error('Failed to update resource: Invalid credentials')
         LOG.error('Is your git-config correct?')
