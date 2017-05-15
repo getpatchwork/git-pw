@@ -66,16 +66,14 @@ def show_cmd(series_id):
     LOG.debug('Showing series: id=%d', series_id)
 
     series = api.detail('series', series_id)
-    submitter = api.get(series['submitter']).json()
-    project = api.get(series['project']).json()
 
     output = [
         ('ID', series.get('id')),
         ('Date', series.get('date')),
         ('Name', series.get('name')),
-        ('Submitter', '%s (%s)' % (
-            submitter.get('name'), submitter.get('email'))),
-        ('Project', project.get('name'))]
+        ('Submitter', '%s (%s)' % (series.get('submitter').get('name'),
+                                   series.get('submitter').get('email'))),
+        ('Project', series.get('project').get('name'))]
 
     # TODO(stephenfin): We might want to make this machine readable?
     click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
@@ -129,18 +127,6 @@ def list_cmd(submitter, limit, page, sort, name):
 
     series = api.index('series', params)
 
-    # Fetch matching users/people
-
-    people = {}
-
-    for series_ in series:
-        if series_['submitter'] not in people:
-            subm = api.get(series_['submitter']).json()
-            people[series_['submitter']] = '%s (%s)' % (
-                subm.get('name'), subm.get('email'))
-
-        series_['submitter'] = people[series_['submitter']]
-
     # Format and print output
 
     headers = ['ID', 'Date', 'Name', 'Version', 'Submitter']
@@ -150,7 +136,8 @@ def list_cmd(submitter, limit, page, sort, name):
         arrow.get(series_.get('date')).humanize(),
         utils.trim(series_.get('name') or ''),
         series_.get('version'),
-        series_.get('submitter'),
+        '%s (%s)' % (series_.get('submitter').get('name'),
+                     series_.get('submitter').get('email'))
     ] for series_ in series]
 
     click.echo_via_pager(tabulate(output, headers, tablefmt='psql'))

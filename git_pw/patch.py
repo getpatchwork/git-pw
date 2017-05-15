@@ -76,6 +76,25 @@ def download_cmd(patch_id, fmt):
     click.echo_via_pager(output)
 
 
+def _show_patch(patch):
+    output = [
+        ('ID', patch.get('id')),
+        ('Message ID', patch.get('msgid')),
+        ('Date', patch.get('date')),
+        ('Name', patch.get('name')),
+        ('Submitter', '%s (%s)' % (patch.get('submitter').get('name'),
+                                   patch.get('submitter').get('email'))),
+        ('State', patch.get('state')),
+        ('Archived', patch.get('archived')),
+        ('Project', patch.get('project').get('name')),
+        ('Delegate', (patch.get('delegate').get('username')
+                      if patch.get('delegate') else '')),
+        ('Commit Ref', patch.get('commit_ref'))]
+
+    # TODO(stephenfin): We might want to make this machine readable?
+    click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
+
+
 @click.command(name='show')
 @click.argument('patch_id', type=click.INT)
 def show_cmd(patch_id):
@@ -85,30 +104,9 @@ def show_cmd(patch_id):
     """
     LOG.debug('Showing patch: id=%d', patch_id)
 
-    # TODO(stephenfin): Ideally we shouldn't have to make three requests to do
-    # this operation. Perhaps we should nest these fields in the response
     patch = api.detail('patches', patch_id)
-    submitter = api.get(patch['submitter']).json()
-    project = api.get(patch['project']).json()
-    delegate = {}
-    if patch['delegate']:
-        delegate = api.get(patch['delegate']).json()
 
-    output = [
-        ('ID', patch.get('id')),
-        ('Message ID', patch.get('msgid')),
-        ('Date', patch.get('date')),
-        ('Name', patch.get('name')),
-        ('Submitter', '%s (%s)' % (
-            submitter.get('name'), submitter.get('email'))),
-        ('State', patch.get('state')),
-        ('Archived', patch.get('archived')),
-        ('Project', project.get('name')),
-        ('Delegate', delegate.get('username')),
-        ('Commit Ref', patch.get('commit_ref'))]
-
-    # TODO(stephenfin): We might want to make this machine readable?
-    click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
+    _show_patch(patch)
 
 
 @click.command(name='update')
@@ -156,32 +154,7 @@ def update_cmd(patch_id, commit_ref, state, delegate, archived):
 
     patch = api.update('patches', patch_id, data)
 
-    # TODO(stephenfin): Ideally we shouldn't have to make three requests
-    # to do this operation. Perhaps we should nest these fields in the
-    # response
-    submitter = api.get(patch['submitter']).json()
-    project = api.get(patch['project']).json()
-    if patch['delegate'] and not delegate:
-        # only fetch delegate if we haven't done so already
-        delegate = api.get(patch['delegate']).json()
-    elif not delegate:
-        delegate = {}
-
-    output = [
-        ('ID', patch.get('id')),
-        ('Message ID', patch.get('msgid')),
-        ('Date', patch.get('date')),
-        ('Name', patch.get('name')),
-        ('Submitter', '%s (%s)' % (
-            submitter.get('name'), submitter.get('email'))),
-        ('State', patch.get('state')),
-        ('Archived', patch.get('archived')),
-        ('Project', project.get('name')),
-        ('Delegate', delegate.get('username')),
-        ('Commit Ref', patch.get('commit_ref'))]
-
-    # TODO(stephenfin): We might want to make this machine readable?
-    click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
+    _show_patch(patch)
 
 
 @click.command(name='list')
@@ -256,28 +229,6 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
 
     patches = api.index('patches', params)
 
-    # Fetch matching users/people
-
-    people = {}
-    users = {}
-
-    for patch in patches:
-        if patch['submitter'] not in people:
-            subm = api.get(patch['submitter']).json()
-            people[patch['submitter']] = '%s (%s)' % (
-                subm.get('name'), subm.get('email'))
-
-        patch['submitter'] = people[patch['submitter']]
-
-        if not patch['delegate']:
-            continue
-
-        if patch['delegate'] not in users:
-            delg = api.get(patch['delegate']).json()
-            users[patch['delegate']] = delg.get('username')
-
-        patch['delegate'] = users[patch['delegate']]
-
     # Format and print output
 
     headers = ['ID', 'Date', 'Name', 'Submitter', 'State', 'Archived',
@@ -287,10 +238,12 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
         patch.get('id'),
         arrow.get(patch.get('date')).humanize(),
         utils.trim(patch.get('name')),
-        patch.get('submitter'),
+        '%s (%s)' % (patch.get('submitter').get('name'),
+                     patch.get('submitter').get('email')),
         patch.get('state'),
         'yes' if patch.get('archived') else 'no',
-        patch.get('delegate'),
+        (patch.get('delegate').get('username')
+         if patch.get('delegate') else ''),
     ] for patch in patches]
 
     click.echo_via_pager(tabulate(output, headers, tablefmt='psql'))

@@ -65,14 +65,12 @@ def show_cmd(bundle_id):
     LOG.debug('Showing bundle: id=%d', bundle_id)
 
     bundle = api.detail('bundles', bundle_id)
-    owner = api.get(bundle['owner']).json()
-    project = api.get(bundle['project']).json()
 
     output = [
         ('ID', bundle.get('id')),
         ('Name', bundle.get('name')),
-        ('Owner', owner.get('username')),
-        ('Project', project.get('name')),
+        ('Owner', bundle.get('owner').get('username')),
+        ('Project', bundle.get('project').get('name')),
         ('Public', bundle.get('public'))]
 
     # TODO(stephenfin): We might want to make this machine readable?
@@ -127,17 +125,6 @@ def list_cmd(owner, limit, page, sort, name):
 
     bundles = api.index('bundles', params)
 
-    # Fetch matching users
-
-    users = {}
-
-    for bundle in bundles:
-        if bundle['owner'] not in users:
-            own = api.get(bundle['owner']).json()
-            users[bundle['owner']] = own.get('username')
-
-        bundle['owner'] = users[bundle['owner']]
-
     # Format and print output
 
     headers = ['ID', 'Name', 'Owner', 'Public']
@@ -145,7 +132,7 @@ def list_cmd(owner, limit, page, sort, name):
     output = [[
         bundle.get('id'),
         utils.trim(bundle.get('name') or ''),
-        bundle.get('owner'),
+        bundle.get('owner').get('username'),
         'yes' if bundle.get('public') else 'no',
     ] for bundle in bundles]
 
