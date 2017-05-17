@@ -73,7 +73,11 @@ def show_cmd(series_id):
         ('Name', series.get('name')),
         ('Submitter', '%s (%s)' % (series.get('submitter').get('name'),
                                    series.get('submitter').get('email'))),
-        ('Project', series.get('project').get('name'))]
+        ('Project', series.get('project').get('name')),
+        ('Version', series.get('version')),
+        ('Received', '%d of %d' % (series.get('received_total'),
+                                   series.get('total'))),
+        ('Complete', series.get('received_all'))]
 
     # TODO(stephenfin): We might want to make this machine readable?
     click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
