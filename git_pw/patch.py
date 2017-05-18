@@ -77,6 +77,10 @@ def download_cmd(patch_id, fmt):
 
 
 def _show_patch(patch):
+
+    def _format_series(series):
+        return '%-4d %s' % (series.get('id'), series.get('name') or '-')
+
     output = [
         ('ID', patch.get('id')),
         ('Message ID', patch.get('msgid')),
@@ -90,6 +94,11 @@ def _show_patch(patch):
         ('Delegate', (patch.get('delegate').get('username')
                       if patch.get('delegate') else '')),
         ('Commit Ref', patch.get('commit_ref'))]
+
+    prefix = 'Series'
+    for series in patch.get('series'):
+        output.append((prefix, _format_series(series)))
+        prefix = ''
 
     # TODO(stephenfin): We might want to make this machine readable?
     click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
