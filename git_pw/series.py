@@ -67,6 +67,9 @@ def show_cmd(series_id):
 
     series = api.detail('series', series_id)
 
+    def _format_submission(submission):
+        return '%-4d %s' % (submission.get('id'), submission.get('name'))
+
     output = [
         ('ID', series.get('id')),
         ('Date', series.get('date')),
@@ -77,7 +80,14 @@ def show_cmd(series_id):
         ('Version', series.get('version')),
         ('Received', '%d of %d' % (series.get('received_total'),
                                    series.get('total'))),
-        ('Complete', series.get('received_all'))]
+        ('Complete', series.get('received_all')),
+        ('Cover', (_format_submission(series.get('cover_letter'))
+                   if series.get('cover_letter') else ''))]
+
+    prefix = 'Patches'
+    for patch in series.get('patches'):
+        output.append((prefix, _format_submission(patch)))
+        prefix = ''
 
     # TODO(stephenfin): We might want to make this machine readable?
     click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
