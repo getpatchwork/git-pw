@@ -116,8 +116,8 @@ def list_cmd(submitter, limit, page, sort, name):
 
     params = []
 
-    # TODO(stephenfin): It should be possible to filter series by project
-    # using the project list-id, submitters by email
+    # TODO(stephenfin): It should be possible to filter series by submitter
+    # email
     for subm in submitter:
         people = api.index('people', {'q': subm})
         if len(people) == 0:
@@ -129,11 +129,9 @@ def list_cmd(submitter, limit, page, sort, name):
 
         params.append(('submitter', people[0]['id']))
 
-    project = api.detail('projects', CONF.project)
-
     params.extend([
         ('q', name),
-        ('project', project['id']),
+        ('project', CONF.project),
         ('page', page),
         ('per_page', limit),
         ('order', sort),

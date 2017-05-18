@@ -108,8 +108,7 @@ def list_cmd(owner, limit, page, sort, name):
 
     params = []
 
-    # TODO(stephenfin): It should be possible to filter bundles by project
-    # using the project list-id, owners by email
+    # TODO(stephenfin): It should be possible to filter bundles by owner email
     for own in owner:
         users = api.index('users', {'q': own})
         if len(users) == 0:
@@ -121,11 +120,9 @@ def list_cmd(owner, limit, page, sort, name):
 
         params.append(('owner', users[0]['id']))
 
-    project = api.detail('projects', CONF.project)
-
     params.extend([
         ('q', name),
-        ('project', project['id']),
+        ('project', CONF.project),
         ('page', page),
         ('per_page', limit),
         ('order', sort),

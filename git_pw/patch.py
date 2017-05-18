@@ -199,8 +199,7 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
 
     params = []
 
-    # TODO(stephenfin): It should be possible to filter patches by project
-    # using the project list-id, submitters by email
+    # TODO(stephenfin): It should be possible to filter patches submitter email
     for subm in submitter:
         people = api.index('people', {'q': subm})
         if len(people) == 0:
@@ -223,11 +222,9 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
 
         params.append(('delegate', users[0]['id']))
 
-    project = api.detail('projects', CONF.project)
-
     params.extend([
         ('q', name),
-        ('project', project['id']),
+        ('project', CONF.project),
         # TODO(stephenfin): Perhaps we could use string values. Refer to
         # https://github.com/carltongibson/django-filter/pull/378
         ('archived', 3 if archived else 1),
