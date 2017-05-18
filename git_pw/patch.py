@@ -55,9 +55,9 @@ def apply_cmd(patch_id, series, deps, args):
 
 @click.command(name='download')
 @click.argument('patch_id', type=click.INT)
-@click.option('--diff', 'fmt', flag_value='diff', default=True,
+@click.option('--diff', 'fmt', flag_value='diff',
               help='Show patch in diff format.')
-@click.option('--mbox', 'fmt', flag_value='mbox',
+@click.option('--mbox', 'fmt', flag_value='mbox', default=True,
               help='Show patch in mbox format.')
 def download_cmd(patch_id, fmt):
     """Download a patch diff/mbox.
