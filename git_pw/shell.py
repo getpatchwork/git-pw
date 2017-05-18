@@ -4,17 +4,28 @@ TODO.
 
 import click
 
-from git_pw import logger
 from git_pw import bundle as bundle_cmds
+from git_pw import config
+from git_pw import logger
 from git_pw import patch as patch_cmds
 from git_pw import series as series_cmds
+
+CONF = config.CONF
 
 
 @click.group()
 @click.option('--debug', default=False, is_flag=True,
               help="Output more information about what's going on.")
+@click.option('--username', metavar='USERNAME', envvar='PW_USERNAME',
+              help='Authentication username.')
+@click.option('--password', metavar='PASSWORD', envvar='PW_PASSWORD',
+              help='Authentication password.')
+@click.option('--server', metavar='SERVER', envvar='PW_SERVER',
+              help='Patchwork server address/hostname.')
+@click.option('--project', metavar='PROJECT', envvar='PW_PROJECT',
+              help='Patchwork project.')
 @click.version_option()
-def cli(debug):
+def cli(debug, username, password, server, project):
     """Interact with a Patchwork instance.
 
     Patchwork is a patch tracking system for community-based projects.
@@ -23,6 +34,11 @@ def cli(debug):
     more important (and more interesting) stuff.
     """
     logger.configure_verbosity(debug)
+
+    CONF.username = username
+    CONF.password = password
+    CONF.server = server
+    CONF.project = project
 
 
 @cli.group()

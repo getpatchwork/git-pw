@@ -25,17 +25,29 @@ def _get_config(key):
     except subprocess.CalledProcessError:
         output = ''
 
-    output = output.strip()
-
-    LOG.debug('Reading option from git-config: pw.%s=%s', key, output)
-
-    return output
+    return output.strip()
 
 
 class Config(object):
 
-    def __getattr__(self, name):
-        return _get_config(name)
+    def __init__(self):
+        self._git_config = {}
+
+    def __getattribute__(self, name):
+        # attempt to use any attributes first
+        value = object.__getattribute__(self, name)
+        if value:
+            LOG.debug("Retrieved '{}' setting from cache".format(name))
+            return value
+
+        # fallback to reading from git config otherwise
+        value = _get_config(name)
+        if value:
+            LOG.debug("Retrieved '{}' setting from git-config".format(name))
+
+        setattr(self, name, value)
+
+        return value
 
 
 CONF = Config()
