@@ -66,12 +66,20 @@ def show_cmd(bundle_id):
 
     bundle = api.detail('bundles', bundle_id)
 
+    def _format_patch(patch):
+        return '%-4d %s' % (patch.get('id'), patch.get('name'))
+
     output = [
         ('ID', bundle.get('id')),
         ('Name', bundle.get('name')),
         ('Owner', bundle.get('owner').get('username')),
         ('Project', bundle.get('project').get('name')),
         ('Public', bundle.get('public'))]
+
+    prefix = 'Patches'
+    for patch in bundle.get('patches'):
+        output.append((prefix, _format_patch(patch)))
+        prefix = ''
 
     # TODO(stephenfin): We might want to make this machine readable?
     click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
