@@ -126,7 +126,6 @@ TODO
 ----
 
 - Handle additional error codes, such as 5xx
-- Add support for Python3, if necessary
 
 Documentation
 -------------

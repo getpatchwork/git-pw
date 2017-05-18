@@ -44,6 +44,7 @@ class Config(object):
         value = _get_config(name)
         if value:
             LOG.debug("Retrieved '{}' setting from git-config".format(name))
+            value = value.decode('utf-8')
 
         setattr(self, name, value)
 
