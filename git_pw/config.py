@@ -2,11 +2,10 @@
 Configuration loader using 'git-config'.
 """
 
+import logging
 import subprocess
 
-from git_pw import logger
-
-LOG = logger.LOG
+LOG = logging.getLogger(__name__)
 # TODO(stephenfin): We should eventually download and store these
 # automagically
 DEFAULT_STATES = [

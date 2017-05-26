@@ -2,15 +2,15 @@
 Simple wrappers around request methods.
 """
 
+import logging
 import sys
 
 import requests
 
 from git_pw import config
-from git_pw import logger
 
 CONF = config.CONF
-LOG = logger.LOG
+LOG = logging.getLogger(__name__)
 
 
 def _get_auth():

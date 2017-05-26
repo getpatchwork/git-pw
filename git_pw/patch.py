@@ -2,6 +2,7 @@
 Patch subcommands.
 """
 
+import logging
 import subprocess
 import sys
 
@@ -11,11 +12,10 @@ from tabulate import tabulate
 
 from git_pw import api
 from git_pw import config
-from git_pw import logger
 from git_pw import utils
 
 CONF = config.CONF
-LOG = logger.LOG
+LOG = logging.getLogger(__name__)
 
 
 @click.command(name='apply')
