@@ -23,6 +23,16 @@ def _get_auth():
         sys.exit(1)
 
 
+def _get_server():
+    if CONF.server:
+        return CONF.server.rstrip('/')
+    else:
+        LOG.error('Server information missing')
+        LOG.error('You must provide server information via git-config or via '
+                  '--server')
+        sys.exit(1)
+
+
 def get(url, params=None):
     """Make GET request and handle errors."""
     LOG.debug('GET %s', url)
@@ -73,7 +83,7 @@ def index(resource_type, params=None):
         A list of dictionaries, representing the summary view of each resource.
     """
     # NOTE(stephenfin): All resources must have a trailing '/'
-    url = '/'.join([CONF.server.rstrip('/'), 'api', '1.0', resource_type, ''])
+    url = '/'.join([_get_server(), 'api', resource_type, ''])
 
     return get(url, params).json()
 
@@ -92,7 +102,7 @@ def detail(resource_type, resource_id, params=None):
         A dictionary representing the detailed view of a given resource.
     """
     # NOTE(stephenfin): All resources must have a trailing '/'
-    url = '/'.join([CONF.server.rstrip('/'), 'api', '1.0', resource_type,
+    url = '/'.join([_get_server(), 'api', resource_type,
                     str(resource_id), ''])
 
     return get(url, params).json()
