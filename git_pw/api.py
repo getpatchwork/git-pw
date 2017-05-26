@@ -37,15 +37,25 @@ def get(url, params=None):
     """Make GET request and handle errors."""
     LOG.debug('GET %s', url)
 
-    rsp = requests.get(url, auth=_get_auth(), params=params)
-    if rsp.status_code == 403:
-        LOG.error('Failed to fetch resource: Invalid credentials')
-        LOG.error('Is your git-config correct?')
-        sys.exit(1)
-    elif rsp.status_code != 200:
-        LOG.error('Failed to fetch resource: Invalid URL')
-        LOG.error('Is your git-config correct?')
-        sys.exit(1)
+    try:
+        rsp = requests.get(url, auth=_get_auth(), params=params)
+        rsp.raise_for_status()
+    except requests.exceptions.RequestException as exc:
+        if exc.response is not None and exc.response.content:
+            # we make the assumption that all resposes will be JSON encoded
+            LOG.error(exc.response.json()['detail'])
+            sys
+        else:
+            LOG.error('Failed to fetch resource. Is your configuration '
+                      'correct?')
+            LOG.error("Use the '--debug' flag for more information")
+
+        if CONF.debug:
+            raise
+        else:
+            sys.exit(1)
+
+    LOG.debug('Got response')
 
     return rsp
 
@@ -54,15 +64,23 @@ def put(url, data):
     """Make PUT request and handle errors."""
     LOG.debug('PUT %s, data=%r', url, data)
 
-    rsp = requests.patch(url, auth=_get_auth(), data=data)
-    if rsp.status_code == 403:
-        LOG.error('Failed to update resource: Invalid credentials')
-        LOG.error('Is your git-config correct?')
-        sys.exit(1)
-    elif rsp.status_code != 200:
-        LOG.error('Failed to update resource: Invalid URL')
-        LOG.error('Is your git-config correct?')
-        sys.exit(1)
+    try:
+        rsp = requests.patch(url, auth=_get_auth(), data=data)
+        rsp.raise_for_status()
+    except requests.exceptions.RequestException as exc:
+        if exc.response is not None and exc.response.content:
+            LOG.error(exc.response.json()['detail'])
+        else:
+            LOG.error('Failed to update resource. Is your configuration '
+                      'correct?')
+            LOG.error("Use the '--debug' flag for more information")
+
+        if CONF.debug:
+            raise
+        else:
+            sys.exit(1)
+
+    LOG.debug('Got response')
 
     return rsp.json()
 

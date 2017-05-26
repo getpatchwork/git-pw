@@ -56,6 +56,7 @@ def cli(debug, username, password, server, project):
     """
     logger.configure_verbosity(debug)
 
+    CONF.debug = debug
     CONF.username = username
     CONF.password = password
     CONF.server = server
