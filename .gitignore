@@ -71,3 +71,6 @@ ChangeLog
 
 # man pages
 /man
+
+# Mypy
+/.mypy_cache

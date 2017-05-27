@@ -5,7 +5,7 @@ Configure application logging.
 import logging
 
 
-def configure_verbosity(debug):
+def configure_verbosity(debug):  # type: (bool) -> None
     if debug:
         logging.basicConfig(
             level=logging.DEBUG,

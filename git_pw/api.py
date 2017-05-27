@@ -13,7 +13,7 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-def _get_auth():
+def _get_auth():  # type: () -> (str, str)
     if CONF.username and CONF.password:
         return (CONF.username, CONF.password)
     else:
@@ -23,7 +23,7 @@ def _get_auth():
         sys.exit(1)
 
 
-def _get_server():
+def _get_server():  # type: () -> str
     if CONF.server:
         return CONF.server.rstrip('/')
     else:
@@ -33,7 +33,7 @@ def _get_server():
         sys.exit(1)
 
 
-def get(url, params=None):
+def get(url, params=None):  # type: (str, dict) -> requests.Response
     """Make GET request and handle errors."""
     LOG.debug('GET %s', url)
 
@@ -59,7 +59,7 @@ def get(url, params=None):
     return rsp
 
 
-def put(url, data):
+def put(url, data):  # type: (str, dict) -> requests.Response
     """Make PUT request and handle errors."""
     LOG.debug('PUT %s, data=%r', url, data)
 
@@ -81,10 +81,10 @@ def put(url, data):
 
     LOG.debug('Got response')
 
-    return rsp.json()
+    return rsp
 
 
-def index(resource_type, params=None):
+def index(resource_type, params=None):  # type: (str, dict) -> dict
     """List API resources.
 
     GET /{resource}/
@@ -106,6 +106,7 @@ def index(resource_type, params=None):
 
 
 def detail(resource_type, resource_id, params=None):
+    # type: (str, int, dict) -> dict
     """Retrieve a specific API resource.
 
     GET /{resource}/{resourceID}/
@@ -126,6 +127,7 @@ def detail(resource_type, resource_id, params=None):
 
 
 def update(resource_type, resource_id, data):
+    # type: (str, int, dict) -> dict
     """Update a specific API resource.
 
     PUT /{resource}/{resourceID}/
@@ -141,4 +143,4 @@ def update(resource_type, resource_id, data):
     url = '/'.join([CONF.server.rstrip('/'), 'api', '1.0', resource_type,
                     str(resource_id), ''])
 
-    return put(url, data)
+    return put(url, data).json()
