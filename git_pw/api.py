@@ -44,7 +44,6 @@ def get(url, params=None):
         if exc.response is not None and exc.response.content:
             # we make the assumption that all resposes will be JSON encoded
             LOG.error(exc.response.json()['detail'])
-            sys
         else:
             LOG.error('Failed to fetch resource. Is your configuration '
                       'correct?')
