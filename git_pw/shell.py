@@ -36,22 +36,22 @@ def cli(debug, username, password, server, project):
     service. To use git-pw, you must set up your environment by configuring
     your Patchwork server URL, username, and password.
 
-    Configuring the patchwork URL:
+    Configuring the patchwork URL::
 
       git config pw.server http://pw.server.com/path/to/patchwork
 
-    Configuring username:
+    Configuring username::
 
       git config pw.username userid
 
-    Configuring password:
+    Configuring password::
 
       git config pw.password pass
 
     Alternatively, you can pass these options via command line parameters or
     environment variables.
 
-    For more information on any of the commands, simply pass '--help' to the
+    For more information on any of the commands, simply pass ``--help`` to the
     appropriate command.
     """
     logger.configure_verbosity(debug)
