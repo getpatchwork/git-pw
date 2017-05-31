@@ -122,11 +122,6 @@ Create a virtualenv, then install the package in `editable`__ mode:
 
 __ https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs
 
-TODO
-----
-
-- Handle additional error codes, such as 5xx
-
 Documentation
 -------------
 
