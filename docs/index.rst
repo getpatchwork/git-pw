@@ -1,5 +1,5 @@
-git-pw
-======
+git-pw (Patchwork subcommand for Git)
+=====================================
 
 .. include:: ../README.rst
    :start-line: 19
