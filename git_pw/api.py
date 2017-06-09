@@ -7,6 +7,7 @@ import sys
 
 import requests
 
+import git_pw
 from git_pw import config
 
 if 0:  # noqa
@@ -43,6 +44,12 @@ def _get_auth():  # type: () -> requests.auth.AuthBase
         sys.exit(1)
 
 
+def _get_headers():  # type: () -> Dict[str, str]
+    return {
+        'User-Agent': 'git-pw ({})'.format(git_pw.__version__),
+    }
+
+
 def _get_server():  # type: () -> str
     if CONF.server:
         return CONF.server.rstrip('/')
@@ -58,7 +65,8 @@ def get(url, params=None):  # type: (str, dict) -> requests.Response
     LOG.debug('GET %s', url)
 
     try:
-        rsp = requests.get(url, auth=_get_auth(), params=params)
+        rsp = requests.get(url, auth=_get_auth(), headers=_get_headers(),
+                           params=params)
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
         if exc.response is not None and exc.response.content:
@@ -84,7 +92,8 @@ def put(url, data):  # type: (str, dict) -> requests.Response
     LOG.debug('PUT %s, data=%r', url, data)
 
     try:
-        rsp = requests.patch(url, auth=_get_auth(), data=data)
+        rsp = requests.patch(url, auth=_get_auth(), headers=_get_headers(),
+                             data=data)
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
         if exc.response is not None and exc.response.content:
