@@ -16,6 +16,8 @@ CONF = config.CONF
 @click.group()
 @click.option('--debug', default=False, is_flag=True,
               help="Output more information about what's going on.")
+@click.option('--token', metavar='TOKEN', envvar='PW_TOKEN',
+              help='Authentication token.')
 @click.option('--username', metavar='USERNAME', envvar='PW_USERNAME',
               help='Authentication username.')
 @click.option('--password', metavar='PASSWORD', envvar='PW_PASSWORD',
@@ -25,7 +27,7 @@ CONF = config.CONF
 @click.option('--project', metavar='PROJECT', envvar='PW_PROJECT',
               help='Patchwork project.')
 @click.version_option()
-def cli(debug, username, password, server, project):
+def cli(debug, token, username, password, server, project):
     """git-pw is a tool for integrating Git with Patchwork.
 
     git-pw can interact with individual patches, complete patch series, and
@@ -34,19 +36,14 @@ def cli(debug, username, password, server, project):
 
     The git-pw utility is a wrapper which makes REST calls to the Patchwork
     service. To use git-pw, you must set up your environment by configuring
-    your Patchwork server URL, username, and password.
-
-    Configuring the patchwork URL::
+    your Patchwork server URL and either an API token or a username and
+    password. To configure the server URL, run::
 
       git config pw.server http://pw.server.com/path/to/patchwork
 
-    Configuring username::
+    To configure the token, run::
 
-      git config pw.username userid
-
-    Configuring password::
-
-      git config pw.password pass
+      git config pw.token token
 
     Alternatively, you can pass these options via command line parameters or
     environment variables.
@@ -57,6 +54,7 @@ def cli(debug, username, password, server, project):
     logger.configure_verbosity(debug)
 
     CONF.debug = debug
+    CONF.token = token
     CONF.username = username
     CONF.password = password
     CONF.server = server

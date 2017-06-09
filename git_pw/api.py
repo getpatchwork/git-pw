@@ -9,17 +9,37 @@ import requests
 
 from git_pw import config
 
+if 0:  # noqa
+    from typing import Dict  # noqa
+
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-def _get_auth():  # type: () -> (str, str)
-    if CONF.username and CONF.password:
-        return (CONF.username, CONF.password)
+class HTTPTokenAuth(requests.auth.AuthBase):
+    """Attaches HTTP Token Authentication to the given Request object."""
+    def __init__(self, token):
+        self.token = token
+
+    def __call__(self, r):
+        r.headers['Authorization'] = self._token_auth_str(self.token)
+        return r
+
+    @staticmethod
+    def _token_auth_str(token):  # type: (str) -> str
+        """Return a Token auth string."""
+        return 'Token {}'.format(token.strip())
+
+
+def _get_auth():  # type: () -> requests.auth.AuthBase
+    if CONF.token:
+        return HTTPTokenAuth(CONF.token)
+    elif CONF.username and CONF.password:
+        return requests.auth.HTTPBasicAuth(CONF.username, CONF.password)
     else:
         LOG.error('Authentication information missing')
         LOG.error('You must configure authentication via git-config or via '
-                  '--username, --password')
+                  '--token or --username, --password')
         sys.exit(1)
 
 

@@ -3,7 +3,7 @@ git-pw
 
 .. include:: ../README.rst
    :start-line: 19
-   :end-line: 124
+   :end-line: -7
 
 Usage
 -----
