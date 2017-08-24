@@ -72,14 +72,12 @@ To begin, you'll need to configure Git settings appropriately. The following
 settings are **required**:
 
 ``pw.server``
-
   The URL for the Patchwork instance. This will typically look like. For
   example::
 
       https://patchwork.ozlabs.org/
 
 ``pw.project``
-
   The project name or list-id. This will appear in the URL when using the web
   UI::
 
@@ -89,15 +87,12 @@ You also require authentication - you can use either API tokens or a
 username/password combination:
 
 ``pw.token``
-
   The API token for you Patchwork account.
 
 ``pw.username``
-
   The username for your Patchwork account.
 
 ``pw.password``
-
   The password for your Patchwork account.
 
 You can set these settings using the ``git config`` command. This should be
