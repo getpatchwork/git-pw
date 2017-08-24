@@ -13,8 +13,8 @@ git-pw
    :target: http://git-pw.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
-.. image:: https://travis-ci.org/stephenfin/git-pw.svg?branch=master
-   :target: https://travis-ci.org/stephenfin/git-pw
+.. image:: https://travis-ci.org/getpatchwork/git-pw.svg?branch=master
+   :target: https://travis-ci.org/getpatchwork/git-pw
    :alt: Build Status
 
 `git-pw` is a tool for integrating Git with `Patchwork`__, the web-based patch
@@ -61,7 +61,7 @@ Once dependencies are installed, clone this repo and run ``setup.py``:
 
 .. code-block:: bash
 
-   $ git clone https://github.com/stephenfin/git-pw
+   $ git clone https://github.com/getpatchwork/git-pw
    $ cd git-pw
    $ sudo python setup.py
 
@@ -116,7 +116,7 @@ If you're interested in contributing to `git-pw`, first clone the repo:
 
 .. code-block:: bash
 
-   $ git clone https://github.com/stephenfin/git-pw
+   $ git clone https://github.com/getpatchwork/git-pw
    $ cd git-pw
 
 Create a virtualenv, then install the package in `editable`__ mode:
