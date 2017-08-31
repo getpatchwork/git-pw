@@ -10,10 +10,8 @@ import click
 from tabulate import tabulate
 
 from git_pw import api
-from git_pw import config
 from git_pw import utils
 
-CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
@@ -122,7 +120,6 @@ def list_cmd(owner, limit, page, sort, name):
 
     params.extend([
         ('q', name),
-        ('project', CONF.project),
         ('page', page),
         ('per_page', limit),
         ('order', sort),

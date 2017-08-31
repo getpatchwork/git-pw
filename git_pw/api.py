@@ -60,6 +60,19 @@ def _get_server():  # type: () -> str
         sys.exit(1)
 
 
+def _get_project():  # type: () -> str
+    if CONF.project and CONF.project.strip() == '*':
+        return ''  # just don't bother filtering on project
+    elif CONF.project:
+        return CONF.project.strip()
+    else:
+        LOG.error('Project information missing')
+        LOG.error('You must provide project information via git-config or '
+                  'via --project')
+        LOG.error('To list all projects, set project to "*"')
+        sys.exit(1)
+
+
 def get(url, params=None):  # type: (str, dict) -> requests.Response
     """Make GET request and handle errors."""
     LOG.debug('GET %s', url)
@@ -130,6 +143,11 @@ def index(resource_type, params=None):  # type: (str, dict) -> dict
     """
     # NOTE(stephenfin): All resources must have a trailing '/'
     url = '/'.join([_get_server(), 'api', resource_type, ''])
+
+    # NOTE(stephenfin): Not all endpoints in the Patchwork API allow filtering
+    # by project, but all the ones we care about here do.
+    params = params or []
+    params.append(('project', _get_project()))
 
     return get(url, params).json()
 

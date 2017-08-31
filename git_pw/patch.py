@@ -11,10 +11,8 @@ import click
 from tabulate import tabulate
 
 from git_pw import api
-from git_pw import config
 from git_pw import utils
 
-CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
@@ -224,7 +222,6 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
 
     params.extend([
         ('q', name),
-        ('project', CONF.project),
         # TODO(stephenfin): Perhaps we could use string values. Refer to
         # https://github.com/carltongibson/django-filter/pull/378
         ('archived', 3 if archived else 1),

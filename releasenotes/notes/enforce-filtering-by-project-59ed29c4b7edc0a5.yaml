@@ -1,0 +1,9 @@
+---
+upgrade:
+  - |
+    Project configuration, e.g. via ``git config pw.project``, is now required.
+    Previously, not configuring a project would result in items for for all
+    projects being listed. This did not scale for larger instances such as
+    `patchwork.ozlabs.org` and proved confusing for some users. If this
+    functionality is required, you must explicitly request it using the ``*``
+    character, e.g. ``git pw patch list --project='*'``.
