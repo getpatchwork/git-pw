@@ -15,6 +15,7 @@ LOG = logging.getLogger(__name__)
 
 _list_headers = ('ID', 'Date', 'Name', 'Submitter', 'State', 'Archived',
                  'Delegate')
+_sort_fields = ('id', '-id', 'name', '-name', 'date', '-date')
 
 
 @click.command(name='apply', context_settings=dict(
@@ -194,14 +195,7 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
               'email or username.')
 @click.option('--archived', default=False, is_flag=True,
               help='Include patches that are archived.')
-@click.option('--limit', metavar='LIMIT', type=click.INT,
-              help='Maximum number of patches to show.')
-@click.option('--page', metavar='PAGE', type=click.INT,
-              help='Page to retrieve patches from. This is influenced by the '
-              'size of LIMIT.')
-@click.option('--sort', metavar='FIELD', default='-date', type=click.Choice(
-                  ['id', '-id', 'name', '-name', 'date', '-date']),
-              help='Sort output on given field.')
+@utils.pagination_options(sort_fields=_sort_fields, default_sort='-date')
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
