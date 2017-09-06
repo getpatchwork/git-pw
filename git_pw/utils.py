@@ -149,6 +149,24 @@ def echo(output, headers, fmt):
     click.echo(_tabulate(output, headers, fmt))
 
 
+def pagination_options(sort_fields, default_sort):
+    """Shared pagination options."""
+
+    def _pagination_options(f):
+        f = click.option('--limit', metavar='LIMIT', type=click.INT,
+                         help='Maximum number of items to show.')(f)
+        f = click.option('--page', metavar='PAGE', type=click.INT,
+                         help='Page to retrieve items from. This is '
+                         'influenced by the size of LIMIT.')(f)
+        f = click.option('--sort', metavar='FIELD', default=default_sort,
+                         type=click.Choice(sort_fields),
+                         help='Sort output on given field.')(f)
+
+        return f
+
+    return _pagination_options
+
+
 def format_options(original_function=None, headers=None):
     """Shared output format options."""
 

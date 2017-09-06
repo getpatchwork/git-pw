@@ -13,6 +13,7 @@ from git_pw import utils
 LOG = logging.getLogger(__name__)
 
 _list_headers = ('ID', 'Name', 'Owner', 'Public')
+_sort_fields = ('id', '-id', 'name', '-name')
 
 
 def _get_bundle(bundle_id):
@@ -117,14 +118,7 @@ def show_cmd(fmt, bundle_id):
 @click.option('--owner', metavar='OWNER', multiple=True,
               help='Show only bundles with these owners. Should be an email, '
               'name or ID. Private bundles of other users will not be shown.')
-@click.option('--limit', metavar='LIMIT', type=click.INT,
-              help='Maximum number of bundles to show.')
-@click.option('--page', metavar='PAGE', type=click.INT,
-              help='Page to retrieve bundles from. This is influenced by the '
-              'size of LIMIT.')
-@click.option('--sort', metavar='FIELD', default='name', type=click.Choice(
-                  ['id', '-id', 'name', '-name']),
-              help='Sort output on given field.')
+@utils.pagination_options(sort_fields=_sort_fields, default_sort='name')
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
