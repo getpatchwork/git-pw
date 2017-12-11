@@ -73,6 +73,21 @@ def _get_project():  # type: () -> str
         sys.exit(1)
 
 
+def _handle_error(operation, exc):
+    if exc.response is not None and exc.response.content:
+        # we make the assumption that all responses will be JSON encoded
+        LOG.error(exc.response.json()['detail'])
+    else:
+        LOG.error('Failed to %s resource. Is your configuration '
+                  'correct?' % operation)
+        LOG.error("Use the '--debug' flag for more information")
+
+    if CONF.debug:
+        raise
+    else:
+        sys.exit(1)
+
+
 def get(url, params=None):  # type: (str, dict) -> requests.Response
     """Make GET request and handle errors."""
     LOG.debug('GET %s', url)
@@ -82,18 +97,7 @@ def get(url, params=None):  # type: (str, dict) -> requests.Response
                            params=params)
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
-        if exc.response is not None and exc.response.content:
-            # we make the assumption that all resposes will be JSON encoded
-            LOG.error(exc.response.json()['detail'])
-        else:
-            LOG.error('Failed to fetch resource. Is your configuration '
-                      'correct?')
-            LOG.error("Use the '--debug' flag for more information")
-
-        if CONF.debug:
-            raise
-        else:
-            sys.exit(1)
+        _handle_error('fetch', exc)
 
     LOG.debug('Got response')
 
@@ -109,17 +113,7 @@ def put(url, data):  # type: (str, dict) -> requests.Response
                              data=data)
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
-        if exc.response is not None and exc.response.content:
-            LOG.error(exc.response.json()['detail'])
-        else:
-            LOG.error('Failed to update resource. Is your configuration '
-                      'correct?')
-            LOG.error("Use the '--debug' flag for more information")
-
-        if CONF.debug:
-            raise
-        else:
-            sys.exit(1)
+        _handle_error('update', exc)
 
     LOG.debug('Got response')
 
