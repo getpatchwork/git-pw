@@ -26,7 +26,7 @@ def apply_cmd(series_id, args):
     LOG.info('Applying series: id=%d, args=%s', series_id, ' '.join(args))
 
     series = api.detail('series', series_id)
-    mbox = api.get(series['mbox']).text
+    mbox = api.download(series['mbox'])
 
     utils.git_am(mbox, args)
 

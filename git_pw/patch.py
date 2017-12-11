@@ -38,7 +38,7 @@ def apply_cmd(patch_id, series, deps, args):
     elif not deps:
         series = None
 
-    mbox = api.get(patch['mbox'], {'series': series}).content
+    mbox = api.download(patch['mbox'], {'series': series})
 
     utils.git_am(mbox, args)
 
