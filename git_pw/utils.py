@@ -20,5 +20,8 @@ def git_am(mbox, args):
         cmd.append('-3')
     cmd.append(mbox)
 
-    p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-    p.communicate(mbox)
+    try:
+        subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as exc:
+        print(exc.output)
+        sys.exit(exc.returncode)

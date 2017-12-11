@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The ``git pw {patch,series,bundle} apply`` commands will now save the
+    downloaded patches before applying them. This avoids ascii/unicode issues
+    on different versions of Python and avoids the need to load the entire
+    patch into memory.

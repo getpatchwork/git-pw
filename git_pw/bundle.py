@@ -25,7 +25,7 @@ def apply_cmd(bundle_id, args):
     LOG.info('Applying bundle: id=%d', bundle_id)
 
     bundle = api.detail('bundles', bundle_id)
-    mbox = api.get(bundle['mbox']).text
+    mbox = api.download(bundle['mbox']).text
 
     utils.git_am(mbox, args)
 

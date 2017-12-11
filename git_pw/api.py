@@ -3,7 +3,9 @@ Simple wrappers around request methods.
 """
 
 import logging
+import os
 import sys
+import tempfile
 
 import requests
 
@@ -88,13 +90,14 @@ def _handle_error(operation, exc):
         sys.exit(1)
 
 
-def get(url, params=None):  # type: (str, dict) -> requests.Response
+def get(url, params=None, stream=False):
+    # type: (str, dict, bool) -> requests.Response
     """Make GET request and handle errors."""
     LOG.debug('GET %s', url)
 
     try:
         rsp = requests.get(url, auth=_get_auth(), headers=_get_headers(),
-                           params=params)
+                           params=params, stream=stream)
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
         _handle_error('fetch', exc)
@@ -118,6 +121,31 @@ def put(url, data):  # type: (str, dict) -> requests.Response
     LOG.debug('Got response')
 
     return rsp
+
+
+def download(url, params=None):  # type: (str, dict) -> None
+    """Retrieve a specific API resource and save it to a file.
+
+    GET /{resource}/{resourceID}/
+
+    Arguments:
+        resource_type (str): The resource endpoint name.
+        resource_id (int/str): The ID for the specific resource.
+        params (dict/list): Additional parameters.
+
+    Returns:
+        A path to an output file containing the content.
+    """
+    output_fd, output_path = tempfile.mkstemp(suffix='.patch')
+
+    rsp = get(url, params, stream=True)
+    with os.fdopen(output_fd, 'w') as output_file:
+        LOG.debug('Saving to %s', output_path)
+        # we use iter_content because patches can be binary
+        for block in rsp.iter_content(1024):
+            output_file.write(block)
+
+    return output_path
 
 
 def index(resource_type, params=None):  # type: (str, dict) -> dict
@@ -164,7 +192,7 @@ def detail(resource_type, resource_id, params=None):
     url = '/'.join([_get_server(), 'api', resource_type,
                     str(resource_id), ''])
 
-    return get(url, params).json()
+    return get(url, params, stream=False).json()
 
 
 def update(resource_type, resource_id, data):
