@@ -3,7 +3,6 @@ Patch subcommands.
 """
 
 import logging
-import subprocess
 import sys
 
 import arrow
@@ -41,14 +40,7 @@ def apply_cmd(patch_id, series, deps, args):
 
     mbox = api.get(patch['mbox'], {'series': series}).content
 
-    cmd = ['git', 'am']
-    if args:
-        cmd.extend(args)
-    else:
-        cmd.append('-3')
-
-    p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-    p.communicate(mbox)
+    utils.git_am(mbox, args)
 
 
 @click.command(name='download')

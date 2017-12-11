@@ -3,7 +3,6 @@ Series subcommands.
 """
 
 import logging
-import subprocess
 import sys
 
 import arrow
@@ -29,14 +28,7 @@ def apply_cmd(series_id, args):
     series = api.detail('series', series_id)
     mbox = api.get(series['mbox']).text
 
-    cmd = ['git', 'am']
-    if args:
-        cmd.extend(args)
-    else:
-        cmd.append('-3')
-
-    p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-    p.communicate(mbox)
+    utils.git_am(mbox, args)
 
 
 @click.command(name='download')

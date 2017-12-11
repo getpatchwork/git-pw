@@ -3,7 +3,6 @@ Bundle subcommands.
 """
 
 import logging
-import subprocess
 import sys
 
 import click
@@ -28,14 +27,7 @@ def apply_cmd(bundle_id, args):
     bundle = api.detail('bundles', bundle_id)
     mbox = api.get(bundle['mbox']).text
 
-    cmd = ['git', 'am']
-    if args:
-        cmd.extend(args)
-    else:
-        cmd.append('-3')
-
-    p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-    p.communicate(mbox)
+    utils.git_am(mbox, args)
 
 
 @click.command(name='download')
