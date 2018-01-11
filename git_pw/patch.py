@@ -156,8 +156,16 @@ def update_cmd(patch_id, commit_ref, state, delegate, archived):
     _show_patch(patch)
 
 
+# NOTE(stephenfin): The list of default states is populated from Patchwork's
+# 'fixtures/default_states.xml' file [1]. Due to bug #156, we can only
+# currently filter by one state but we've configured this for future support of
+# multiple states.
+#
+# [1] https://git.io/vN3vi
+# [2] https://git.io/vN3vX
 @click.command(name='list')
 @click.option('--state', metavar='STATE', multiple=True,
+              default=['under-review', 'new'],
               help='Show only patches matching these states. Should be '
               'slugified representations of states. The available states '
               'are instance dependant.')
@@ -188,6 +196,9 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
              ','.join(delegate), archived)
 
     params = []
+
+    for state in state:
+        params.append(('state', state))
 
     # TODO(stephenfin): It should be possible to filter patches submitter email
     for subm in submitter:
