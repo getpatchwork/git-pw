@@ -66,7 +66,7 @@ def download_cmd(patch_id, fmt):
     click.echo_via_pager(output)
 
 
-def _show_patch(patch):
+def _show_patch(patch, echo=True):
 
     def _format_series(series):
         return '%-4d %s' % (series.get('id'), series.get('name') or '-')
@@ -91,7 +91,10 @@ def _show_patch(patch):
         prefix = ''
 
     # TODO(stephenfin): We might want to make this machine readable?
-    click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
+    if echo:
+        click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
+
+    return output
 
 
 @click.command(name='show')
@@ -186,7 +189,8 @@ def update_cmd(patch_id, commit_ref, state, delegate, archived):
                   ['id', '-id', 'name', '-name', 'date', '-date']),
               help='Sort output on given field.')
 @click.argument('name', required=False)
-def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
+def list_cmd(state, submitter, delegate, archived, limit, page, sort, name,
+             use_pager=True):
     """List patches.
 
     List patches on the Patchwork instance.
@@ -252,4 +256,7 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
          if patch.get('delegate') else ''),
     ] for patch in patches]
 
-    click.echo_via_pager(tabulate(output, headers, tablefmt='psql'))
+    if use_pager:
+        click.echo_via_pager(tabulate(output, headers, tablefmt='psql'))
+
+    return output
