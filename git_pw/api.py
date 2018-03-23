@@ -139,7 +139,7 @@ def download(url, params=None):  # type: (str, dict) -> None
     output_fd, output_path = tempfile.mkstemp(suffix='.patch')
 
     rsp = get(url, params, stream=True)
-    with os.fdopen(output_fd, 'w') as output_file:
+    with os.fdopen(output_fd, 'wb') as output_file:
         LOG.debug('Saving to %s', output_path)
         # we use iter_content because patches can be binary
         for block in rsp.iter_content(1024):
