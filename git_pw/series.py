@@ -109,7 +109,7 @@ def list_cmd(submitter, limit, page, sort, name):
     # TODO(stephenfin): It should be possible to filter series by submitter
     # email
     for subm in submitter:
-        people = api.index('people', {'q': subm})
+        people = api.index('people', [('q', subm)])
         if len(people) == 0:
             LOG.error('No matching submitter found: %s', subm)
             sys.exit(1)

@@ -100,7 +100,7 @@ def list_cmd(owner, limit, page, sort, name):
 
     # TODO(stephenfin): It should be possible to filter bundles by owner email
     for own in owner:
-        users = api.index('users', {'q': own})
+        users = api.index('users', [('q', own)])
         if len(users) == 0:
             LOG.error('No matching owner found: %s', own)
             sys.exit(1)

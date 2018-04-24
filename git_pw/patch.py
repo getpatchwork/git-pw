@@ -130,7 +130,7 @@ def update_cmd(patch_id, commit_ref, state, delegate, archived):
              patch_id, commit_ref, state, archived)
 
     if delegate:
-        users = api.index('users', {'q': delegate})
+        users = api.index('users', [('q', delegate)])
         if len(users) == 0:
             LOG.error('No matching delegates found: %s', delegate)
             sys.exit(1)
@@ -202,7 +202,7 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
 
     # TODO(stephenfin): It should be possible to filter patches submitter email
     for subm in submitter:
-        people = api.index('people', {'q': subm})
+        people = api.index('people', [('q', subm)])
         if len(people) == 0:
             LOG.error('No matching submitter found: %s', subm)
             sys.exit(1)
@@ -213,7 +213,7 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
         params.append(('submitter', people[0]['id']))
 
     for delg in delegate:
-        users = api.index('users', {'q': delg})
+        users = api.index('users', [('q', delg)])
         if len(users) == 0:
             LOG.error('No matching delegates found: %s', delg)
             sys.exit(1)
