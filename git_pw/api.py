@@ -78,7 +78,7 @@ def _get_project():  # type: () -> str
 def _handle_error(operation, exc):
     if exc.response is not None and exc.response.content:
         # we make the assumption that all responses will be JSON encoded
-        LOG.error(exc.response.json()['detail'])
+        LOG.error(exc.response.json())
     else:
         LOG.error('Failed to %s resource. Is your configuration '
                   'correct?' % operation)
