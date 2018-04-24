@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    Patches are now automatically filtered by ``new`` state, as originally
+    intended. You can override this by specifying the ``--state`` filter.
+  - |
+    Some issues with filtering patches, series and bundles by submitters
+    and delegates, submitters, and owners respectively are resolved.
+  - |
+    API errors are now handled correctly.
