@@ -14,6 +14,7 @@ from git_pw import config
 if 0:  # noqa
     from typing import Dict  # noqa
     from typing import List  # noqa
+    from typing import Optional  # noqa
     from typing import Tuple  # noqa
 
     Filters = List[Tuple[str, str]]
@@ -114,6 +115,19 @@ def _handle_error(operation, exc):
         raise
     else:
         sys.exit(1)
+
+
+def version():
+    # type: () -> Optional[Tuple[int, int]]
+    """Get the version of the server from the URL, if present."""
+    server = _get_server()
+
+    version = re.match(r'.*/(\d)\.(\d)$', server)
+    if version:
+        return (int(version.group(1)), int(version.group(2)))
+
+    # return the oldest version we support if no version provided
+    return (1, 0)
 
 
 def get(url, params=None, stream=False):

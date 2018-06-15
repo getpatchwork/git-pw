@@ -95,6 +95,7 @@ def show_cmd(bundle_id):
     output = [
         ('ID', bundle.get('id')),
         ('Name', bundle.get('name')),
+        ('URL', bundle.get('web_url')),
         ('Owner', bundle.get('owner').get('username')),
         ('Project', bundle.get('project').get('name')),
         ('Public', bundle.get('public'))]
@@ -131,17 +132,19 @@ def list_cmd(owner, limit, page, sort, name):
 
     params = []
 
-    # TODO(stephenfin): It should be possible to filter bundles by owner email
-    for own in owner:
-        users = api.index('users', [('q', own)])
-        if len(users) == 0:
-            LOG.error('No matching owner found: %s', own)
-            sys.exit(1)
-        elif len(users) > 1:
-            LOG.error('More than one owner found: %s', own)
-            sys.exit(1)
+    if api.version() >= (1, 1):
+        params.extend([('owner', own) for own in owner])
+    else:
+        for own in owner:
+            users = api.index('users', [('q', own)])
+            if len(users) == 0:
+                LOG.error('No matching owner found: %s', own)
+                sys.exit(1)
+            elif len(users) > 1:
+                LOG.error('More than one owner found: %s', own)
+                sys.exit(1)
 
-        params.append(('owner', users[0]['id']))
+            params.append(('owner', users[0]['id']))
 
     params.extend([
         ('q', name),

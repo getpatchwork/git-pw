@@ -95,6 +95,7 @@ def _show_patch(patch):
         ('Message ID', patch.get('msgid')),
         ('Date', patch.get('date')),
         ('Name', patch.get('name')),
+        ('URL', patch.get('web_url')),
         ('Submitter', '%s (%s)' % (patch.get('submitter').get('name'),
                                    patch.get('submitter').get('email'))),
         ('State', patch.get('state')),
@@ -220,28 +221,31 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
     for state in state:
         params.append(('state', state))
 
-    # TODO(stephenfin): It should be possible to filter patches submitter email
-    for subm in submitter:
-        people = api.index('people', [('q', subm)])
-        if len(people) == 0:
-            LOG.error('No matching submitter found: %s', subm)
-            sys.exit(1)
-        elif len(people) > 1:
-            LOG.error('More than one submitter found: %s', subm)
-            sys.exit(1)
+    if api.version() >= (1, 1):
+        params.extend([('submitter', subm) for subm in submitter])
+        params.extend([('delegate', delg) for delg in delegate])
+    else:
+        for subm in submitter:
+            people = api.index('people', [('q', subm)])
+            if len(people) == 0:
+                LOG.error('No matching submitter found: %s', subm)
+                sys.exit(1)
+            elif len(people) > 1:
+                LOG.error('More than one submitter found: %s', subm)
+                sys.exit(1)
 
-        params.append(('submitter', people[0]['id']))
+            params.append(('submitter', people[0]['id']))
 
-    for delg in delegate:
-        users = api.index('users', [('q', delg)])
-        if len(users) == 0:
-            LOG.error('No matching delegates found: %s', delg)
-            sys.exit(1)
-        elif len(users) > 1:
-            LOG.error('More than one delegate found: %s', delg)
-            sys.exit(1)
+        for delg in delegate:
+            users = api.index('users', [('q', delg)])
+            if len(users) == 0:
+                LOG.error('No matching delegates found: %s', delg)
+                sys.exit(1)
+            elif len(users) > 1:
+                LOG.error('More than one delegate found: %s', delg)
+                sys.exit(1)
 
-        params.append(('delegate', users[0]['id']))
+            params.append(('delegate', users[0]['id']))
 
     params.extend([
         ('q', name),
