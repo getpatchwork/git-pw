@@ -249,9 +249,7 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
 
     params.extend([
         ('q', name),
-        # TODO(stephenfin): Perhaps we could use string values. Refer to
-        # https://github.com/carltongibson/django-filter/pull/378
-        ('archived', 3 if archived else 1),
+        ('archived', 'true' if archived else 'false'),
         ('page', page),
         ('per_page', limit),
         ('order', sort),
