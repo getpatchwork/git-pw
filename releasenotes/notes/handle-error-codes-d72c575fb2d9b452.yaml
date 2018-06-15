@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    HTTP 404 and HTTP 5xx errors are now handled correctly.

@@ -80,8 +80,17 @@ def _get_project():  # type: () -> str
 
 def _handle_error(operation, exc):
     if exc.response is not None and exc.response.content:
+        # server errors should always be reported
+        if exc.response.status_code in range(500, 512):  # 5xx Server Error
+            LOG.error('Server error. Please report this issue to '
+                      'https://github.com/getpatchwork/patchwork')
+            raise
+
         # we make the assumption that all responses will be JSON encoded
-        LOG.error(exc.response.json())
+        if exc.response.status_code == 404:
+            LOG.error('Resource not found')
+        else:
+            LOG.error(exc.response.json())
     else:
         LOG.error('Failed to %s resource. Is your configuration '
                   'correct?' % operation)
