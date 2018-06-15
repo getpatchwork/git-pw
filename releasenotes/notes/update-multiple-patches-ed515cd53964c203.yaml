@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    You can now list multiple patches for ``git pw patch update``. This allows
+    you to do bulk updates, e.g. for a series of patches (because series states
+    are not yet supported). For example::
+
+        $ git pw patch update --state accepted 123 124 125 126

@@ -109,7 +109,7 @@ def show_cmd(patch_id):
 
 
 @click.command(name='update')
-@click.argument('patch_id', type=click.INT)
+@click.argument('patch_ids', type=click.INT, nargs=-1, required=True)
 @click.option('--commit-ref', metavar='COMMIT_REF',
               help='Set the patch commit reference hash')
 @click.option('--state', metavar='STATE',
@@ -120,40 +120,41 @@ def show_cmd(patch_id):
               'either a username or a user\'s email address.')
 @click.option('--archived', metavar='ARCHIVED', type=click.BOOL,
               help='Set the patch archived state.')
-def update_cmd(patch_id, commit_ref, state, delegate, archived):
-    """Update a patch.
+def update_cmd(patch_ids, commit_ref, state, delegate, archived):
+    """Update one or more patches.
 
-    Updates a Patch on the Patchwork instance. Some operations may
+    Updates one or more Patches on the Patchwork instance. Some operations may
     require admin or maintainer permissions.
     """
-    LOG.info('Updating patch: id=%d, commit_ref=%s, state=%s, archived=%s',
-             patch_id, commit_ref, state, archived)
+    for patch_id in patch_ids:
+        LOG.info('Updating patch: id=%d, commit_ref=%s, state=%s, archived=%s',
+                 patch_id, commit_ref, state, archived)
 
-    if delegate:
-        users = api.index('users', [('q', delegate)])
-        if len(users) == 0:
-            LOG.error('No matching delegates found: %s', delegate)
-            sys.exit(1)
-        elif len(users) > 1:
-            LOG.error('More than one delegate found: %s', delegate)
-            sys.exit(1)
+        if delegate:
+            users = api.index('users', [('q', delegate)])
+            if len(users) == 0:
+                LOG.error('No matching delegates found: %s', delegate)
+                sys.exit(1)
+            elif len(users) > 1:
+                LOG.error('More than one delegate found: %s', delegate)
+                sys.exit(1)
 
-        delegate = users[0]['id']
+            delegate = users[0]['id']
 
-    data = {}
-    for key, value in [('commit_ref', commit_ref), ('state', state),
-                       ('archived', archived), ('delegate', delegate)]:
-        if value is None:
-            continue
+        data = {}
+        for key, value in [('commit_ref', commit_ref), ('state', state),
+                           ('archived', archived), ('delegate', delegate)]:
+            if value is None:
+                continue
 
-        data[key] = str(value)
+            data[key] = str(value)
 
-    data = [('commit_ref', commit_ref), ('state', state),
-            ('archived', archived), ('delegate', delegate)]
+        data = [('commit_ref', commit_ref), ('state', state),
+                ('archived', archived), ('delegate', delegate)]
 
-    patch = api.update('patches', patch_id, data)
+        patch = api.update('patches', patch_id, data)
 
-    _show_patch(patch)
+        _show_patch(patch)
 
 
 # NOTE(stephenfin): The list of default states is populated from Patchwork's
