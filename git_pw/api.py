@@ -57,7 +57,21 @@ def _get_headers():  # type: () -> Dict[str, str]
 
 def _get_server():  # type: () -> str
     if CONF.server:
-        return CONF.server.rstrip('/')
+        server = CONF.server.rstrip('/')
+
+        if not re.match(r'.*/api/\d\.\d$', server):
+            LOG.warning('Server version missing')
+            LOG.warning('You should provide the server version in the URL '
+                        'configured via git-config or --server')
+            LOG.warning('This will be required in git-pw 2.0')
+
+        if not re.match(r'.*/api(/\d\.\d)?$', server):
+            # NOTE(stephenfin): We've already handled this particular error
+            # above so we don't warn twice. We also don't stick on a version
+            # number since the user clearly wants the latest
+            server += '/api'
+
+        return server
     else:
         LOG.error('Server information missing')
         LOG.error('You must provide server information via git-config or via '
@@ -193,7 +207,7 @@ def index(resource_type, params=None):
         A list of dictionaries, representing the summary view of each resource.
     """
     # NOTE(stephenfin): All resources must have a trailing '/'
-    url = '/'.join([_get_server(), 'api', resource_type, ''])
+    url = '/'.join([_get_server(), resource_type, ''])
 
     # NOTE(stephenfin): Not all endpoints in the Patchwork API allow filtering
     # by project, but all the ones we care about here do.
@@ -218,8 +232,7 @@ def detail(resource_type, resource_id, params=None):
         A dictionary representing the detailed view of a given resource.
     """
     # NOTE(stephenfin): All resources must have a trailing '/'
-    url = '/'.join([_get_server(), 'api', resource_type,
-                    str(resource_id), ''])
+    url = '/'.join([_get_server(), resource_type, str(resource_id), ''])
 
     return get(url, params, stream=False).json()
 
@@ -238,7 +251,7 @@ def update(resource_type, resource_id, data):
     Returns:
         A dictionary representing the detailed view of a given resource.
     """
-    url = '/'.join([CONF.server.rstrip('/'), 'api', '1.0', resource_type,
-                    str(resource_id), ''])
+    # NOTE(stephenfin): All resources must have a trailing '/'
+    url = '/'.join([_get_server(), resource_type, str(resource_id), ''])
 
     return put(url, data).json()

@@ -72,10 +72,16 @@ To begin, you'll need to configure Git settings appropriately. The following
 settings are **required**:
 
 ``pw.server``
-  The URL for the Patchwork instance. This will typically look like. For
-  example::
+  The URL for the Patchwork instance's API. This should include the API
+  version::
 
-      https://patchwork.ozlabs.org/
+      https://patchwork.ozlabs.org/api/1.1
+
+  You can discover the API version supported by your instance by comparing the
+  server version, found at ``/about``, with the API versions provided in the
+  `documentation`__.
+
+  __ https://patchwork.readthedocs.io/en/stable-2.1/api/rest/#rest-api-versions
 
 ``pw.project``
   The project name or list-id. This will appear in the URL when using the web
@@ -101,7 +107,7 @@ configure the Patchwork project, run:
 
 .. code-block:: bash
 
-   $ git config pw.server 'https://patchwork.ozlabs.org/api/1.0/'
+   $ git config pw.server 'https://patchwork.ozlabs.org/api/1.1/'
    $ git config pw.project 'patchwork'
 
 Development

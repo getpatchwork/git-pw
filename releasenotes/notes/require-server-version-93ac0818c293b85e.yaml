@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    Configuring a server without the API version, e.g. via ``git config
+    pw.server`` will now result in a warning. An error will be raised in a
+    future release of *git-pw*.
