@@ -14,6 +14,10 @@ from git_pw import config
 
 if 0:  # noqa
     from typing import Dict  # noqa
+    from typing import List  # noqa
+    from typing import Tuple  # noqa
+
+    Filters = List[Tuple[str, str]]
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
@@ -91,13 +95,17 @@ def _handle_error(operation, exc):
 
 
 def get(url, params=None, stream=False):
-    # type: (str, dict, bool) -> requests.Response
+    # type: (str, Filters, bool) -> requests.Response
     """Make GET request and handle errors."""
     LOG.debug('GET %s', url)
 
     try:
-        rsp = requests.get(url, auth=_get_auth(), headers=_get_headers(),
-                           params=params, stream=stream)
+        # TODO(stephenfin): We only use a subset of the types possible for
+        # 'params' (namely a list of tuples) but it doesn't seem possible to
+        # indicate this
+        rsp = requests.get(  # type: ignore
+            url, auth=_get_auth(), headers=_get_headers(), params=params,
+            stream=stream)
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
         _handle_error('fetch', exc)
@@ -107,7 +115,8 @@ def get(url, params=None, stream=False):
     return rsp
 
 
-def put(url, data):  # type: (str, dict) -> requests.Response
+def put(url, data):
+    # type: (str, dict) -> requests.Response
     """Make PUT request and handle errors."""
     LOG.debug('PUT %s, data=%r', url, data)
 
@@ -123,15 +132,15 @@ def put(url, data):  # type: (str, dict) -> requests.Response
     return rsp
 
 
-def download(url, params=None):  # type: (str, dict) -> None
+def download(url, params=None):
+    # type: (str, Filters) -> str
     """Retrieve a specific API resource and save it to a file.
 
     GET /{resource}/{resourceID}/
 
     Arguments:
-        resource_type (str): The resource endpoint name.
-        resource_id (int/str): The ID for the specific resource.
-        params (dict/list): Additional parameters.
+        url: The resource URL.
+        params: Additional parameters.
 
     Returns:
         A path to an output file containing the content.
@@ -148,7 +157,8 @@ def download(url, params=None):  # type: (str, dict) -> None
     return output_path
 
 
-def index(resource_type, params=None):  # type: (str, dict) -> dict
+def index(resource_type, params=None):
+    # type: (str, Filters) -> dict
     """List API resources.
 
     GET /{resource}/
@@ -157,8 +167,8 @@ def index(resource_type, params=None):  # type: (str, dict) -> dict
     fashion.
 
     Arguments:
-        resource_type (str): The resource endpoint name.
-        params (dict/list): Additional parameters, filters.
+        resource_type: The resource endpoint name.
+        params: Additional parameters, filters.
 
     Returns:
         A list of dictionaries, representing the summary view of each resource.
@@ -175,15 +185,15 @@ def index(resource_type, params=None):  # type: (str, dict) -> dict
 
 
 def detail(resource_type, resource_id, params=None):
-    # type: (str, int, dict) -> dict
+    # type: (str, int, Filters) -> Dict
     """Retrieve a specific API resource.
 
     GET /{resource}/{resourceID}/
 
     Arguments:
-        resource_type (str): The resource endpoint name.
-        resource_id (int/str): The ID for the specific resource.
-        params (dict/list): Additional parameters.
+        resource_type: The resource endpoint name.
+        resource_id: The ID for the specific resource.
+        params: Additional parameters.
 
     Returns:
         A dictionary representing the detailed view of a given resource.
@@ -202,9 +212,9 @@ def update(resource_type, resource_id, data):
     PUT /{resource}/{resourceID}/
 
     Arguments:
-        resource_type (str): The resource endpoint name.
-        resource_id (int/str): The ID for the specific resource.
-        params (dict/list): Fields to update.
+        resource_type: The resource endpoint name.
+        resource_id: The ID for the specific resource.
+        params: Fields to update.
 
     Returns:
         A dictionary representing the detailed view of a given resource.
