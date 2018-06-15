@@ -1,4 +1,4 @@
--r requirements.txt
+-r ../requirements.txt
 sphinx>=1.5,<2.0
 sphinx-click>=1.0,<2.0
 click-man>=0.2,<0.3
