@@ -1,0 +1,20 @@
+---
+features:
+  - |
+    Patches, series and bundles downloaded using the ``download`` command will
+    now be saved to a file by default instead of output to stdout. By default,
+    this will use the name provided by Patchwork but you can override this by
+    passing a specific filename. For example::
+
+        $ git pw patch download 1234 hello-world.patch
+
+    You can also output to ``stdout`` using the ``-`` shortcut. For example::
+
+        $ git pw patch download 1234 -
+upgrade:
+  - |
+    Patches, series and bundles downloaded using the ``download`` command will
+    now be saved to a file by default. To continue outputing to ``stdout``,
+    use ``-``. For example::
+
+        $ git pw patch download 1234 -

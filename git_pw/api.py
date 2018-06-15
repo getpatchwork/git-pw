@@ -3,9 +3,8 @@ Simple wrappers around request methods.
 """
 
 import logging
-import os
+import re
 import sys
-import tempfile
 
 import requests
 
@@ -138,6 +137,9 @@ def download(url, params=None):
 
     GET /{resource}/{resourceID}/
 
+    The ``Content-Disposition`` header is assumed to be present and
+    will be used for the output filename.
+
     Arguments:
         url: The resource URL.
         params: Additional parameters.
@@ -145,10 +147,13 @@ def download(url, params=None):
     Returns:
         A path to an output file containing the content.
     """
-    output_fd, output_path = tempfile.mkstemp(suffix='.patch')
-
     rsp = get(url, params, stream=True)
-    with os.fdopen(output_fd, 'wb') as output_file:
+
+    # we don't catch anything here because we should break if these are missing
+    header = rsp.headers['content-disposition']
+    output_path = re.search('filename=(.+)', header).group(1)
+
+    with open(output_path, 'wb') as output_file:
         LOG.debug('Saving to %s', output_path)
         # we use iter_content because patches can be binary
         for block in rsp.iter_content(1024):

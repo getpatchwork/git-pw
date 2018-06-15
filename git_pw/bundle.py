@@ -32,17 +32,29 @@ def apply_cmd(bundle_id, args):
 
 @click.command(name='download')
 @click.argument('bundle_id', type=click.INT)
-def download_cmd(bundle_id):
+@click.argument('output', type=click.File('wb'), required=False)
+def download_cmd(bundle_id, output):
     """Download bundle in mbox format.
 
-    Download a bundle but do not apply it.
+    Download a bundle but do not apply it. ``OUTPUT`` is optional and can be an
+    output path or ``-`` to output to ``stdout``. If ``OUTPUT`` is not
+    provided, the output path will be automatically chosen.
     """
     LOG.debug('Downloading bundle: id=%d', bundle_id)
 
+    path = None
     bundle = api.detail('bundles', bundle_id)
-    output = api.get(bundle['mbox']).text
 
-    click.echo_via_pager(output)
+    if output:
+        output.write(api.get(bundle['mbox']).text)
+
+        if output != sys.stdout:
+            path = output.name
+    else:
+        path = api.download(bundle['mbox'])
+
+    if path:
+        LOG.info('Downloaded bundle to %s', path)
 
 
 @click.command(name='show')

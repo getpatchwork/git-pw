@@ -11,4 +11,4 @@ def configure_verbosity(debug):  # type: (bool) -> None
             level=logging.DEBUG,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     else:
-        logging.basicConfig(level=logging.ERROR, format='%(message)s')
+        logging.basicConfig(level=logging.INFO, format='%(message)s')

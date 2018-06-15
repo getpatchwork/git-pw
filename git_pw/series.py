@@ -33,17 +33,29 @@ def apply_cmd(series_id, args):
 
 @click.command(name='download')
 @click.argument('series_id', type=click.INT)
-def download_cmd(series_id):
+@click.argument('output', type=click.File('wb'), required=False)
+def download_cmd(series_id, output):
     """Download series in mbox format.
 
-    Download a series but do not apply it.
+    Download a series but do not apply it. ``OUTPUT`` is optional and can be an
+    output path or ``-`` to output to ``stdout``. If ``OUTPUT`` is not
+    provided, the output path will be automatically chosen.
     """
     LOG.debug('Downloading series: id=%d', series_id)
 
+    path = None
     series = api.detail('series', series_id)
-    output = api.get(series['mbox']).text
 
-    click.echo_via_pager(output)
+    if output:
+        output.write(api.get(series['mbox']).text)
+
+        if output != sys.stdout:
+            path = output.name
+    else:
+        path = api.download(series['mbox'])
+
+    if path:
+        LOG.info('Downloaded series to %s', path)
 
 
 @click.command(name='show')

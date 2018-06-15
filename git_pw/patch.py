@@ -45,25 +45,44 @@ def apply_cmd(patch_id, series, deps, args):
 
 @click.command(name='download')
 @click.argument('patch_id', type=click.INT)
+@click.argument('output', type=click.File('wb'), required=False)
 @click.option('--diff', 'fmt', flag_value='diff',
               help='Show patch in diff format.')
 @click.option('--mbox', 'fmt', flag_value='mbox', default=True,
               help='Show patch in mbox format.')
-def download_cmd(patch_id, fmt):
-    """Download a patch diff/mbox.
+def download_cmd(patch_id, output, fmt):
+    """Download patch in diff or mbox format.
 
-    Download a patch but do not apply it.
+    Download a patch but do not apply it. ``OUTPUT`` is optional and can be an
+    output path or ``-`` to output to ``stdout``. If ``OUTPUT`` is not
+    provided, the output path will be automatically chosen.
     """
     LOG.debug('Downloading patch: id=%d, format=%s', patch_id, fmt)
 
+    path = None
     patch = api.detail('patches', patch_id)
 
-    if fmt == 'diff':
-        output = patch['diff']
-    else:
-        output = api.get(patch['mbox']).text
+    if output:
+        if fmt == 'diff':
+            content = patch['diff']
+        else:
+            content = api.get(patch['mbox']).text
 
-    click.echo_via_pager(output)
+        output.write(content)
+
+        if output != sys.stdout:
+            path = output.name
+    else:
+        if fmt == 'diff':
+            # TODO(stephenfin): We discard the 'diff' field so we can get the
+            # filename and save to the correct file. We should expose this
+            # information via the API
+            path = api.download(patch['mbox'].replace('mbox', 'raw'))
+        else:
+            path = api.download(patch['mbox'])
+
+    if path:
+        LOG.info('Downloaded patch to %s', path)
 
 
 def _show_patch(patch):
