@@ -150,8 +150,13 @@ def download(url, params=None):
     rsp = get(url, params, stream=True)
 
     # we don't catch anything here because we should break if these are missing
-    header = rsp.headers['content-disposition']
-    output_path = re.search('filename=(.+)', header).group(1)
+    header = re.search('filename=(.+)',
+                       rsp.headers.get('content-disposition') or '')
+    if not header:
+        LOG.error('Filename was expected but was not provided in response')
+        sys.exit(1)
+
+    output_path = header.group(1)
 
     with open(output_path, 'wb') as output_file:
         LOG.debug('Saving to %s', output_path)

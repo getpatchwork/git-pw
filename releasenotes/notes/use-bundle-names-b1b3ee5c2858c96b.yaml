@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    It's now possible to use a bundle name in addition to the numeric ID for
+    the ``bundle download``, ``bundle apply`` and ``bundle show`` commands.
+    For example::
+
+        $ git pw bundle show 'My sample bundle'
+
+    As bundle names are not necessarily unique, this will fail if multiple
+    bundles match the provided string.
