@@ -3,3 +3,4 @@ sphinx>=1.5,<2.0
 sphinx-click>=1.0,<2.0
 click-man>=0.2,<0.3
 reno>=2.0,<3.0
+sphinx_rtd_theme==0.3.1
