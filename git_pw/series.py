@@ -23,7 +23,7 @@ def apply_cmd(series_id, args):
 
     Apply a series locally using the 'git-am' command.
     """
-    LOG.info('Applying series: id=%d, args=%s', series_id, ' '.join(args))
+    LOG.debug('Applying series: id=%d, args=%s', series_id, ' '.join(args))
 
     series = api.detail('series', series_id)
     mbox = api.download(series['mbox'])
@@ -38,7 +38,7 @@ def download_cmd(series_id):
 
     Download a series but do not apply it.
     """
-    LOG.info('Downloading series: id=%d', series_id)
+    LOG.debug('Downloading series: id=%d', series_id)
 
     series = api.detail('series', series_id)
     output = api.get(series['mbox']).text
@@ -101,8 +101,8 @@ def list_cmd(submitter, limit, page, sort, name):
 
     List series on the Patchwork instance.
     """
-    LOG.info('List series: submitters=%s, limit=%r, page=%r, sort=%r',
-             ','.join(submitter), limit, page, sort)
+    LOG.debug('List series: submitters=%s, limit=%r, page=%r, sort=%r',
+              ','.join(submitter), limit, page, sort)
 
     params = []
 

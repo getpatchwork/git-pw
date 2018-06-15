@@ -22,7 +22,7 @@ def apply_cmd(bundle_id, args):
 
     Apply a bundle locally using the 'git-am' command.
     """
-    LOG.info('Applying bundle: id=%d', bundle_id)
+    LOG.debug('Applying bundle: id=%d', bundle_id)
 
     bundle = api.detail('bundles', bundle_id)
     mbox = api.download(bundle['mbox']).text
@@ -37,7 +37,7 @@ def download_cmd(bundle_id):
 
     Download a bundle but do not apply it.
     """
-    LOG.info('Downloading bundle: id=%d', bundle_id)
+    LOG.debug('Downloading bundle: id=%d', bundle_id)
 
     bundle = api.detail('bundles', bundle_id)
     output = api.get(bundle['mbox']).text
@@ -93,8 +93,8 @@ def list_cmd(owner, limit, page, sort, name):
 
     List bundles on the Patchwork instance.
     """
-    LOG.info('List bundles: owners=%s, limit=%r, page=%r, sort=%r',
-             ','.join(owner), limit, page, sort)
+    LOG.debug('List bundles: owners=%s, limit=%r, page=%r, sort=%r',
+              ','.join(owner), limit, page, sort)
 
     params = []
 

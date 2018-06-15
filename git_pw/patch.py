@@ -28,8 +28,8 @@ def apply_cmd(patch_id, series, deps, args):
 
     Apply a patch locally using the 'git-am' command.
     """
-    LOG.info('Applying patch: id=%d, series=%s, deps=%r, args=%s', patch_id,
-             series, deps, ' '.join(args))
+    LOG.debug('Applying patch: id=%d, series=%s, deps=%r, args=%s', patch_id,
+              series, deps, ' '.join(args))
 
     patch = api.detail('patches', patch_id)
 
@@ -54,7 +54,7 @@ def download_cmd(patch_id, fmt):
 
     Download a patch but do not apply it.
     """
-    LOG.info('Downloading patch: id=%d, format=%s', patch_id, fmt)
+    LOG.debug('Downloading patch: id=%d, format=%s', patch_id, fmt)
 
     patch = api.detail('patches', patch_id)
 
@@ -127,8 +127,8 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived):
     require admin or maintainer permissions.
     """
     for patch_id in patch_ids:
-        LOG.info('Updating patch: id=%d, commit_ref=%s, state=%s, archived=%s',
-                 patch_id, commit_ref, state, archived)
+        LOG.debug('Updating patch: id=%d, commit_ref=%s, state=%s, '
+                  'archived=%s', patch_id, commit_ref, state, archived)
 
         if delegate:
             users = api.index('users', [('q', delegate)])
@@ -192,9 +192,9 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
 
     List patches on the Patchwork instance.
     """
-    LOG.info('List patches: states=%s, submitters=%s, delegates=%s, '
-             'archived=%r', ','.join(state), ','.join(submitter),
-             ','.join(delegate), archived)
+    LOG.debug('List patches: states=%s, submitters=%s, delegates=%s, '
+              'archived=%r', ','.join(state), ','.join(submitter),
+              ','.join(delegate), archived)
 
     params = []
 
