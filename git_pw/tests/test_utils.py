@@ -1,10 +1,27 @@
 """Unit tests for ``git_pw/utils.py``."""
 
+import subprocess
 import os
 
 import mock
 
 from git_pw import utils
+
+
+@mock.patch.object(utils.subprocess, 'check_output', return_value=' bar ')
+def test_git_config(mock_subprocess):
+    value = utils.git_config('foo')
+
+    assert value == 'bar'
+    mock_subprocess.assert_called_once_with(['git', 'config', 'foo'])
+
+
+@mock.patch.object(utils.subprocess, 'check_output',
+                   side_effect=subprocess.CalledProcessError(1, 'xyz', '123'))
+def test_git_config_error(mock_subprocess):
+    value = utils.git_config('foo')
+
+    assert value == ''
 
 
 @mock.patch.object(utils, 'git_config', return_value='bar')
