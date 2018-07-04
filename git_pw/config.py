@@ -3,7 +3,8 @@ Configuration loader using 'git-config'.
 """
 
 import logging
-import subprocess
+
+from git_pw import utils
 
 LOG = logging.getLogger(__name__)
 # TODO(stephenfin): We should eventually download and store these
@@ -11,20 +12,6 @@ LOG = logging.getLogger(__name__)
 DEFAULT_STATES = [
     'new', 'under-review', 'accepted', 'rejected', 'rfc', 'not-applicable',
     'changes-requested', 'awaiting-upstream', 'superseded', 'deferred']
-
-
-def _get_config(key):
-    """Parse config from 'git-config' cache.
-
-    Returns:
-        Matching setting for 'key' if available, else None.
-    """
-    try:
-        output = subprocess.check_output(['git', 'config', 'pw.%s' % key])
-    except subprocess.CalledProcessError:
-        output = ''
-
-    return output.strip()
 
 
 class Config(object):
@@ -40,7 +27,7 @@ class Config(object):
             return value
 
         # fallback to reading from git config otherwise
-        value = _get_config(name)
+        value = utils.git_config('pw.{}'.format(name))
         if value:
             LOG.debug("Retrieved '{}' setting from git-config".format(name))
             value = value.decode('utf-8')
