@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    *git-pw* will now choose use the same rules as Git to select the pager
+    used for ``list`` commands. This means the pager will be chosen based on a
+    variety of environment variables and git config options:
+
+        The order of preference is the ``$GIT_PAGER`` environment variable,
+        then ``core.pager`` configuration, then ``$PAGER``, and then the
+        default chosen at compile time (usually ``less``)

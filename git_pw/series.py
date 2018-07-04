@@ -155,4 +155,4 @@ def list_cmd(submitter, limit, page, sort, name):
                      series_.get('submitter').get('email'))
     ] for series_ in series]
 
-    click.echo_via_pager(tabulate(output, headers, tablefmt='psql'))
+    utils.echo_via_pager(tabulate(output, headers, tablefmt='psql'))

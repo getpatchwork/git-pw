@@ -166,4 +166,4 @@ def list_cmd(owner, limit, page, sort, name):
         'yes' if bundle.get('public') else 'no',
     ] for bundle in bundles]
 
-    click.echo_via_pager(tabulate(output, headers, tablefmt='psql'))
+    utils.echo_via_pager(tabulate(output, headers, tablefmt='psql'))

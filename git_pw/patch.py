@@ -274,4 +274,4 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
          if patch.get('delegate') else ''),
     ] for patch in patches]
 
-    click.echo_via_pager(tabulate(output, headers, tablefmt='psql'))
+    utils.echo_via_pager(tabulate(output, headers, tablefmt='psql'))
