@@ -43,7 +43,8 @@ def _get_bundle(bundle_id):
 def apply_cmd(bundle_id, args):
     """Apply bundle.
 
-    Apply a bundle locally using the 'git-am' command.
+    Apply a bundle locally using the 'git-am' command. Any additional ARGS
+    provided will be passed to the 'git-am' command.
     """
     LOG.debug('Applying bundle: id=%s', bundle_id)
 

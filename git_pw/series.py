@@ -23,7 +23,8 @@ LOG = logging.getLogger(__name__)
 def apply_cmd(series_id, args):
     """Apply series.
 
-    Apply a series locally using the 'git-am' command.
+    Apply a series locally using the 'git-am' command. Any additional ARGS
+    provided will be passed to the 'git-am' command.
     """
     LOG.debug('Applying series: id=%d, args=%s', series_id, ' '.join(args))
 
