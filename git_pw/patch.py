@@ -28,7 +28,8 @@ LOG = logging.getLogger(__name__)
 def apply_cmd(patch_id, series, deps, args):
     """Apply patch.
 
-    Apply a patch locally using the 'git-am' command.
+    Apply a patch locally using the 'git-am' command. Any additional ARGS
+    provided will be passed to the 'git-am' command.
     """
     LOG.debug('Applying patch: id=%d, series=%s, deps=%r, args=%s', patch_id,
               series, deps, ' '.join(args))
