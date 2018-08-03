@@ -112,4 +112,4 @@ def echo_via_pager(output):
         _echo_via_pager(pager, output)
         return
 
-    _echo_via_pager('less')
+    _echo_via_pager('less', output)
