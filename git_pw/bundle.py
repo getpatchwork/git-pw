@@ -35,9 +35,11 @@ def _get_bundle(bundle_id):
     return bundles[0]
 
 
-@click.command(name='apply')
+@click.command(name='apply', context_settings=dict(
+    ignore_unknown_options=True,
+))
 @click.argument('bundle_id')
-@click.argument('args', nargs=-1)
+@click.argument('args', nargs=-1, type=click.UNPROCESSED)
 def apply_cmd(bundle_id, args):
     """Apply bundle.
 

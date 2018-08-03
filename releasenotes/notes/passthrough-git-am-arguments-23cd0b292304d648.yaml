@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    ``git pw patch apply``, ``git pw bundle apply`` and ``git pw series apply``
+    will now pass any additional arugments provided through to ``git am``. For
+    example::
+
+        $ git pw patch apply 123 --signoff
+
+    Previously it was necessary to escape these arguments with ``--``.
