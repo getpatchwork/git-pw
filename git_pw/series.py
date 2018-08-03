@@ -15,9 +15,11 @@ from git_pw import utils
 LOG = logging.getLogger(__name__)
 
 
-@click.command(name='apply')
+@click.command(name='apply', context_settings=dict(
+    ignore_unknown_options=True,
+))
 @click.argument('series_id', type=click.INT)
-@click.argument('args', nargs=-1)
+@click.argument('args', nargs=-1, type=click.UNPROCESSED)
 def apply_cmd(series_id, args):
     """Apply series.
 

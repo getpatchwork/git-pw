@@ -15,14 +15,16 @@ from git_pw import utils
 LOG = logging.getLogger(__name__)
 
 
-@click.command(name='apply')
+@click.command(name='apply', context_settings=dict(
+    ignore_unknown_options=True,
+))
 @click.argument('patch_id', type=click.INT)
 @click.option('--series', type=click.INT, metavar='SERIES',
               help='Series to include dependencies from. Defaults to latest.')
 @click.option('--deps/--no-deps', default=True,
               help='When applying the patch, include dependencies if '
               'available. Defaults to using the most recent series.')
-@click.argument('args', nargs=-1)
+@click.argument('args', nargs=-1, type=click.UNPROCESSED)
 def apply_cmd(patch_id, series, deps, args):
     """Apply patch.
 
