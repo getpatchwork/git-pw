@@ -164,16 +164,13 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived):
 
             delegate = users[0]['id']
 
-        data = {}
+        data = []
         for key, value in [('commit_ref', commit_ref), ('state', state),
                            ('archived', archived), ('delegate', delegate)]:
             if value is None:
                 continue
 
-            data[key] = str(value)
-
-        data = [('commit_ref', commit_ref), ('state', state),
-                ('archived', archived), ('delegate', delegate)]
+            data.append((key, value))
 
         patch = api.update('patches', patch_id, data)
 
