@@ -2,10 +2,12 @@
 Simple wrappers around request methods.
 """
 
+from functools import update_wrapper
 import logging
 import re
 import sys
 
+import click
 import requests
 
 import git_pw
@@ -269,3 +271,28 @@ def update(resource_type, resource_id, data):
     url = '/'.join([_get_server(), resource_type, str(resource_id), ''])
 
     return put(url, data).json()
+
+
+def validate_multiple_filter_support(f):
+
+    @click.pass_context
+    def new_func(ctx, *args, **kwargs):
+        if version() >= (1, 1):
+            return ctx.invoke(f, *args, **kwargs)
+
+        for param in ctx.command.params:
+            if not param.multiple:
+                continue
+
+            value = list(kwargs[param.name] or [])
+            if value and len(value) > 1 and value != param.default:
+                msg = ('Filtering by multiple %ss is not supported with API '
+                       'version 1.0. If the server supports it, use version '
+                       '1.1 instead. Refer to https://git.io/vN3vX for more '
+                       'information.')
+
+                LOG.warning(msg, param.name)
+
+        return ctx.invoke(f, *args, **kwargs)
+
+    return update_wrapper(new_func, f)

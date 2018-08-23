@@ -125,6 +125,7 @@ def show_cmd(bundle_id):
                   ['id', '-id', 'name', '-name']),
               help='Sort output on given field.')
 @click.argument('name', required=False)
+@api.validate_multiple_filter_support
 def list_cmd(owner, limit, page, sort, name):
     """List bundles.
 

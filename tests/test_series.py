@@ -206,3 +206,53 @@ class ListTestCase(unittest.TestCase):
 
         assert result.exit_code == 1, result
         assert mock_log.error.called
+
+    @mock.patch('git_pw.api.LOG')
+    def test_list_with_multiple_filters(self, mock_log, mock_index,
+                                        mock_version):
+        """Validate behavior with use of multiple filters.
+
+        Patchwork API v1.0 did not support multiple filters correctly. Ensure
+        the user is warned as necessary.
+        """
+
+        people_rsp = [self._get_people()]
+        series_rsp = [self._get_series()]
+        mock_index.side_effect = [people_rsp, people_rsp, series_rsp]
+
+        runner = CLIRunner()
+        result = runner.invoke(series.list_cmd, [
+            '--submitter', 'john@example.com',
+            '--submitter', 'jimmy@example.com'])
+
+        assert result.exit_code == 0, result
+        assert mock_log.warning.called
+
+    @mock.patch('git_pw.api.LOG')
+    def test_list_api_v1_1(self, mock_log, mock_index, mock_version):
+        """Validate behavior with API v1.1."""
+
+        mock_version.return_value = (1, 1)
+
+        series_rsp = [self._get_series()]
+        mock_index.side_effect = [series_rsp]
+
+        runner = CLIRunner()
+        result = runner.invoke(series.list_cmd, [
+            '--submitter', 'john@example.com',
+            '--submitter', 'jimmy@example.com'])
+
+        assert result.exit_code == 0, result
+
+        # We shouldn't have to make a call to '/people' since API v1.1 supports
+        # filtering with names natively
+        calls = [
+            mock.call('series', [
+                ('submitter', 'john@example.com'),
+                ('submitter', 'jimmy@example.com'),
+                ('q', None), ('page', None), ('per_page', None),
+                ('order', '-date')])]
+        mock_index.assert_has_calls(calls)
+
+        # We shouldn't see a warning about multiple versions either
+        assert not mock_log.warning.called

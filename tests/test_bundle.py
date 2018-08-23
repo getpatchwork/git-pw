@@ -250,3 +250,49 @@ class ListTestCase(unittest.TestCase):
 
         assert result.exit_code == 1, result
         assert mock_log.error.called
+
+    @mock.patch('git_pw.api.LOG')
+    def test_list_with_multiple_filters(self, mock_log, mock_index,
+                                        mock_version):
+        """Validate behavior with use of multiple filters.
+
+        Patchwork API v1.0 did not support multiple filters correctly. Ensure
+        the user is warned as necessary.
+        """
+
+        people_rsp = [self._get_users()]
+        bundle_rsp = [self._get_bundle()]
+        mock_index.side_effect = [people_rsp, people_rsp, bundle_rsp]
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.list_cmd, ['--owner', 'john.doe',
+                                                 '--owner', 'user.b'])
+
+        assert result.exit_code == 0, result
+        assert mock_log.warning.called
+
+    @mock.patch('git_pw.api.LOG')
+    def test_list_api_v1_1(self, mock_log, mock_index, mock_version):
+        """Validate behavior with API v1.1."""
+
+        mock_version.return_value = (1, 1)
+
+        bundle_rsp = [self._get_bundle()]
+        mock_index.side_effect = [bundle_rsp]
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.list_cmd, ['--owner', 'john.doe',
+                                                 '--owner', 'user.b'])
+
+        assert result.exit_code == 0, result
+
+        # We shouldn't have to make a call to '/users' since API v1.1 supports
+        # filtering with usernames natively
+        calls = [
+            mock.call('bundles', [
+                ('owner', 'john.doe'), ('owner', 'user.b'), ('q', None),
+                ('page', None), ('per_page', None), ('order', 'name')])]
+        mock_index.assert_has_calls(calls)
+
+        # We shouldn't see a warning about multiple versions either
+        assert not mock_log.warning.called

@@ -112,6 +112,7 @@ def show_cmd(series_id):
                   ['id', '-id', 'name', '-name', 'date', '-date']),
               help='Sort output on given field.')
 @click.argument('name', required=False)
+@api.validate_multiple_filter_support
 def list_cmd(submitter, limit, page, sort, name):
     """List series.
 

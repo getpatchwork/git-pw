@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    A warning is now raised when using multiple filters (e.g. ``git pw bundle
+    --owner foo --owner bar``) with Patchwork API v1.0. This is not supported
+    and will result in confusing results.

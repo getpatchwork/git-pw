@@ -355,3 +355,57 @@ class ListTestCase(unittest.TestCase):
         assert mock_log.error.called
 
         mock_index.side_effect = [people_rsp, patch_rsp]
+
+    @mock.patch('git_pw.api.LOG')
+    def test_list_with_multiple_filters(self, mock_log, mock_index,
+                                        mock_version):
+        """Validate behavior with use of multiple filters.
+
+        Patchwork API v1.0 did not support multiple filters correctly. Ensure
+        the user is warned as necessary.
+        """
+
+        people_rsp = [self._get_person()]
+        user_rsp = [self._get_users()]
+        patch_rsp = [self._get_patch()]
+        mock_index.side_effect = [people_rsp, people_rsp, user_rsp, user_rsp,
+                                  patch_rsp]
+
+        runner = CLIRunner()
+        result = runner.invoke(patch.list_cmd, [
+            '--submitter', 'John Doe', '--submitter', 'Jimmy Foo',
+            '--delegate', 'foo', '--delegate', 'bar'])
+
+        assert result.exit_code == 0, result
+        assert mock_log.warning.called
+
+    @mock.patch('git_pw.api.LOG')
+    def test_list_api_v1_1(self, mock_log, mock_index, mock_version):
+        """Validate behavior with API v1.1."""
+
+        mock_version.return_value = (1, 1)
+
+        patch_rsp = [self._get_patch()]
+        mock_index.side_effect = [patch_rsp]
+
+        runner = CLIRunner()
+        result = runner.invoke(patch.list_cmd, [
+            '--submitter', 'John Doe', '--submitter', 'Jimmy Foo',
+            '--delegate', 'foo', '--delegate', 'bar'])
+
+        assert result.exit_code == 0, result
+
+        # We shouldn't have to make calls to '/users' or '/people' since API
+        # v1.1 supports filtering with (user)names natively
+        calls = [
+            mock.call('patches', [
+                ('state', 'under-review'), ('state', 'new'),
+                ('submitter', 'John Doe'), ('submitter', 'Jimmy Foo'),
+                ('delegate', 'foo'), ('delegate', 'bar'),
+                ('q', None), ('archived', 'false'), ('page', None),
+                ('per_page', None), ('order', '-date')])]
+
+        mock_index.assert_has_calls(calls)
+
+        # We shouldn't see a warning about multiple versions either
+        assert not mock_log.warning.called

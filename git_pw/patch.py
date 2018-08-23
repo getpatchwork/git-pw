@@ -177,13 +177,6 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived):
         _show_patch(patch)
 
 
-# NOTE(stephenfin): The list of default states is populated from Patchwork's
-# 'fixtures/default_states.xml' file [1]. Due to bug #156, we can only
-# currently filter by one state but we've configured this for future support of
-# multiple states.
-#
-# [1] https://git.io/vN3vi
-# [2] https://git.io/vN3vX
 @click.command(name='list')
 @click.option('--state', metavar='STATE', multiple=True,
               default=['under-review', 'new'],
@@ -207,6 +200,7 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived):
                   ['id', '-id', 'name', '-name', 'date', '-date']),
               help='Sort output on given field.')
 @click.argument('name', required=False)
+@api.validate_multiple_filter_support
 def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
     """List patches.
 
