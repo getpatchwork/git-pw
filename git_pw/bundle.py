@@ -49,7 +49,7 @@ def apply_cmd(bundle_id, args):
     LOG.debug('Applying bundle: id=%s', bundle_id)
 
     bundle = _get_bundle(bundle_id)
-    mbox = api.download(bundle['mbox']).text
+    mbox = api.download(bundle['mbox'])
 
     utils.git_am(mbox, args)
 
