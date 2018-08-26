@@ -74,3 +74,6 @@ ChangeLog
 
 # Mypy
 /.mypy_cache
+
+# Vim
+*.swp
