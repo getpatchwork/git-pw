@@ -34,7 +34,7 @@ class ApplyTestCase(unittest.TestCase):
         mock_download.return_value = 'test.patch'
 
         runner = CLIRunner()
-        result = runner.invoke(series.apply_cmd, ['123', '--', '-3'])
+        result = runner.invoke(series.apply_cmd, ['123', '-3'])
 
         assert result.exit_code == 0, result
         mock_detail.assert_called_once_with('series', 123)
