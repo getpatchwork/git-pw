@@ -31,11 +31,11 @@ templates_path = []
 source_suffix = '.rst'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'contents'
 
 # General information about the project.
 project = u'git-pw'
-copyright = u'2017, Stephen Finucane'
+copyright = u'2018, Stephen Finucane'
 author = u'Stephen Finucane'
 
 # The version info for the project you're documenting, acts as replacement for

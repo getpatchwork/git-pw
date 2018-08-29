@@ -1,18 +1,23 @@
 git-pw (Patchwork subcommand for Git)
 =====================================
 
+Overview
+--------
+
 .. include:: ../README.rst
    :start-line: 19
+   :end-line: 33
+
+.. include:: ../README.rst
+   :start-line: 34
    :end-line: -7
 
 Usage
 -----
 
-.. click:: git_pw.shell:cli
-   :prog: git-pw
-   :show-nested:
+See :doc:`usage`.
 
 Release Notes
 -------------
 
-.. release-notes::
+See :doc:`release-notes`.
