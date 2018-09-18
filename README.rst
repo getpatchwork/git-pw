@@ -93,7 +93,7 @@ You also require authentication - you can use either API tokens or a
 username/password combination:
 
 ``pw.token``
-  The API token for you Patchwork account.
+  The API token for your Patchwork account.
 
 ``pw.username``
   The username for your Patchwork account.
