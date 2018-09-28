@@ -141,15 +141,7 @@ def list_cmd(owner, limit, page, sort, name):
         if (api.version() >= (1, 1) and '@' not in own) or own.isdigit():
             params.append(('owner', own))
         else:
-            users = api.index('users', [('q', own)])
-            if len(users) == 0:
-                LOG.error('No matching owner found: %s', own)
-                sys.exit(1)
-            elif len(users) > 1:
-                LOG.error('More than one owner found: %s', own)
-                sys.exit(1)
-
-            params.append(('owner', users[0]['id']))
+            params.extend(api.retrieve_filter_ids('users', 'owner', own))
 
     params.extend([
         ('q', name),

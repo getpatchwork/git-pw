@@ -71,3 +71,65 @@ def test_version(mock_server):
     mock_server.return_value = 'https://example.com/api/1.1'
 
     assert api.version() == (1, 1)
+
+
+@mock.patch.object(api, 'index')
+def test_retrieve_filter_ids_too_short(mock_index):
+    with pytest.raises(SystemExit):
+        api.retrieve_filter_ids('users', 'owner', 'f')
+
+    assert not mock_index.called
+
+
+@mock.patch.object(api, 'LOG')
+@mock.patch.object(api, 'index')
+def test_retrieve_filter_ids_no_matches(mock_index, mock_log):
+    mock_index.return_value = []
+
+    ids = api.retrieve_filter_ids('users', 'owner', 'foo')
+
+    assert mock_log.warning.called
+    assert ids == []
+
+
+@mock.patch.object(api, 'LOG')
+@mock.patch.object(api, 'version')
+@mock.patch.object(api, 'index')
+def test_retrieve_filter_ids_multiple_matches_1_0(mock_index, mock_version,
+                                                  mock_log):
+    mock_index.return_value = [
+        {'id': 1}, {'id': 2},  # incomplete but good enough
+    ]
+    mock_version.return_value = (1, 0)
+
+    ids = api.retrieve_filter_ids('users', 'owner', 'foo')
+
+    assert mock_log.warning.called
+    assert ids == [('owner', 1), ('owner', 2)]
+
+
+@mock.patch.object(api, 'LOG')
+@mock.patch.object(api, 'version')
+@mock.patch.object(api, 'index')
+def test_retrieve_filter_ids_multiple_matches_1_1(mock_index, mock_version,
+                                                  mock_log):
+    mock_index.return_value = [
+        {'id': 1}, {'id': 2},  # incomplete but good enough
+    ]
+    mock_version.return_value = (1, 1)
+
+    ids = api.retrieve_filter_ids('users', 'owner', 'foo')
+
+    assert not mock_log.warning.called
+    assert ids == [('owner', 1), ('owner', 2)]
+
+
+@mock.patch.object(api, 'LOG')
+@mock.patch.object(api, 'index')
+def test_retrieve_filter_ids(mock_index, mock_log):
+    mock_index.return_value = [{'id': 1}]
+
+    ids = api.retrieve_filter_ids('users', 'owner', 'foo')
+
+    assert not mock_log.warning.called
+    assert ids == [('owner', 1)]

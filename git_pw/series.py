@@ -128,15 +128,7 @@ def list_cmd(submitter, limit, page, sort, name):
         if (api.version() >= (1, 1) and '@' in subm) or subm.isdigit():
             params.append(('submitter', subm))
         else:
-            people = api.index('people', [('q', subm)])
-            if len(people) == 0:
-                LOG.error('No matching submitter found: %s', subm)
-                sys.exit(1)
-            elif len(people) > 1:
-                LOG.error('More than one submitter found: %s', subm)
-                sys.exit(1)
-
-            params.append(('submitter', people[0]['id']))
+            params.extend(api.retrieve_filter_ids('people', 'submitter', subm))
 
     params.extend([
         ('q', name),

@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Filtering patches, bundles and series by user will now only display a
+    warning if multiple matches are found for a given filter and you're using
+    API v1.0. Previously this would have been an unconditional error.

@@ -286,13 +286,51 @@ def validate_multiple_filter_support(f):
 
             value = list(kwargs[param.name] or [])
             if value and len(value) > 1 and value != param.default:
-                msg = ('Filtering by multiple %ss is not supported with API '
+                msg = ('The `--%s` filter was specified multiple times. '
+                       'Filtering by multiple %ss is not supported with API '
                        'version 1.0. If the server supports it, use version '
                        '1.1 instead. Refer to https://git.io/vN3vX for more '
                        'information.')
 
-                LOG.warning(msg, param.name)
+                LOG.warning(msg, param.name, param.name)
 
         return ctx.invoke(f, *args, **kwargs)
 
     return update_wrapper(new_func, f)
+
+
+def retrieve_filter_ids(resource_type, filter_name, filter_value):
+    """Retrieve IDs for items passed through by filter.
+
+    Some filters require client-side filtering, e.g. filtering patches by
+    submitter names.
+
+    Arguments:
+        resource_type: The filter's resource endpoint name.
+        filter_name: The name of the filter.
+        filter_value: The value of the filter.
+
+    Returns:
+        A list of querystring key-value pairs to use in the actual request.
+    """
+    if len(filter_value) < 3:
+        # protect agaisnt really generic (and essentially meaningless) queries
+        LOG.error('Filters must be at least 3 characters long')
+        sys.exit(1)
+
+    # NOTE(stephenfin): This purposefully ignores the possiblity of a second
+    # page because it's unlikely and likely unnecessary
+    items = index(resource_type, [('q', filter_value)])
+    if len(items) == 0:
+        LOG.warning('No matching %s found: %s', filter_name, filter_value)
+    elif len(items) > 1 and version() < (1, 1):
+        # we don't support multiple filters in 1.0
+        msg = ('More than one match for found for `--%s=%s`. '
+               'Filtering by multiple %ss is not supported with '
+               'API version 1.0. If the server supports it, use '
+               'version 1.1 instead. Refer to https://git.io/vN3vX '
+               'for more information.')
+
+        LOG.warning(msg, filter_name, filter_value, filter_name)
+
+    return [(filter_name, item['id']) for item in items]
