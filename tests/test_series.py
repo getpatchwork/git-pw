@@ -175,15 +175,15 @@ class ListTestCase(unittest.TestCase):
 
         runner = CLIRunner()
         result = runner.invoke(series.list_cmd, [
-            '--submitter', 'john@example.com', '--limit', 1, '--page', 1,
-            '--sort', '-name', 'test'])
+            '--submitter', 'john@example.com', '--submitter', '2',
+            '--limit', 1, '--page', 1, '--sort', '-name', 'test'])
 
         assert result.exit_code == 0, result
         calls = [
             mock.call('people', [('q', 'john@example.com')]),
             mock.call('series', [
-                ('submitter', 1), ('q', 'test'), ('page', 1), ('per_page', 1),
-                ('order', '-name')])]
+                ('submitter', 1), ('submitter', '2'), ('q', 'test'),
+                ('page', 1), ('per_page', 1), ('order', '-name')])]
 
         mock_index.assert_has_calls(calls)
 

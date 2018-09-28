@@ -220,15 +220,15 @@ class ListTestCase(unittest.TestCase):
 
         runner = CLIRunner()
         result = runner.invoke(bundle.list_cmd, [
-            '--owner', 'john.doe', '--limit', 1, '--page', 1,
+            '--owner', 'john.doe', '--owner', '2', '--limit', 1, '--page', 1,
             '--sort', '-name', 'test'])
 
         assert result.exit_code == 0, result
         calls = [
             mock.call('users', [('q', 'john.doe')]),
             mock.call('bundles', [
-                ('owner', 1), ('q', 'test'), ('page', 1), ('per_page', 1),
-                ('order', '-name')])]
+                ('owner', 1), ('owner', '2'), ('q', 'test'), ('page', 1),
+                ('per_page', 1), ('order', '-name')])]
 
         mock_index.assert_has_calls(calls)
 

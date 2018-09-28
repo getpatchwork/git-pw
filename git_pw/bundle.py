@@ -114,8 +114,8 @@ def show_cmd(bundle_id):
 
 @click.command(name='list')
 @click.option('--owner', metavar='OWNER', multiple=True,
-              help='Show only bundles with these owners. Should be an email '
-              'or name. Private bundles of other users will not be shown.')
+              help='Show only bundles with these owners. Should be an email, '
+              'name or ID. Private bundles of other users will not be shown.')
 @click.option('--limit', metavar='LIMIT', type=click.INT,
               help='Maximum number of bundles to show.')
 @click.option('--page', metavar='PAGE', type=click.INT,
@@ -138,7 +138,7 @@ def list_cmd(owner, limit, page, sort, name):
 
     for own in owner:
         # we support server-side filtering by username (but not email) in 1.1
-        if api.version() >= (1, 1) and '@' not in own:
+        if (api.version() >= (1, 1) and '@' not in own) or own.isdigit():
             params.append(('owner', own))
         else:
             users = api.index('users', [('q', own)])
