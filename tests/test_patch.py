@@ -337,13 +337,13 @@ class ListTestCase(unittest.TestCase):
 
         mock_index.assert_has_calls(calls)
 
-    @mock.patch('git_pw.patch.LOG')
-    def test_list_with_invalid_filters(self, mock_log, mock_index,
-                                       mock_version):
-        """Validate behavior with filters applied.
+    @mock.patch('git_pw.api.LOG')
+    def test_list_with_wildcard_filters(self, mock_log, mock_index,
+                                        mock_version):
+        """Validate behavior with a "wildcard" filter.
 
-        Try to filter against a sumbmitter filter that's too broad. This should
-        error out saying that too many possible submitters were found.
+        Patchwork API v1.0 did not support multiple filters correctly. Ensure
+        the user is warned as necessary if a filter has multiple matches.
         """
 
         people_rsp = [self._get_person(), self._get_person()]
@@ -351,13 +351,9 @@ class ListTestCase(unittest.TestCase):
         mock_index.side_effect = [people_rsp, patch_rsp]
 
         runner = CLIRunner()
-        result = runner.invoke(patch.list_cmd, ['--submitter',
-                                                'john@example.com'])
+        runner.invoke(patch.list_cmd, ['--submitter', 'john@example.com'])
 
-        assert result.exit_code == 1, result
-        assert mock_log.error.called
-
-        mock_index.side_effect = [people_rsp, patch_rsp]
+        assert mock_log.warning.called
 
     @mock.patch('git_pw.api.LOG')
     def test_list_with_multiple_filters(self, mock_log, mock_index,
@@ -365,7 +361,7 @@ class ListTestCase(unittest.TestCase):
         """Validate behavior with use of multiple filters.
 
         Patchwork API v1.0 did not support multiple filters correctly. Ensure
-        the user is warned as necessary.
+        the user is warned as necessary if they specify multiple filters.
         """
 
         people_rsp = [self._get_person()]
