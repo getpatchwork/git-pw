@@ -277,21 +277,27 @@ class ListTestCase(unittest.TestCase):
 
         mock_version.return_value = (1, 1)
 
+        user_rsp = [self._get_users()]
         bundle_rsp = [self._get_bundle()]
-        mock_index.side_effect = [bundle_rsp]
+        mock_index.side_effect = [user_rsp, bundle_rsp]
 
         runner = CLIRunner()
-        result = runner.invoke(bundle.list_cmd, ['--owner', 'john.doe',
-                                                 '--owner', 'user.b'])
+        result = runner.invoke(bundle.list_cmd, [
+            '--owner', 'john.doe',
+            '--owner', 'user.b',
+            '--owner', 'john@example.com'])
 
         assert result.exit_code == 0, result
 
-        # We shouldn't have to make a call to '/users' since API v1.1 supports
-        # filtering with usernames natively
+        # We should have only made a single call to '/users' (for the user
+        # specified by an email address) since API v1.1 supports filtering with
+        # usernames natively
         calls = [
+            mock.call('users', [('q', 'john@example.com')]),
             mock.call('bundles', [
-                ('owner', 'john.doe'), ('owner', 'user.b'), ('q', None),
-                ('page', None), ('per_page', None), ('order', 'name')])]
+                ('owner', 'john.doe'), ('owner', 'user.b'), ('owner', 1),
+                ('q', None), ('page', None), ('per_page', None),
+                ('order', 'name')])]
         mock_index.assert_has_calls(calls)
 
         # We shouldn't see a warning about multiple versions either

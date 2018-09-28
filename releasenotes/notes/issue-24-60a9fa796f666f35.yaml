@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    Resolve an issue that prevented the following filtering when using API
+    v1.1:
+
+    - Filter patches or series by submitter using the submitter's name
+    - Filter patches by delegate using the delegate's email
+    - Filter bundles by owner using the owner's email

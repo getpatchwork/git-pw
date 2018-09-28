@@ -215,11 +215,11 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
     for state in state:
         params.append(('state', state))
 
-    if api.version() >= (1, 1):
-        params.extend([('submitter', subm) for subm in submitter])
-        params.extend([('delegate', delg) for delg in delegate])
-    else:
-        for subm in submitter:
+    for subm in submitter:
+        # we support server-side filtering by email (but not name) in 1.1
+        if api.version() >= (1, 1) and '@' in subm:
+            params.append(('submitter', subm))
+        else:
             people = api.index('people', [('q', subm)])
             if len(people) == 0:
                 LOG.error('No matching submitter found: %s', subm)
@@ -230,7 +230,11 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
 
             params.append(('submitter', people[0]['id']))
 
-        for delg in delegate:
+    for delg in delegate:
+        # we support server-side filtering by username (but not email) in 1.1
+        if api.version() >= (1, 1) and '@' not in delg:
+            params.append(('delegate', delg))
+        else:
             users = api.index('users', [('q', delg)])
             if len(users) == 0:
                 LOG.error('No matching delegates found: %s', delg)
