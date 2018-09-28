@@ -287,6 +287,7 @@ class ListTestCase(unittest.TestCase):
         rsp = {
             'id': 1,
             'username': 'john.doe',
+            'email': 'john@example.com',
         }
         rsp.update(**kwargs)
         return rsp
@@ -385,23 +386,29 @@ class ListTestCase(unittest.TestCase):
 
         mock_version.return_value = (1, 1)
 
+        people_rsp = [self._get_person()]
+        user_rsp = [self._get_users()]
         patch_rsp = [self._get_patch()]
-        mock_index.side_effect = [patch_rsp]
+        mock_index.side_effect = [people_rsp, user_rsp, patch_rsp]
 
         runner = CLIRunner()
         result = runner.invoke(patch.list_cmd, [
-            '--submitter', 'John Doe', '--submitter', 'Jimmy Foo',
-            '--delegate', 'foo', '--delegate', 'bar'])
+            '--submitter', 'jimmy@example.com', '--submitter', 'John Doe',
+            '--delegate', 'foo', '--delegate', 'john@example.com'])
 
         assert result.exit_code == 0, result
 
-        # We shouldn't have to make calls to '/users' or '/people' since API
-        # v1.1 supports filtering with (user)names natively
+        # We should have only made a single call to each of '/users' and
+        # '/people' (for the user specified by an email address and the
+        # submitter specified by name, respectively) since API v1.1 supports
+        # filtering of users with username and people with emails natively
         calls = [
+            mock.call('people', [('q', 'John Doe')]),
+            mock.call('users', [('q', 'john@example.com')]),
             mock.call('patches', [
                 ('state', 'under-review'), ('state', 'new'),
-                ('submitter', 'John Doe'), ('submitter', 'Jimmy Foo'),
-                ('delegate', 'foo'), ('delegate', 'bar'),
+                ('submitter', 'jimmy@example.com'), ('submitter', 1),
+                ('delegate', 'foo'), ('delegate', 1),
                 ('q', None), ('archived', 'false'), ('page', None),
                 ('per_page', None), ('order', '-date')])]
 

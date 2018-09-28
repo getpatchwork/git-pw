@@ -136,10 +136,11 @@ def list_cmd(owner, limit, page, sort, name):
 
     params = []
 
-    if api.version() >= (1, 1):
-        params.extend([('owner', own) for own in owner])
-    else:
-        for own in owner:
+    for own in owner:
+        # we support server-side filtering by username (but not email) in 1.1
+        if api.version() >= (1, 1) and '@' not in own:
+            params.append(('owner', own))
+        else:
             users = api.index('users', [('q', own)])
             if len(users) == 0:
                 LOG.error('No matching owner found: %s', own)

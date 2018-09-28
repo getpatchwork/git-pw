@@ -234,22 +234,23 @@ class ListTestCase(unittest.TestCase):
 
         mock_version.return_value = (1, 1)
 
+        people_rsp = [self._get_people()]
         series_rsp = [self._get_series()]
-        mock_index.side_effect = [series_rsp]
+        mock_index.side_effect = [people_rsp, series_rsp]
 
         runner = CLIRunner()
         result = runner.invoke(series.list_cmd, [
-            '--submitter', 'john@example.com',
-            '--submitter', 'jimmy@example.com'])
+            '--submitter', 'jimmy@example.com',
+            '--submitter', 'John Doe'])
 
         assert result.exit_code == 0, result
 
-        # We shouldn't have to make a call to '/people' since API v1.1 supports
-        # filtering with names natively
+        # We should have only made a single call to '/people' since API v1.1
+        # supports filtering with emails natively
         calls = [
+            mock.call('people', [('q', 'John Doe')]),
             mock.call('series', [
-                ('submitter', 'john@example.com'),
-                ('submitter', 'jimmy@example.com'),
+                ('submitter', 'jimmy@example.com'), ('submitter', 1),
                 ('q', None), ('page', None), ('per_page', None),
                 ('order', '-date')])]
         mock_index.assert_has_calls(calls)

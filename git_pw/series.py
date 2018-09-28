@@ -123,10 +123,11 @@ def list_cmd(submitter, limit, page, sort, name):
 
     params = []
 
-    if api.version() >= (1, 1):
-        params.extend([('submitter', subm) for subm in submitter])
-    else:
-        for subm in submitter:
+    for subm in submitter:
+        # we support server-side filtering by email (but not name) in 1.1
+        if api.version() >= (1, 1) and '@' in subm:
+            params.append(('submitter', subm))
+        else:
             people = api.index('people', [('q', subm)])
             if len(people) == 0:
                 LOG.error('No matching submitter found: %s', subm)
