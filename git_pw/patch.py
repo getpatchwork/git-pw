@@ -185,7 +185,7 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived):
               'are instance dependant.')
 @click.option('--submitter', metavar='SUBMITTER', multiple=True,
               help='Show only patches by these submitters. Should be an '
-              'email or name.')
+              'email, name or ID.')
 @click.option('--delegate', metavar='DELEGATE', multiple=True,
               help='Show only patches by these delegates. Should be an '
               'email or username.')
@@ -217,7 +217,7 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
 
     for subm in submitter:
         # we support server-side filtering by email (but not name) in 1.1
-        if api.version() >= (1, 1) and '@' in subm:
+        if (api.version() >= (1, 1) and '@' in subm) or subm.isdigit():
             params.append(('submitter', subm))
         else:
             people = api.index('people', [('q', subm)])
@@ -232,7 +232,7 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
 
     for delg in delegate:
         # we support server-side filtering by username (but not email) in 1.1
-        if api.version() >= (1, 1) and '@' not in delg:
+        if (api.version() >= (1, 1) and '@' not in delg) or delg.isdigit():
             params.append(('delegate', delg))
         else:
             users = api.index('users', [('q', delg)])

@@ -102,7 +102,7 @@ def show_cmd(series_id):
 @click.command(name='list')
 @click.option('--submitter', metavar='SUBMITTER', multiple=True,
               help='Show only series by these submitters. Should be an '
-              'email or name.')
+              'email, name or ID.')
 @click.option('--limit', metavar='LIMIT', type=click.INT,
               help='Maximum number of series to show.')
 @click.option('--page', metavar='PAGE', type=click.INT,
@@ -125,7 +125,7 @@ def list_cmd(submitter, limit, page, sort, name):
 
     for subm in submitter:
         # we support server-side filtering by email (but not name) in 1.1
-        if api.version() >= (1, 1) and '@' in subm:
+        if (api.version() >= (1, 1) and '@' in subm) or subm.isdigit():
             params.append(('submitter', subm))
         else:
             people = api.index('people', [('q', subm)])

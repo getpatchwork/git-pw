@@ -321,7 +321,8 @@ class ListTestCase(unittest.TestCase):
         runner = CLIRunner()
         result = runner.invoke(patch.list_cmd, [
             '--state', 'new', '--submitter', 'john@example.com',
-            '--delegate', 'doe@example.com', '--archived',
+            '--submitter', '2', '--delegate', 'doe@example.com',
+            '--delegate', '2', '--archived',
             '--limit', 1, '--page', 1, '--sort', '-name', 'test'])
 
         assert result.exit_code == 0, result
@@ -329,9 +330,10 @@ class ListTestCase(unittest.TestCase):
             mock.call('people', [('q', 'john@example.com')]),
             mock.call('users', [('q', 'doe@example.com')]),
             mock.call('patches', [
-                ('state', 'new'), ('submitter', 1), ('delegate', 1),
-                ('q', 'test'), ('archived', 'true'), ('page', 1),
-                ('per_page', 1), ('order', '-name')])]
+                ('state', 'new'), ('submitter', 1), ('submitter', '2'),
+                ('delegate', 1), ('delegate', '2'), ('q', 'test'),
+                ('archived', 'true'), ('page', 1), ('per_page', 1),
+                ('order', '-name')])]
 
         mock_index.assert_has_calls(calls)
 

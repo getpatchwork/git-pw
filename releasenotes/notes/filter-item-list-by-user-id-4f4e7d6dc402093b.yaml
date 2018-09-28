@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    It is now possible to filter patches, bundles and series and the IDs of
+    users that submitted or are delegated to the item in question. For
+    example::
+
+        $ git pw patch list --submitter 1
