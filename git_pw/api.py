@@ -153,10 +153,10 @@ def get(url, params=None, stream=False):
     return rsp
 
 
-def put(url, data):
+def patch(url, data):
     # type: (str, dict) -> requests.Response
-    """Make PUT request and handle errors."""
-    LOG.debug('PUT %s, data=%r', url, data)
+    """Make PATCH request and handle errors."""
+    LOG.debug('PATCH %s, data=%r', url, data)
 
     try:
         rsp = requests.patch(url, auth=_get_auth(), headers=_get_headers(),
@@ -257,7 +257,7 @@ def update(resource_type, resource_id, data):
     # type: (str, int, dict) -> dict
     """Update a specific API resource.
 
-    PUT /{resource}/{resourceID}/
+    PATCH /{resource}/{resourceID}/
 
     Arguments:
         resource_type: The resource endpoint name.
@@ -270,7 +270,7 @@ def update(resource_type, resource_id, data):
     # NOTE(stephenfin): All resources must have a trailing '/'
     url = '/'.join([_get_server(), resource_type, str(resource_id), ''])
 
-    return put(url, data).json()
+    return patch(url, data).json()
 
 
 def validate_multiple_filter_support(f):
