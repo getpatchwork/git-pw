@@ -231,7 +231,7 @@ class UpdateTestCase(unittest.TestCase):
 
         assert result.exit_code == 0, result
         mock_update.assert_called_once_with('patches', 123, [])
-        mock_show.assert_called_once_with(mock_update.return_value)
+        mock_show.assert_called_once_with(mock_update.return_value, None)
 
     def test_update_with_arguments(self, mock_show, mock_update):
         """Validate behavior with all arguments except delegate."""
@@ -239,12 +239,12 @@ class UpdateTestCase(unittest.TestCase):
         runner = CLIRunner()
         result = runner.invoke(patch.update_cmd, [
             '123', '--commit-ref', '3ed8fb12', '--state', 'new',
-            '--archived', '1'])
+            '--archived', '1', '--format', 'table'])
 
         assert result.exit_code == 0, result
         mock_update.assert_called_once_with('patches', 123, [
             ('commit_ref', '3ed8fb12'), ('state', 'new'), ('archived', True)])
-        mock_show.assert_called_once_with(mock_update.return_value)
+        mock_show.assert_called_once_with(mock_update.return_value, 'table')
 
     @mock.patch('git_pw.api.index')
     def test_update_with_delegate(self, mock_index, mock_show, mock_update):
@@ -260,12 +260,12 @@ class UpdateTestCase(unittest.TestCase):
         mock_index.assert_called_once_with('users', [('q', 'doe@example.com')])
         mock_update.assert_called_once_with('patches', 123, [
             ('delegate', mock_index.return_value[0]['id'])])
-        mock_show.assert_called_once_with(mock_update.return_value)
+        mock_show.assert_called_once_with(mock_update.return_value, None)
 
 
-@mock.patch('git_pw.utils.echo_via_pager', new=mock.Mock)
 @mock.patch('git_pw.api.version', return_value=(1, 0))
 @mock.patch('git_pw.api.index')
+@mock.patch('git_pw.utils.echo_via_pager')
 class ListTestCase(unittest.TestCase):
 
     @staticmethod
@@ -292,7 +292,7 @@ class ListTestCase(unittest.TestCase):
         rsp.update(**kwargs)
         return rsp
 
-    def test_list(self, mock_index, mock_version):
+    def test_list(self, mock_echo, mock_index, mock_version):
         """Validate standard behavior."""
 
         rsp = [self._get_patch()]
@@ -307,7 +307,20 @@ class ListTestCase(unittest.TestCase):
             ('archived', 'false'), ('page', None), ('per_page', None),
             ('order', '-date')])
 
-    def test_list_with_filters(self, mock_index, mock_version):
+    def test_list_with_formatting(self, mock_echo, mock_index, mock_version):
+        rsp = [self._get_patch()]
+        mock_index.return_value = rsp
+
+        runner = CLIRunner()
+        result = runner.invoke(patch.list_cmd, [
+            '--format', 'simple'])
+
+        assert result.exit_code == 0, result
+
+        mock_echo.assert_called_once_with(mock.ANY, mock.ANY,
+                                          fmt='simple')
+
+    def test_list_with_filters(self, mock_echo, mock_index, mock_version):
         """Validate behavior with filters applied.
 
         Apply all filters, including those for pagination.
@@ -338,7 +351,7 @@ class ListTestCase(unittest.TestCase):
         mock_index.assert_has_calls(calls)
 
     @mock.patch('git_pw.api.LOG')
-    def test_list_with_wildcard_filters(self, mock_log, mock_index,
+    def test_list_with_wildcard_filters(self, mock_log, mock_echo, mock_index,
                                         mock_version):
         """Validate behavior with a "wildcard" filter.
 
@@ -356,7 +369,7 @@ class ListTestCase(unittest.TestCase):
         assert mock_log.warning.called
 
     @mock.patch('git_pw.api.LOG')
-    def test_list_with_multiple_filters(self, mock_log, mock_index,
+    def test_list_with_multiple_filters(self, mock_log, mock_echo, mock_index,
                                         mock_version):
         """Validate behavior with use of multiple filters.
 
@@ -379,7 +392,7 @@ class ListTestCase(unittest.TestCase):
         assert mock_log.warning.called
 
     @mock.patch('git_pw.api.LOG')
-    def test_list_api_v1_1(self, mock_log, mock_index, mock_version):
+    def test_list_api_v1_1(self, mock_log, mock_echo, mock_index, mock_version):
         """Validate behavior with API v1.1."""
 
         mock_version.return_value = (1, 1)

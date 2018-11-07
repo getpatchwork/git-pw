@@ -6,7 +6,6 @@ import logging
 import sys
 
 import click
-from tabulate import tabulate
 
 from git_pw import api
 from git_pw import utils
@@ -82,8 +81,9 @@ def download_cmd(bundle_id, output):
 
 
 @click.command(name='show')
+@utils.format_options
 @click.argument('bundle_id')
-def show_cmd(bundle_id):
+def show_cmd(fmt, bundle_id):
     """Show information about bundle.
 
     Retrieve Patchwork metadata for a bundle.
@@ -108,8 +108,7 @@ def show_cmd(bundle_id):
         output.append((prefix, _format_patch(patch)))
         prefix = ''
 
-    # TODO(stephenfin): We might want to make this machine readable?
-    click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
+    utils.echo(output, ['Property', 'Value'], fmt=fmt)
 
 
 @click.command(name='list')
@@ -124,9 +123,10 @@ def show_cmd(bundle_id):
 @click.option('--sort', metavar='FIELD', default='name', type=click.Choice(
                   ['id', '-id', 'name', '-name']),
               help='Sort output on given field.')
+@utils.format_options
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(owner, limit, page, sort, name):
+def list_cmd(owner, limit, page, sort, fmt, name):
     """List bundles.
 
     List bundles on the Patchwork instance.
@@ -163,4 +163,4 @@ def list_cmd(owner, limit, page, sort, name):
         'yes' if bundle.get('public') else 'no',
     ] for bundle in bundles]
 
-    utils.echo_via_pager(tabulate(output, headers, tablefmt='psql'))
+    utils.echo_via_pager(output, headers, fmt=fmt)

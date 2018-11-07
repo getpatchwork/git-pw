@@ -7,7 +7,6 @@ import sys
 
 import arrow
 import click
-from tabulate import tabulate
 
 from git_pw import api
 from git_pw import utils
@@ -88,7 +87,7 @@ def download_cmd(patch_id, output, fmt):
         LOG.info('Downloaded patch to %s', path)
 
 
-def _show_patch(patch):
+def _show_patch(patch, fmt):
 
     def _format_series(series):
         return '%-4d %s' % (series.get('id'), series.get('name') or '-')
@@ -113,13 +112,13 @@ def _show_patch(patch):
         output.append((prefix, _format_series(series)))
         prefix = ''
 
-    # TODO(stephenfin): We might want to make this machine readable?
-    click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
+    utils.echo(output, ['Property', 'Value'], fmt=fmt)
 
 
 @click.command(name='show')
+@utils.format_options
 @click.argument('patch_id', type=click.INT)
-def show_cmd(patch_id):
+def show_cmd(fmt, patch_id):
     """Show information about patch.
 
     Retrieve Patchwork metadata for a patch.
@@ -128,7 +127,7 @@ def show_cmd(patch_id):
 
     patch = api.detail('patches', patch_id)
 
-    _show_patch(patch)
+    _show_patch(patch, fmt)
 
 
 @click.command(name='update')
@@ -143,7 +142,8 @@ def show_cmd(patch_id):
               'either a username or a user\'s email address.')
 @click.option('--archived', metavar='ARCHIVED', type=click.BOOL,
               help='Set the patch archived state.')
-def update_cmd(patch_ids, commit_ref, state, delegate, archived):
+@utils.format_options
+def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
     """Update one or more patches.
 
     Updates one or more Patches on the Patchwork instance. Some operations may
@@ -174,7 +174,7 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived):
 
         patch = api.update('patches', patch_id, data)
 
-        _show_patch(patch)
+        _show_patch(patch, fmt)
 
 
 @click.command(name='list')
@@ -199,9 +199,11 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived):
 @click.option('--sort', metavar='FIELD', default='-date', type=click.Choice(
                   ['id', '-id', 'name', '-name', 'date', '-date']),
               help='Sort output on given field.')
+@utils.format_options
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
+def list_cmd(state, submitter, delegate, archived, limit, page, sort, fmt,
+             name):
     """List patches.
 
     List patches on the Patchwork instance.
@@ -256,4 +258,4 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, name):
          if patch.get('delegate') else ''),
     ] for patch in patches]
 
-    utils.echo_via_pager(tabulate(output, headers, tablefmt='psql'))
+    utils.echo_via_pager(output, headers, fmt=fmt)

@@ -7,6 +7,10 @@ import os
 import subprocess
 import sys
 
+import click
+from tabulate import tabulate
+
+
 if sys.version_info < (3, 0):
     _text = unicode  # noqa
 else:
@@ -46,6 +50,25 @@ def git_am(mbox, args):
     except subprocess.CalledProcessError as exc:
         print(exc.output)
         sys.exit(exc.returncode)
+
+
+def _tabulate(output, headers, fmt):
+    fmt = fmt or git_config('pw.format') or 'table'
+
+    if fmt == 'table':
+        return tabulate(output, headers, tablefmt='psql')
+    elif fmt == 'simple':
+        return tabulate(output, headers, tablefmt='simple')
+    elif fmt == 'csv':
+        result = []
+        result.append(','.join(headers))
+        for item in output:
+            result.append(
+                ','.join(_text(x if x is not None else '') for x in item))
+        return '\n'.join(result)
+
+    print('pw.format must be one of: table, simple, csv')
+    sys.exit(1)
 
 
 def _is_ascii_encoding(encoding):
@@ -92,7 +115,7 @@ def _echo_via_pager(pager, output):
             break
 
 
-def echo_via_pager(output):
+def echo_via_pager(output, headers, fmt):
     """Echo using git's default pager.
 
     Wrap ``click.echo_via_pager``, setting some environment variables in the
@@ -102,6 +125,8 @@ def echo_via_pager(output):
         then ``core.pager`` configuration, then ``$PAGER``, and then the
         default chosen at compile time (usually ``less``).
     """
+    output = _tabulate(output, headers, fmt)
+
     pager = os.environ.get('GIT_PAGER', None)
     if pager:
         _echo_via_pager(pager, output)
@@ -118,3 +143,17 @@ def echo_via_pager(output):
         return
 
     _echo_via_pager('less', output)
+
+
+def echo(output, headers, fmt):
+    click.echo(_tabulate(output, headers, fmt))
+
+
+def format_options(f):
+    """Shared output format options."""
+    f = click.option('--format', '-f', 'fmt', envvar='PW_FORMAT',
+                     default=None,
+                     type=click.Choice(['simple', 'table', 'csv']),
+                     help='Output format. Defaults to table.')(f)
+
+    return f

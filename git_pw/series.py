@@ -7,7 +7,6 @@ import sys
 
 import arrow
 import click
-from tabulate import tabulate
 
 from git_pw import api
 from git_pw import utils
@@ -62,8 +61,9 @@ def download_cmd(series_id, output):
 
 
 @click.command(name='show')
+@utils.format_options
 @click.argument('series_id', type=click.INT)
-def show_cmd(series_id):
+def show_cmd(fmt, series_id):
     """Show information about series.
 
     Retrieve Patchwork metadata for a series.
@@ -95,8 +95,7 @@ def show_cmd(series_id):
         output.append((prefix, _format_submission(patch)))
         prefix = ''
 
-    # TODO(stephenfin): We might want to make this machine readable?
-    click.echo(tabulate(output, ['Property', 'Value'], tablefmt='psql'))
+    utils.echo(output, ['Property', 'Value'], fmt=fmt)
 
 
 @click.command(name='list')
@@ -111,9 +110,10 @@ def show_cmd(series_id):
 @click.option('--sort', metavar='FIELD', default='-date', type=click.Choice(
                   ['id', '-id', 'name', '-name', 'date', '-date']),
               help='Sort output on given field.')
+@utils.format_options
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(submitter, limit, page, sort, name):
+def list_cmd(submitter, limit, page, sort, fmt, name):
     """List series.
 
     List series on the Patchwork instance.
@@ -152,4 +152,4 @@ def list_cmd(submitter, limit, page, sort, name):
                      series_.get('submitter').get('email'))
     ] for series_ in series]
 
-    utils.echo_via_pager(tabulate(output, headers, tablefmt='psql'))
+    utils.echo_via_pager(output, headers, fmt=fmt)

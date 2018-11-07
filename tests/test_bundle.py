@@ -176,9 +176,9 @@ class ShowTestCase(unittest.TestCase):
         mock_get_bundle.assert_called_once_with('123')
 
 
-@mock.patch('git_pw.utils.echo_via_pager', new=mock.Mock)
 @mock.patch('git_pw.api.version', return_value=(1, 0))
 @mock.patch('git_pw.api.index')
+@mock.patch('git_pw.utils.echo_via_pager')
 class ListTestCase(unittest.TestCase):
 
     @staticmethod
@@ -194,7 +194,7 @@ class ListTestCase(unittest.TestCase):
         rsp.update(**kwargs)
         return rsp
 
-    def test_list(self, mock_index, mock_version):
+    def test_list(self, mock_echo, mock_index, mock_version):
         """Validate standard behavior."""
 
         rsp = [self._get_bundle()]
@@ -208,7 +208,22 @@ class ListTestCase(unittest.TestCase):
             ('q', None), ('page', None), ('per_page', None),
             ('order', 'name')])
 
-    def test_list_with_filters(self, mock_index, mock_version):
+    def test_list_with_formatting(self, mock_echo, mock_index, mock_version):
+        """Validate behavior with formatting applied."""
+
+        rsp = [self._get_bundle()]
+        mock_index.return_value = rsp
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.list_cmd, [
+            '--format', 'simple'])
+
+        assert result.exit_code == 0, result
+
+        mock_echo.assert_called_once_with(mock.ANY, mock.ANY,
+                                          fmt='simple')
+
+    def test_list_with_filters(self, mock_echo, mock_index, mock_version):
         """Validate behavior with filters applied.
 
         Apply all filters, including those for pagination.
@@ -233,7 +248,7 @@ class ListTestCase(unittest.TestCase):
         mock_index.assert_has_calls(calls)
 
     @mock.patch('git_pw.api.LOG')
-    def test_list_with_wildcard_filters(self, mock_log, mock_index,
+    def test_list_with_wildcard_filters(self, mock_log, mock_echo, mock_index,
                                         mock_version):
         """Validate behavior with a "wildcard" filter.
 
@@ -251,7 +266,7 @@ class ListTestCase(unittest.TestCase):
         assert mock_log.warning.called
 
     @mock.patch('git_pw.api.LOG')
-    def test_list_with_multiple_filters(self, mock_log, mock_index,
+    def test_list_with_multiple_filters(self, mock_log, mock_echo, mock_index,
                                         mock_version):
         """Validate behavior with use of multiple filters.
 
@@ -271,7 +286,8 @@ class ListTestCase(unittest.TestCase):
         assert mock_log.warning.called
 
     @mock.patch('git_pw.api.LOG')
-    def test_list_api_v1_1(self, mock_log, mock_index, mock_version):
+    def test_list_api_v1_1(self, mock_log, mock_echo, mock_index,
+                           mock_version):
         """Validate behavior with API v1.1."""
 
         mock_version.return_value = (1, 1)
