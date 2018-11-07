@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Many commands now take a ``--format``/``-f`` parameter, which can be used
+    to control the output format. Three formats are currently supported:
+
+    - ``table`` (default)
+    - ``simple`` (a version of table with less markup)
+    - ``csv`` (comma-separated output)
