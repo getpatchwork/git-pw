@@ -7,6 +7,11 @@ import os
 import subprocess
 import sys
 
+if sys.version_info < (3, 0):
+    _text = unicode  # noqa
+else:
+    _text = str  # noqa
+
 
 def trim(string, length=70):  # type: (str, int) -> str
     """Trim a string to the given length."""
@@ -22,9 +27,9 @@ def git_config(value):
     try:
         output = subprocess.check_output(['git', 'config', value])
     except subprocess.CalledProcessError:
-        output = ''
+        output = b''
 
-    return output.strip()
+    return output.decode('utf-8').strip()
 
 
 def git_am(mbox, args):
