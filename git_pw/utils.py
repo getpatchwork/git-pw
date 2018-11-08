@@ -149,11 +149,23 @@ def echo(output, headers, fmt):
     click.echo(_tabulate(output, headers, fmt))
 
 
-def format_options(f):
+def format_options(original_function=None, headers=None):
     """Shared output format options."""
-    f = click.option('--format', '-f', 'fmt', envvar='PW_FORMAT',
-                     default=None,
-                     type=click.Choice(['simple', 'table', 'csv']),
-                     help='Output format. Defaults to table.')(f)
 
-    return f
+    def _format_options(f):
+        f = click.option('--format', '-f', 'fmt', envvar='PW_FORMAT',
+                         default=None,
+                         type=click.Choice(['simple', 'table', 'csv']),
+                         help='Output format. Defaults to table.')(f)
+
+        if headers:
+            f = click.option('--column', '-c', 'headers', metavar='COLUMN',
+                             multiple=True, default=headers,
+                             type=click.Choice(headers),
+                             help='Columns to be included in output.')(f)
+        return f
+
+    if original_function:
+        return _format_options(original_function)
+
+    return _format_options

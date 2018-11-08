@@ -12,6 +12,8 @@ from git_pw import utils
 
 LOG = logging.getLogger(__name__)
 
+_list_headers = ('ID', 'Name', 'Owner', 'Public')
+
 
 def _get_bundle(bundle_id):
     """Fetch bundle by ID or name.
@@ -123,10 +125,10 @@ def show_cmd(fmt, bundle_id):
 @click.option('--sort', metavar='FIELD', default='name', type=click.Choice(
                   ['id', '-id', 'name', '-name']),
               help='Sort output on given field.')
-@utils.format_options
+@utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(owner, limit, page, sort, fmt, name):
+def list_cmd(owner, limit, page, sort, fmt, headers, name):
     """List bundles.
 
     List bundles on the Patchwork instance.
@@ -154,13 +156,21 @@ def list_cmd(owner, limit, page, sort, fmt, name):
 
     # Format and print output
 
-    headers = ['ID', 'Name', 'Owner', 'Public']
+    output = []
 
-    output = [[
-        bundle.get('id'),
-        utils.trim(bundle.get('name') or ''),
-        bundle.get('owner').get('username'),
-        'yes' if bundle.get('public') else 'no',
-    ] for bundle in bundles]
+    for bundle in bundles:
+        item = [
+            bundle.get('id'),
+            utils.trim(bundle.get('name') or ''),
+            bundle.get('owner').get('username'),
+            'yes' if bundle.get('public') else 'no',
+        ]
+
+        output.append([])
+        for idx, header in enumerate(_list_headers):
+            if header not in headers:
+                continue
+
+            output[-1].append(item[idx])
 
     utils.echo_via_pager(output, headers, fmt=fmt)

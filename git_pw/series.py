@@ -13,6 +13,8 @@ from git_pw import utils
 
 LOG = logging.getLogger(__name__)
 
+_list_headers = ('ID', 'Date', 'Name', 'Version', 'Submitter')
+
 
 @click.command(name='apply', context_settings=dict(
     ignore_unknown_options=True,
@@ -110,10 +112,10 @@ def show_cmd(fmt, series_id):
 @click.option('--sort', metavar='FIELD', default='-date', type=click.Choice(
                   ['id', '-id', 'name', '-name', 'date', '-date']),
               help='Sort output on given field.')
-@utils.format_options
+@utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(submitter, limit, page, sort, fmt, name):
+def list_cmd(submitter, limit, page, sort, fmt, headers, name):
     """List series.
 
     List series on the Patchwork instance.
@@ -141,15 +143,23 @@ def list_cmd(submitter, limit, page, sort, fmt, name):
 
     # Format and print output
 
-    headers = ['ID', 'Date', 'Name', 'Version', 'Submitter']
+    output = []
 
-    output = [[
-        series_.get('id'),
-        arrow.get(series_.get('date')).humanize(),
-        utils.trim(series_.get('name') or ''),
-        series_.get('version'),
-        '%s (%s)' % (series_.get('submitter').get('name'),
-                     series_.get('submitter').get('email'))
-    ] for series_ in series]
+    for series_ in series:
+        item = [
+            series_.get('id'),
+            arrow.get(series_.get('date')).humanize(),
+            utils.trim(series_.get('name') or ''),
+            series_.get('version'),
+            '%s (%s)' % (series_.get('submitter').get('name'),
+                         series_.get('submitter').get('email'))
+        ]
+
+        output.append([])
+        for idx, header in enumerate(_list_headers):
+            if header not in headers:
+                continue
+
+            output[-1].append(item[idx])
 
     utils.echo_via_pager(output, headers, fmt=fmt)
