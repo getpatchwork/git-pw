@@ -284,6 +284,9 @@ def validate_multiple_filter_support(f):
             if not param.multiple:
                 continue
 
+            if param.name in ('headers'):
+                continue
+
             value = list(kwargs[param.name] or [])
             if value and len(value) > 1 and value != param.default:
                 msg = ('The `--%s` filter was specified multiple times. '

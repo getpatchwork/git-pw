@@ -13,6 +13,9 @@ from git_pw import utils
 
 LOG = logging.getLogger(__name__)
 
+_list_headers = ('ID', 'Date', 'Name', 'Submitter', 'State', 'Archived',
+                 'Delegate')
+
 
 @click.command(name='apply', context_settings=dict(
     ignore_unknown_options=True,
@@ -199,11 +202,11 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
 @click.option('--sort', metavar='FIELD', default='-date', type=click.Choice(
                   ['id', '-id', 'name', '-name', 'date', '-date']),
               help='Sort output on given field.')
-@utils.format_options
+@utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
 def list_cmd(state, submitter, delegate, archived, limit, page, sort, fmt,
-             name):
+             headers, name):
     """List patches.
 
     List patches on the Patchwork instance.
@@ -243,19 +246,25 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, fmt,
 
     # Format and print output
 
-    headers = ['ID', 'Date', 'Name', 'Submitter', 'State', 'Archived',
-               'Delegate']
+    output = []
 
-    output = [[
-        patch.get('id'),
-        arrow.get(patch.get('date')).humanize(),
-        utils.trim(patch.get('name')),
-        '%s (%s)' % (patch.get('submitter').get('name'),
-                     patch.get('submitter').get('email')),
-        patch.get('state'),
-        'yes' if patch.get('archived') else 'no',
-        (patch.get('delegate').get('username')
-         if patch.get('delegate') else ''),
-    ] for patch in patches]
+    for patch in patches:
+        item = [
+            patch.get('id'),
+            arrow.get(patch.get('date')).humanize(),
+            utils.trim(patch.get('name')),
+            '%s (%s)' % (patch.get('submitter').get('name'),
+                         patch.get('submitter').get('email')),
+            patch.get('state'),
+            'yes' if patch.get('archived') else 'no',
+            (patch.get('delegate') or {}).get('username', ''),
+        ]
+
+        output.append([])
+        for idx, header in enumerate(_list_headers):
+            if header not in headers:
+                continue
+
+            output[-1].append(item[idx])
 
     utils.echo_via_pager(output, headers, fmt=fmt)

@@ -216,11 +216,11 @@ class ListTestCase(unittest.TestCase):
 
         runner = CLIRunner()
         result = runner.invoke(bundle.list_cmd, [
-            '--format', 'simple'])
+            '--format', 'simple', '--column', 'ID', '--column', 'Name'])
 
         assert result.exit_code == 0, result
 
-        mock_echo.assert_called_once_with(mock.ANY, mock.ANY,
+        mock_echo.assert_called_once_with(mock.ANY, ('ID', 'Name'),
                                           fmt='simple')
 
     def test_list_with_filters(self, mock_echo, mock_index, mock_version):

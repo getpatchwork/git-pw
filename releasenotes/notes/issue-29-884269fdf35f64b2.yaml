@@ -7,3 +7,7 @@ features:
     - ``table`` (default)
     - ``simple`` (a version of table with less markup)
     - ``csv`` (comma-separated output)
+  - |
+    All list comands now take a ``--column``/``-c`` parameter, which can be
+    used to control what columns are output. This can be specified multiples
+    times. All columns are output by default.
