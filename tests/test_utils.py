@@ -8,11 +8,20 @@ import mock
 from git_pw import utils
 
 
-@mock.patch.object(utils.subprocess, 'check_output', return_value=' bar ')
+@mock.patch.object(utils.subprocess, 'check_output', return_value=b' bar ')
 def test_git_config(mock_subprocess):
     value = utils.git_config('foo')
 
     assert value == 'bar'
+    mock_subprocess.assert_called_once_with(['git', 'config', 'foo'])
+
+
+@mock.patch.object(utils.subprocess, 'check_output',
+                   return_value=b'\xf0\x9f\xa4\xb7')
+def test_git_config_unicode(mock_subprocess):
+    value = utils.git_config('foo')
+
+    assert value == u'\U0001f937'
     mock_subprocess.assert_called_once_with(['git', 'config', 'foo'])
 
 
