@@ -171,8 +171,7 @@ def format_options(original_function=None, headers=None):
     """Shared output format options."""
 
     def _format_options(f):
-        f = click.option('--format', '-f', 'fmt', envvar='PW_FORMAT',
-                         default=None,
+        f = click.option('--format', '-f', 'fmt', default=None,
                          type=click.Choice(['simple', 'table', 'csv']),
                          help="Output format. Defaults to the value of "
                          "'git config pw.server' else 'table'.")(f)
