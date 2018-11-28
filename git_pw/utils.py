@@ -174,7 +174,7 @@ def format_options(original_function=None, headers=None):
         f = click.option('--format', '-f', 'fmt', default=None,
                          type=click.Choice(['simple', 'table', 'csv']),
                          help="Output format. Defaults to the value of "
-                         "'git config pw.server' else 'table'.")(f)
+                         "'git config pw.format' else 'table'.")(f)
 
         if headers:
             f = click.option('--column', '-c', 'headers', metavar='COLUMN',
