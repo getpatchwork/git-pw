@@ -40,16 +40,12 @@ class HTTPTokenAuth(requests.auth.AuthBase):
         return 'Token {}'.format(token.strip())
 
 
-def _get_auth():  # type: () -> requests.auth.AuthBase
+def _get_auth():  # type: () -> Optional[requests.auth.AuthBase]
     if CONF.token:
         return HTTPTokenAuth(CONF.token)
     elif CONF.username and CONF.password:
         return requests.auth.HTTPBasicAuth(CONF.username, CONF.password)
-    else:
-        LOG.error('Authentication information missing')
-        LOG.error('You must configure authentication via git-config or via '
-                  '--token or --username, --password')
-        sys.exit(1)
+    return None
 
 
 def _get_headers():  # type: () -> Dict[str, str]

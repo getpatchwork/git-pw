@@ -89,7 +89,7 @@ settings are **required**:
 
       https://patchwork.ozlabs.org/project/{project_name}/list/
 
-You also require authentication - you can use either API tokens or a
+If you also require authentication - you can use either API tokens or a
 username/password combination:
 
 ``pw.token``
