@@ -2,6 +2,7 @@
 Utility functions.
 """
 
+from __future__ import print_function
 import codecs
 import os
 import subprocess
@@ -46,10 +47,12 @@ def git_am(mbox, args):
     cmd.append(mbox)
 
     try:
-        subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as exc:
         print(exc.output)
         sys.exit(exc.returncode)
+    else:
+        print(output, end='')
 
 
 def _tabulate(output, headers, fmt):
