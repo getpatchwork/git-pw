@@ -31,14 +31,18 @@ def apply_cmd(series_id, args):
     LOG.debug('Applying series: id=%d, args=%s', series_id, ' '.join(args))
 
     series = api.detail('series', series_id)
-    mbox = api.download(series['mbox'])
+    mboxes = []
+    for patch in series.get('patches'):
+        mboxes.append(api.download(patch['mbox']))
 
-    utils.git_am(mbox, args)
+    for m in mboxes:
+        LOG.debug('Applying patch %s', m)
+        utils.git_am(m, args)
 
 
 @click.command(name='download')
 @click.argument('series_id', type=click.INT)
-@click.argument('output', type=click.File('wb'), required=False)
+@click.argument('output', type=click.File(mode='w', encoding='utf-8'), required=False)
 def download_cmd(series_id, output):
     """Download series in mbox format.
 
