@@ -4,8 +4,10 @@ Simple wrappers around request methods.
 
 from functools import update_wrapper
 import logging
+import os.path
 import re
 import sys
+import tempfile
 
 import click
 import requests
@@ -195,7 +197,8 @@ def download(url, params=None):
         LOG.error('Filename was expected but was not provided in response')
         sys.exit(1)
 
-    output_path = header.group(1)
+    output_path = os.path.join(tempfile.mkdtemp(prefix='git-pw'),
+                               header.group(1))
 
     with open(output_path, 'wb') as output_file:
         LOG.debug('Saving to %s', output_path)

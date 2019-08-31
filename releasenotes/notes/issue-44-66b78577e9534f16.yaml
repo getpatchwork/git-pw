@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    Downloaded patches, series and bundles are now saved to a temporary
+    directory instead of the current directory.
