@@ -1,5 +1,5 @@
 """
-TODO.
+Command-line interface to the Patchwork API.
 """
 
 import click
