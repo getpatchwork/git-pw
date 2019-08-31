@@ -3,9 +3,9 @@ sudo: false
 cache: pip
 python:
 - 2.7
-- 3.4
 - 3.5
 - 3.6
+- 3.7
 - pypy
 install:
 - pip install tox-travis
@@ -17,7 +17,7 @@ stages:
 jobs:
   include:
   - stage: deploy
-    python: 3.6
+    python: 3.7
     install: skip  # no tests, no depedencies needed
     script: skip  # we're not running tests
     deploy:
