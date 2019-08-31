@@ -49,10 +49,10 @@ def git_am(mbox, args):
     try:
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as exc:
-        print(exc.output)
+        print(exc.output.decode('utf-8'))
         sys.exit(exc.returncode)
     else:
-        print(output, end='')
+        print(output.decode('utf-8'), end='')
 
 
 def _tabulate(output, headers, fmt):

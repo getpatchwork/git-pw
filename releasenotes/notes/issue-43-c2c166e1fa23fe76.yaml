@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    An issue that resulted in invalid output on Python 3 when a patch or series
+    was not successfully applied has been resolved.
