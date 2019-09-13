@@ -71,9 +71,6 @@ releasenotes/notes/reno.cache
 # virtualenv
 /.venv
 
-# man pages
-/man
-
 # Mypy
 /.mypy_cache
 

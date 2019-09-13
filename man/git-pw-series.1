@@ -1,0 +1,31 @@
+.TH "GIT-PW SERIES" "1" "13-Sep-2019" "1.6.1.dev6" "git-pw series Manual"
+.SH NAME
+git-pw\-series \- Interact with series.
+.SH SYNOPSIS
+.B git-pw series
+[OPTIONS] COMMAND [ARGS]...
+.SH DESCRIPTION
+Interact with series.
+.PP
+Series are groups of patches, along with an optional cover letter.
+Series are mostly dumb containers, though they also contain some
+metadata themselves, such as a version (which is inherited by the
+patches and cover letter) and a count of the number of patches
+found in the series.
+.SH COMMANDS
+.PP
+\fBapply\fP
+  Apply series.
+  See \fBgit-pw series-apply(1)\fP for full documentation on the \fBapply\fP command.
+.PP
+\fBshow\fP
+  Show information about series.
+  See \fBgit-pw series-show(1)\fP for full documentation on the \fBshow\fP command.
+.PP
+\fBdownload\fP
+  Download series in mbox format.
+  See \fBgit-pw series-download(1)\fP for full documentation on the \fBdownload\fP command.
+.PP
+\fBlist\fP
+  List series.
+  See \fBgit-pw series-list(1)\fP for full documentation on the \fBlist\fP command.

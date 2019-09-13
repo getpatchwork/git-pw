@@ -1,0 +1,14 @@
+.TH "GIT-PW PATCH SHOW" "1" "13-Sep-2019" "1.6.1.dev6" "git-pw patch show Manual"
+.SH NAME
+git-pw\-patch\-show \- Show information about patch.
+.SH SYNOPSIS
+.B git-pw patch show
+[OPTIONS] PATCH_ID
+.SH DESCRIPTION
+Show information about patch.
+.PP
+Retrieve Patchwork metadata for a patch.
+.SH OPTIONS
+.TP
+\fB\-f,\fP \-\-format [simple|table|csv]
+Output format. Defaults to the value of 'git config pw.format' else 'table'.

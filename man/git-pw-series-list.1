@@ -1,0 +1,29 @@
+.TH "GIT-PW SERIES LIST" "1" "13-Sep-2019" "1.6.1.dev6" "git-pw series list Manual"
+.SH NAME
+git-pw\-series\-list \- List series.
+.SH SYNOPSIS
+.B git-pw series list
+[OPTIONS] [NAME]
+.SH DESCRIPTION
+List series.
+.PP
+List series on the Patchwork instance.
+.SH OPTIONS
+.TP
+\fB\-\-submitter\fP SUBMITTER
+Show only series by these submitters. Should be an email, name or ID.
+.TP
+\fB\-\-sort\fP FIELD
+Sort output on given field.
+.TP
+\fB\-\-page\fP PAGE
+Page to retrieve items from. This is influenced by the size of LIMIT.
+.TP
+\fB\-\-limit\fP LIMIT
+Maximum number of items to show.
+.TP
+\fB\-c,\fP \-\-column COLUMN
+Columns to be included in output.
+.TP
+\fB\-f,\fP \-\-format [simple|table|csv]
+Output format. Defaults to the value of 'git config pw.format' else 'table'.

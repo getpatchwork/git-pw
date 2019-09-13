@@ -1,0 +1,33 @@
+.TH "GIT-PW BUNDLE" "1" "13-Sep-2019" "1.6.1.dev6" "git-pw bundle Manual"
+.SH NAME
+git-pw\-bundle \- Interact with bundles.
+.SH SYNOPSIS
+.B git-pw bundle
+[OPTIONS] COMMAND [ARGS]...
+.SH DESCRIPTION
+Interact with bundles.
+.PP
+Bundles are custom, user-defined groups of patches. Bundles can be
+used to keep patch lists, preserving order, for future inclusion in
+a tree. There's no restriction of number of patches and they don't
+even need to be in the same project. A single patch also can be
+part of multiple bundles at the same time.  An example of Bundle
+usage would be keeping track of the Patches that are ready for
+merge to the tree.
+.SH COMMANDS
+.PP
+\fBapply\fP
+  Apply bundle.
+  See \fBgit-pw bundle-apply(1)\fP for full documentation on the \fBapply\fP command.
+.PP
+\fBshow\fP
+  Show information about bundle.
+  See \fBgit-pw bundle-show(1)\fP for full documentation on the \fBshow\fP command.
+.PP
+\fBdownload\fP
+  Download bundle in mbox format.
+  See \fBgit-pw bundle-download(1)\fP for full documentation on the \fBdownload\fP command.
+.PP
+\fBlist\fP
+  List bundles.
+  See \fBgit-pw bundle-list(1)\fP for full documentation on the \fBlist\fP command.

@@ -1,0 +1,36 @@
+.TH "GIT-PW PATCH" "1" "13-Sep-2019" "1.6.1.dev6" "git-pw patch Manual"
+.SH NAME
+git-pw\-patch \- Interact with patches.
+.SH SYNOPSIS
+.B git-pw patch
+[OPTIONS] COMMAND [ARGS]...
+.SH DESCRIPTION
+Interact with patches.
+.PP
+Patches are the central object in Patchwork structure. A patch
+contains both a diff and some metadata, such as the name, the
+description, the author, the version of the patch etc. Patchwork
+stores not only the patch itself but also various metadata
+associated with the email that the patch was parsed from, such as
+the message headers or the date the message itself was received.
+.SH COMMANDS
+.PP
+\fBapply\fP
+  Apply patch.
+  See \fBgit-pw patch-apply(1)\fP for full documentation on the \fBapply\fP command.
+.PP
+\fBshow\fP
+  Show information about patch.
+  See \fBgit-pw patch-show(1)\fP for full documentation on the \fBshow\fP command.
+.PP
+\fBdownload\fP
+  Download patch in diff or mbox format.
+  See \fBgit-pw patch-download(1)\fP for full documentation on the \fBdownload\fP command.
+.PP
+\fBupdate\fP
+  Update one or more patches.
+  See \fBgit-pw patch-update(1)\fP for full documentation on the \fBupdate\fP command.
+.PP
+\fBlist\fP
+  List patches.
+  See \fBgit-pw patch-list(1)\fP for full documentation on the \fBlist\fP command.

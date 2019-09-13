@@ -1,0 +1,64 @@
+.TH "GIT-PW" "1" "13-Sep-2019" "1.6.1.dev6" "git-pw Manual"
+.SH NAME
+git-pw \- git-pw is a tool for integrating Git with...
+.SH SYNOPSIS
+.B git-pw
+[OPTIONS] COMMAND [ARGS]...
+.SH DESCRIPTION
+git-pw is a tool for integrating Git with Patchwork.
+.PP
+git-pw can interact with individual patches, complete patch series, and
+customized bundles.  The three major subcommands are *patch*, *bundle*,
+and *series*.
+.PP
+The git-pw utility is a wrapper which makes REST calls to the Patchwork
+service. To use git-pw, you must set up your environment by configuring
+your Patchwork server URL and either an API token or a username and
+password. To configure the server URL, run::
+.PP
+  git config pw.server http://pw.server.com/path/to/patchwork
+.PP
+To configure the token, run::
+.PP
+  git config pw.token token
+.PP
+Alternatively, you can pass these options via command line parameters or
+environment variables.
+.PP
+For more information on any of the commands, simply pass ``--help`` to the
+appropriate command.
+.SH OPTIONS
+.TP
+\fB\-\-debug\fP
+Output more information about what's going on.
+.TP
+\fB\-\-token\fP TOKEN
+Authentication token. Defaults to the value of 'git config pw.token'.
+.TP
+\fB\-\-username\fP USERNAME
+Authentication username. Defaults to the value of 'git config pw.username'.
+.TP
+\fB\-\-password\fP PASSWORD
+Authentication password. Defaults to the value of 'git config pw.password'.
+.TP
+\fB\-\-server\fP SERVER
+Patchwork server address/hostname. Defaults to the value of 'git config pw.server'.
+.TP
+\fB\-\-project\fP PROJECT
+Patchwork project. Defaults the value of 'git config pw.project'.
+.TP
+\fB\-\-version\fP
+Show the version and exit.
+.SH COMMANDS
+.PP
+\fBpatch\fP
+  Interact with patches.
+  See \fBgit-pw-patch(1)\fP for full documentation on the \fBpatch\fP command.
+.PP
+\fBseries\fP
+  Interact with series.
+  See \fBgit-pw-series(1)\fP for full documentation on the \fBseries\fP command.
+.PP
+\fBbundle\fP
+  Interact with bundles.
+  See \fBgit-pw-bundle(1)\fP for full documentation on the \fBbundle\fP command.

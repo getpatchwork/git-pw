@@ -1,0 +1,29 @@
+.TH "GIT-PW BUNDLE LIST" "1" "13-Sep-2019" "1.6.1.dev6" "git-pw bundle list Manual"
+.SH NAME
+git-pw\-bundle\-list \- List bundles.
+.SH SYNOPSIS
+.B git-pw bundle list
+[OPTIONS] [NAME]
+.SH DESCRIPTION
+List bundles.
+.PP
+List bundles on the Patchwork instance.
+.SH OPTIONS
+.TP
+\fB\-\-owner\fP OWNER
+Show only bundles with these owners. Should be an email, name or ID. Private bundles of other users will not be shown.
+.TP
+\fB\-\-sort\fP FIELD
+Sort output on given field.
+.TP
+\fB\-\-page\fP PAGE
+Page to retrieve items from. This is influenced by the size of LIMIT.
+.TP
+\fB\-\-limit\fP LIMIT
+Maximum number of items to show.
+.TP
+\fB\-c,\fP \-\-column COLUMN
+Columns to be included in output.
+.TP
+\fB\-f,\fP \-\-format [simple|table|csv]
+Output format. Defaults to the value of 'git config pw.format' else 'table'.
