@@ -392,7 +392,8 @@ class ListTestCase(unittest.TestCase):
         assert mock_log.warning.called
 
     @mock.patch('git_pw.api.LOG')
-    def test_list_api_v1_1(self, mock_log, mock_echo, mock_index, mock_version):
+    def test_list_api_v1_1(self, mock_log, mock_echo, mock_index,
+                           mock_version):
         """Validate behavior with API v1.1."""
 
         mock_version.return_value = (1, 1)
