@@ -68,7 +68,7 @@ class DownloadTestCase(unittest.TestCase):
 
         class MockResponse(object):
             @property
-            def text(self):
+            def content(self):
                 return b'alpha-beta'
 
         rsp = {'mbox': 'http://example.com/api/patches/123/mbox/'}

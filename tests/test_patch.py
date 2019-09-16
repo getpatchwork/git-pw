@@ -115,7 +115,7 @@ class DownloadTestCase(unittest.TestCase):
 
         class MockResponse(object):
             @property
-            def text(self):
+            def content(self):
                 return b'alpha-beta'
 
         rsp = {'mbox': 'hello, world', 'diff': 'test'}

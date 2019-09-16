@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Resolved an issue that prevented viewing patch diffs/mboxes in stdout on
+    Python 3.

@@ -72,7 +72,9 @@ def download_cmd(bundle_id, output):
     bundle = _get_bundle(bundle_id)
 
     if output:
-        output.write(api.get(bundle['mbox']).text)
+        content = api.get(bundle['mbox']).content
+
+        output.write(content)
 
         if output != sys.stdout:
             path = output.name

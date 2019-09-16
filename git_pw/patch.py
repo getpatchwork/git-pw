@@ -72,7 +72,7 @@ def download_cmd(patch_id, output, fmt):
         if fmt == 'diff':
             content = patch['diff']
         else:
-            content = api.get(patch['mbox']).text
+            content = api.get(patch['mbox']).content
 
         output.write(content)
 

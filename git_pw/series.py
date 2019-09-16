@@ -52,7 +52,9 @@ def download_cmd(series_id, output):
     series = api.detail('series', series_id)
 
     if output:
-        output.write(api.get(series['mbox']).text)
+        content = api.get(series['mbox']).content
+
+        output.write(content)
 
         if output != sys.stdout:
             path = output.name
