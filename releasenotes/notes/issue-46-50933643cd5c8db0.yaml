@@ -1,0 +1,4 @@
+---
+upgrade:
+  - |
+    CSV-formatted output is now quoted by default.

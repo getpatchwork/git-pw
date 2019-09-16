@@ -3,7 +3,9 @@ Utility functions.
 """
 
 from __future__ import print_function
+
 import codecs
+import csv
 import os
 import subprocess
 import sys
@@ -11,6 +13,11 @@ import sys
 import click
 from tabulate import tabulate
 
+
+if sys.version_info < (3, 0):
+    from io import BytesIO  # noqa
+else:
+    from io import StringIO  # noqa
 
 if sys.version_info < (3, 0):
     _text = unicode  # noqa
@@ -63,12 +70,12 @@ def _tabulate(output, headers, fmt):
     elif fmt == 'simple':
         return tabulate(output, headers, tablefmt='simple')
     elif fmt == 'csv':
-        result = []
-        result.append(','.join(headers))
+        result = StringIO()
+        writer = csv.writer(result, quoting=csv.QUOTE_ALL)
+        writer.writerow(headers)
         for item in output:
-            result.append(
-                ','.join(_text(x if x is not None else '') for x in item))
-        return '\n'.join(result)
+            writer.writerow(_text(x if x is not None else '') for x in item)
+        return result.getvalue()
 
     print('pw.format must be one of: table, simple, csv')
     sys.exit(1)
