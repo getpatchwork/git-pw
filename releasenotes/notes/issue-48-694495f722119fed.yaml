@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    An info-level log is now correctly skipped when downloading patches,
+    bundles or series to ``STDOUT`` on Python 3.

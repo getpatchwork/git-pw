@@ -3,6 +3,7 @@ Patch subcommands.
 """
 
 import logging
+import pty
 import sys
 
 import arrow
@@ -76,7 +77,7 @@ def download_cmd(patch_id, output, fmt):
 
         output.write(content)
 
-        if output != sys.stdout:
+        if output.fileno() != pty.STDOUT_FILENO:
             path = output.name
     else:
         if fmt == 'diff':

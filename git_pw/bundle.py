@@ -3,6 +3,7 @@ Bundle subcommands.
 """
 
 import logging
+import pty
 import sys
 
 import click
@@ -76,7 +77,7 @@ def download_cmd(bundle_id, output):
 
         output.write(content)
 
-        if output != sys.stdout:
+        if output.fileno() != pty.STDOUT_FILENO:
             path = output.name
     else:
         path = api.download(bundle['mbox'])

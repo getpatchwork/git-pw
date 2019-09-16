@@ -3,7 +3,7 @@ Series subcommands.
 """
 
 import logging
-import sys
+import pty
 
 import arrow
 import click
@@ -56,7 +56,7 @@ def download_cmd(series_id, output):
 
         output.write(content)
 
-        if output != sys.stdout:
+        if output.fileno() != pty.STDOUT_FILENO:
             path = output.name
     else:
         path = api.download(series['mbox'])
