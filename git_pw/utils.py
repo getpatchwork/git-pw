@@ -11,18 +11,8 @@ import subprocess
 import sys
 
 import click
+import six
 from tabulate import tabulate
-
-
-if sys.version_info < (3, 0):
-    from io import BytesIO  # noqa
-else:
-    from io import StringIO  # noqa
-
-if sys.version_info < (3, 0):
-    _text = unicode  # noqa
-else:
-    _text = str  # noqa
 
 
 def trim(string, length=70):  # type: (str, int) -> str
@@ -70,11 +60,13 @@ def _tabulate(output, headers, fmt):
     elif fmt == 'simple':
         return tabulate(output, headers, tablefmt='simple')
     elif fmt == 'csv':
-        result = StringIO()
-        writer = csv.writer(result, quoting=csv.QUOTE_ALL)
-        writer.writerow(headers)
+        result = six.StringIO()
+        writer = csv.writer(
+            result, quoting=csv.QUOTE_ALL, lineterminator=os.linesep)
+        writer.writerow([six.ensure_str(h) for h in headers])
         for item in output:
-            writer.writerow(_text(x if x is not None else '') for x in item)
+            writer.writerow([
+                six.ensure_str(x if x is not None else '') for x in item])
         return result.getvalue()
 
     print('pw.format must be one of: table, simple, csv')

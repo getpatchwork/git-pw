@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+
 """Unit tests for ``git_pw/utils.py``."""
 
 import subprocess
+import textwrap
 import os
 
 import mock
@@ -78,3 +81,59 @@ def test_echo_via_pager_env_default(mock_inner, mock_tabulate, mock_config):
     mock_config.assert_called_once_with('core.parser')
     mock_tabulate.assert_called_once_with('test', ('foo',), None)
     mock_inner.assert_called_once_with('less', mock_tabulate.return_value)
+
+
+def _test_tabulate(fmt):
+    output = [(b'foo', 'bar', u'baz', '😀', None)]
+    headers = ('col1', 'colb', 'colIII', 'colX', 'colY')
+
+    result = utils._tabulate(output, headers, fmt)
+
+    return output, headers, result
+
+
+@mock.patch.object(utils, 'tabulate')
+def test_tabulate_table(mock_tabulate):
+    output, headers, result = _test_tabulate('table')
+
+    mock_tabulate.assert_called_once_with(output, headers, tablefmt='psql')
+    assert result == mock_tabulate.return_value
+
+
+@mock.patch.object(utils, 'tabulate')
+def test_tabulate_simple(mock_tabulate):
+    output, headers, result = _test_tabulate('simple')
+
+    mock_tabulate.assert_called_once_with(output, headers, tablefmt='simple')
+    assert result == mock_tabulate.return_value
+
+
+@mock.patch.object(utils, 'tabulate')
+def test_tabulate_csv(mock_tabulate):
+    output, headers, result = _test_tabulate('csv')
+
+    mock_tabulate.assert_not_called()
+    assert result == textwrap.dedent("""\
+        "col1","colb","colIII","colX","colY"
+        "foo","bar","baz","😀",""
+    """)
+
+
+@mock.patch.object(utils, 'git_config', return_value='simple')
+@mock.patch.object(utils, 'tabulate')
+def test_tabulate_git_config(mock_tabulate, mock_git_config):
+    output, headers, result = _test_tabulate(None)
+
+    mock_git_config.assert_called_once_with('pw.format')
+    mock_tabulate.assert_called_once_with(output, headers, tablefmt='simple')
+    assert result == mock_tabulate.return_value
+
+
+@mock.patch.object(utils, 'git_config', return_value='')
+@mock.patch.object(utils, 'tabulate')
+def test_tabulate_default(mock_tabulate, mock_git_config):
+    output, headers, result = _test_tabulate(None)
+
+    mock_git_config.assert_called_once_with('pw.format')
+    mock_tabulate.assert_called_once_with(output, headers, tablefmt='psql')
+    assert result == mock_tabulate.return_value
