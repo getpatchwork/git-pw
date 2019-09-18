@@ -84,8 +84,8 @@ def test_echo_via_pager_env_default(mock_inner, mock_tabulate, mock_config):
 
 
 def _test_tabulate(fmt):
-    output = [(b'foo', 'bar', u'baz', '😀', None)]
-    headers = ('col1', 'colb', 'colIII', 'colX', 'colY')
+    output = [(b'foo', 'bar', u'baz', '😀', None, 1)]
+    headers = ('col1', 'colb', 'colIII', 'colX', 'colY', 'colZ')
 
     result = utils._tabulate(output, headers, fmt)
 
@@ -114,8 +114,8 @@ def test_tabulate_csv(mock_tabulate):
 
     mock_tabulate.assert_not_called()
     assert result == textwrap.dedent("""\
-        "col1","colb","colIII","colX","colY"
-        "foo","bar","baz","😀",""
+        "col1","colb","colIII","colX","colY","colZ"
+        "foo","bar","baz","😀","","1"
     """)
 
 

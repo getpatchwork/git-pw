@@ -15,6 +15,15 @@ import six
 from tabulate import tabulate
 
 
+def ensure_str(s):
+    if s is None:
+        s = ''
+    elif not isinstance(s, (six.text_type, six.binary_type)):
+        s = str(s)
+
+    return six.ensure_str(s)
+
+
 def trim(string, length=70):  # type: (str, int) -> str
     """Trim a string to the given length."""
     return (string[:length - 1] + '...') if len(string) > length else string
@@ -63,10 +72,9 @@ def _tabulate(output, headers, fmt):
         result = six.StringIO()
         writer = csv.writer(
             result, quoting=csv.QUOTE_ALL, lineterminator=os.linesep)
-        writer.writerow([six.ensure_str(h) for h in headers])
+        writer.writerow([ensure_str(h) for h in headers])
         for item in output:
-            writer.writerow([
-                six.ensure_str(x if x is not None else '') for x in item])
+            writer.writerow([ensure_str(i) for i in item])
         return result.getvalue()
 
     print('pw.format must be one of: table, simple, csv')
