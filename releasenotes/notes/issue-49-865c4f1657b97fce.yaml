@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    An issue with the unicode data when using the CSV format on Python 2.7 has
+    been resolved.

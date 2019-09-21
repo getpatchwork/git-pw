@@ -4,7 +4,6 @@ Utility functions.
 
 from __future__ import print_function
 
-import codecs
 import csv
 import os
 import subprocess
@@ -81,22 +80,6 @@ def _tabulate(output, headers, fmt):
     sys.exit(1)
 
 
-def _is_ascii_encoding(encoding):
-    """Checks if a given encoding is ascii."""
-    try:
-        return codecs.lookup(encoding).name == 'ascii'
-    except LookupError:
-        return False
-
-
-def _get_best_encoding(stream):
-    """Returns the default stream encoding if not found."""
-    rv = getattr(stream, 'encoding', None) or sys.getdefaultencoding()
-    if _is_ascii_encoding(rv):
-        return 'utf-8'
-    return rv
-
-
 def _echo_via_pager(pager, output):
     env = dict(os.environ)
     # When the LESS environment variable is unset, Git sets it to FRX (if
@@ -104,21 +87,20 @@ def _echo_via_pager(pager, output):
     if 'LESS' not in env:
         env['LESS'] = 'FRX'
 
-    c = subprocess.Popen(pager, shell=True, stdin=subprocess.PIPE,
-                         env=env)
-    encoding = _get_best_encoding(c.stdin)
+    pager = subprocess.Popen(pager.split(), stdin=subprocess.PIPE, env=env)
+
+    output = six.ensure_binary(output)
 
     try:
-        for line in output:
-            c.stdin.write(line.encode(encoding, 'replace'))
+        pager.communicate(input=output)
     except (IOError, KeyboardInterrupt):
         pass
     else:
-        c.stdin.close()
+        pager.stdin.close()
 
     while True:
         try:
-            c.wait()
+            pager.wait()
         except KeyboardInterrupt:
             pass
         else:
