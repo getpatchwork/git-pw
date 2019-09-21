@@ -1,0 +1,4 @@
+---
+upgrade:
+  - |
+    *git-pw* no longer officially supports PyPy.
