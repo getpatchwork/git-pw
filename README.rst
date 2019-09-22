@@ -79,7 +79,8 @@ settings are **required**:
 
   You can discover the API version supported by your instance by comparing the
   server version, found at ``/about``, with the API versions provided in the
-  `documentation`__.
+  `documentation`__. For example, if your server is running Patchwork version
+  2.1.x, you should use API version 1.1.
 
   __ https://patchwork.readthedocs.io/en/stable-2.1/api/rest/#rest-api-versions
 
