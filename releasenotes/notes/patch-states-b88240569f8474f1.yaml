@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The ``--state`` option of the ``git pw patch update`` command now supports
+    auto-complete for the default set of states provided by Patchwork. If
+    necessary, these states can be overridden using the ``pw.states``
+    ``git config`` setting.

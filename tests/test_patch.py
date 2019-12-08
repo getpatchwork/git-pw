@@ -211,6 +211,7 @@ class ShowTestCase(unittest.TestCase):
 
 @mock.patch('git_pw.api.update')
 @mock.patch.object(patch, '_show_patch')
+@mock.patch.object(patch, '_get_states')
 class UpdateTestCase(unittest.TestCase):
 
     @staticmethod
@@ -223,7 +224,7 @@ class UpdateTestCase(unittest.TestCase):
         rsp.update(**kwargs)
         return rsp
 
-    def test_update_no_arguments(self, mock_show, mock_update):
+    def test_update_no_arguments(self, mock_states, mock_show, mock_update):
         """Validate behavior with no arguments."""
 
         runner = CLIRunner()
@@ -233,8 +234,10 @@ class UpdateTestCase(unittest.TestCase):
         mock_update.assert_called_once_with('patches', 123, [])
         mock_show.assert_called_once_with(mock_update.return_value, None)
 
-    def test_update_with_arguments(self, mock_show, mock_update):
+    def test_update_with_arguments(self, mock_states, mock_show, mock_update):
         """Validate behavior with all arguments except delegate."""
+
+        mock_states.return_value = ['new']
 
         runner = CLIRunner()
         result = runner.invoke(patch.update_cmd, [
@@ -246,8 +249,22 @@ class UpdateTestCase(unittest.TestCase):
             ('commit_ref', '3ed8fb12'), ('state', 'new'), ('archived', True)])
         mock_show.assert_called_once_with(mock_update.return_value, 'table')
 
+    def test_update_with_invalid_state(
+            self, mock_states, mock_show, mock_update):
+        """Validate behavior with invalid state."""
+
+        mock_states.return_value = ['foo']
+
+        runner = CLIRunner()
+        result = runner.invoke(patch.update_cmd, [
+            '123', '--state', 'bar'])
+
+        assert result.exit_code == 2, result
+        assert 'Invalid value for "--state"' in result.output, result
+
     @mock.patch('git_pw.api.index')
-    def test_update_with_delegate(self, mock_index, mock_show, mock_update):
+    def test_update_with_delegate(
+            self, mock_index, mock_states, mock_show, mock_update):
         """Validate behavior with delegate argument."""
 
         mock_index.return_value = [self._get_person()]

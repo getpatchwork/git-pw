@@ -10,13 +10,19 @@ import arrow
 import click
 
 from git_pw import api
+from git_pw import config
 from git_pw import utils
 
+CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
-_list_headers = ('ID', 'Date', 'Name', 'Submitter', 'State', 'Archived',
-                 'Delegate')
-_sort_fields = ('id', '-id', 'name', '-name', 'date', '-date')
+_list_headers = (
+    'ID', 'Date', 'Name', 'Submitter', 'State', 'Archived', 'Delegate')
+_sort_fields = (
+    'id', '-id', 'name', '-name', 'date', '-date')
+_default_states = (
+    'new', 'under-review', 'accepted', 'rejected', 'rfc', 'not-applicable',
+    'changes-requested', 'awaiting-upstream', 'superseded', 'deferred')
 
 
 @click.command(name='apply', context_settings=dict(
@@ -135,13 +141,18 @@ def show_cmd(fmt, patch_id):
     _show_patch(patch, fmt)
 
 
+def _get_states():
+    return CONF.states.split(',') if CONF.states else _default_states
+
+
 @click.command(name='update')
 @click.argument('patch_ids', type=click.INT, nargs=-1, required=True)
 @click.option('--commit-ref', metavar='COMMIT_REF',
               help='Set the patch commit reference hash')
-@click.option('--state', metavar='STATE',
-              help='Set the patch state. Should be a slugified representation '
-              'of a state. The available states are instance dependant.')
+@click.option('--state', metavar='STATE', type=click.Choice(_get_states()),
+              help="Set the patch state. Should be a slugified representation "
+              "of a state. The available states are instance dependant and "
+              "can be configured using 'git config pw.states'.")
 @click.option('--delegate', metavar='DELEGATE',
               help='Set the patch delegate. Should be unique user identifier: '
               'either a username or a user\'s email address.')

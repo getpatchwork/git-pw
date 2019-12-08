@@ -7,11 +7,6 @@ import logging
 from git_pw import utils
 
 LOG = logging.getLogger(__name__)
-# TODO(stephenfin): We should eventually download and store these
-# automagically
-DEFAULT_STATES = [
-    'new', 'under-review', 'accepted', 'rejected', 'rfc', 'not-applicable',
-    'changes-requested', 'awaiting-upstream', 'superseded', 'deferred']
 
 
 class Config(object):
@@ -21,7 +16,10 @@ class Config(object):
 
     def __getattribute__(self, name):
         # attempt to use any attributes first
-        value = object.__getattribute__(self, name)
+        try:
+            value = super(Config, self).__getattribute__(name)
+        except AttributeError:
+            value = None
         if value:
             LOG.debug("Retrieved '{}' setting from cache".format(name))
             return value

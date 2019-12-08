@@ -102,6 +102,15 @@ username/password combination:
 ``pw.password``
   The password for your Patchwork account.
 
+The following settings are **optional** and may need to be set depending on
+your Patchwork instance's configuration:
+
+``pw.states``
+  The states that can be applied to a patch using the ``git pw patch update``
+  command. Should be provided in slug form (``changes-requested`` instead of
+  ``Changes Requested``). Only required if your Patchwork instance uses
+  non-default states.
+
 You can set these settings using the ``git config`` command. This should be
 done in the repo in which you intend to apply patches. For example, to
 configure the Patchwork project, run:
