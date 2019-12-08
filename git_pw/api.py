@@ -143,9 +143,9 @@ def get(url, params=None, stream=False):
         # TODO(stephenfin): We only use a subset of the types possible for
         # 'params' (namely a list of tuples) but it doesn't seem possible to
         # indicate this
-        rsp = requests.get(  # type: ignore
-            url, auth=_get_auth(), headers=_get_headers(), params=params,
-            stream=stream)
+        rsp = requests.get(
+            url, auth=_get_auth(), headers=_get_headers(), stream=stream,
+            params=params)  # type: ignore
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
         _handle_error('fetch', exc)
