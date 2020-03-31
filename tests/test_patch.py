@@ -1,7 +1,9 @@
 import unittest
 
+import click
 from click.testing import CliRunner as CLIRunner
 import mock
+from packaging import version
 
 from git_pw import patch
 
@@ -260,7 +262,10 @@ class UpdateTestCase(unittest.TestCase):
             '123', '--state', 'bar'])
 
         assert result.exit_code == 2, result
-        assert 'Invalid value for "--state"' in result.output, result
+        if version.parse(click.__version__) >= version.Version('7.1'):
+            assert "Invalid value for '--state'" in result.output, result
+        else:
+            assert 'Invalid value for "--state"' in result.output, result
 
     @mock.patch('git_pw.api.index')
     def test_update_with_delegate(
