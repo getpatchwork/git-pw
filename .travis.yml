@@ -6,6 +6,7 @@ python:
 - 3.5
 - 3.6
 - 3.7
+- 3.8
 install:
 - pip install tox-travis
 script:
@@ -16,7 +17,7 @@ stages:
 jobs:
   include:
   - stage: deploy
-    python: 3.7
+    python: 3.8
     install: skip  # no tests, no depedencies needed
     script: skip  # we're not running tests
     deploy:
