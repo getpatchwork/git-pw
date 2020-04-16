@@ -77,17 +77,7 @@ def download_cmd(bundle_id, output):
         LOG.info('Downloaded bundle to %s', path)
 
 
-@click.command(name='show')
-@utils.format_options
-@click.argument('bundle_id')
-def show_cmd(fmt, bundle_id):
-    """Show information about bundle.
-
-    Retrieve Patchwork metadata for a bundle.
-    """
-    LOG.debug('Showing bundle: id=%s', bundle_id)
-
-    bundle = _get_bundle(bundle_id)
+def _show_bundle(bundle, fmt):
 
     def _format_patch(patch):
         return '%-4d %s' % (patch.get('id'), patch.get('name'))
@@ -106,6 +96,21 @@ def show_cmd(fmt, bundle_id):
         prefix = ''
 
     utils.echo(output, ['Property', 'Value'], fmt=fmt)
+
+
+@click.command(name='show')
+@utils.format_options
+@click.argument('bundle_id')
+def show_cmd(fmt, bundle_id):
+    """Show information about bundle.
+
+    Retrieve Patchwork metadata for a bundle.
+    """
+    LOG.debug('Showing bundle: id=%s', bundle_id)
+
+    bundle = _get_bundle(bundle_id)
+
+    _show_bundle(bundle, fmt)
 
 
 @click.command(name='list')
@@ -162,3 +167,34 @@ def list_cmd(owner, limit, page, sort, fmt, headers, name):
             output[-1].append(item[idx])
 
     utils.echo_via_pager(output, headers, fmt=fmt)
+
+
+@click.command(name='create')
+@click.option('--public/--private', default=False,
+              help='Allow other users to view this bundle. If private, only '
+              'you will be able to see this bundle.')
+@click.argument('name')
+@click.argument('patch_ids', type=click.INT, nargs=-1, required=True)
+@api.validate_minimum_version(
+    (1, 2), 'Creating bundles is only supported from API version 1.2',
+)
+@utils.format_options
+def create_cmd(name, patch_ids, public, fmt):
+    """Create a bundle.
+
+    Create a bundle with the given NAME and patches from PATCH_ID.
+
+    Requires API version 1.2 or greater.
+    """
+    LOG.debug('Create bundle: name=%s, patches=%s, public=%s',
+              name, patch_ids, public)
+
+    data = [
+        ('name', name),
+        ('patches', patch_ids),
+        ('public', public),
+    ]
+
+    bundle = api.create('bundles', data)
+
+    _show_bundle(bundle, fmt)

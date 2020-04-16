@@ -17,6 +17,8 @@ import git_pw
 from git_pw import config
 
 if 0:  # noqa
+    from typing import Any  # noqa
+    from typing import Callable  # noqa
     from typing import Dict  # noqa
     from typing import IO  # noqa
     from typing import List  # noqa
@@ -138,6 +140,23 @@ def _get(url, params=None, stream=False):
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
         _handle_error('fetch', exc)
+
+    LOG.debug('Got response')
+
+    return rsp
+
+
+def _post(url, data):
+    # type: (str, dict) -> requests.Response
+    """Make POST request and handle errors."""
+    LOG.debug('POST %s, data=%r', url, data)
+
+    try:
+        rsp = requests.post(url, auth=_get_auth(), headers=_get_headers(),
+                            data=data)
+        rsp.raise_for_status()
+    except requests.exceptions.RequestException as exc:
+        _handle_error('create', exc)
 
     LOG.debug('Got response')
 
@@ -270,6 +289,25 @@ def detail(resource_type, resource_id, params=None):
     return _get(url, params, stream=False).json()
 
 
+def create(resource_type, data):
+    # type: (str, dict) -> dict
+    """Create a new API resource.
+
+    POST /{resource}/
+
+    Arguments:
+        resource_type: The resource endpoint name.
+        params: Fields to update.
+
+    Returns:
+        A dictionary representing the detailed view of a given resource.
+    """
+    # NOTE(stephenfin): All resources must have a trailing '/'
+    url = '/'.join([_get_server(), resource_type, ''])
+
+    return _post(url, data).json()
+
+
 def update(resource_type, resource_id, data):
     # type: (str, int, dict) -> dict
     """Update a specific API resource.
@@ -288,6 +326,23 @@ def update(resource_type, resource_id, data):
     url = '/'.join([_get_server(), resource_type, str(resource_id), ''])
 
     return _patch(url, data).json()
+
+
+def validate_minimum_version(min_version, msg):
+    # type: (Tuple[int, int], str) -> Callable[[Any], Any]
+
+    def inner(f):
+        @click.pass_context
+        def new_func(ctx, *args, **kwargs):
+            if version() < min_version:
+                LOG.error(msg)
+                sys.exit(1)
+
+            return ctx.invoke(f, *args, **kwargs)
+
+        return update_wrapper(new_func, f)
+
+    return inner
 
 
 def validate_multiple_filter_support(f):

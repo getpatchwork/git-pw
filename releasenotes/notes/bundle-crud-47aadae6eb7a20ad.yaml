@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    The following ``bundle`` commands have been added:
+
+    - ``bundle create``
+
+    Together, these allow for creation, modification and deletion of bundles.
+    Bundles are custom, user-defined groups of patches that can be used to keep
+    patch lists, preserving order, for future inclusion in a tree.
+
+    These commands require API v1.2.

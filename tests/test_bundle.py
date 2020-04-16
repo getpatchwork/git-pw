@@ -308,3 +308,55 @@ class ListTestCase(unittest.TestCase):
 
         # We shouldn't see a warning about multiple versions either
         assert not mock_log.warning.called
+
+
+@mock.patch('git_pw.api.version', return_value=(1, 2))
+@mock.patch('git_pw.api.create')
+@mock.patch('git_pw.utils.echo_via_pager')
+class CreateTestCase(unittest.TestCase):
+
+    @staticmethod
+    def _get_bundle(**kwargs):
+        return ShowTestCase._get_bundle(**kwargs)
+
+    def test_create(self, mock_echo, mock_create, mock_version):
+        """Validate standard behavior."""
+
+        mock_create.return_value = self._get_bundle()
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.create_cmd, ['hello', '1', '2'])
+
+        assert result.exit_code == 0, result
+        mock_create.assert_called_once_with(
+            'bundles',
+            [('name', 'hello'), ('patches', (1, 2)), ('public', False)]
+        )
+
+    def test_create_with_public(self, mock_echo, mock_create, mock_version):
+        """Validate behavior with --public option."""
+
+        mock_create.return_value = self._get_bundle()
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.create_cmd, [
+            'hello', '1', '2', '--public'])
+
+        assert result.exit_code == 0, result
+        mock_create.assert_called_once_with(
+            'bundles',
+            [('name', 'hello'), ('patches', (1, 2)), ('public', True)]
+        )
+
+    @mock.patch('git_pw.api.LOG')
+    def test_create_api_v1_1(
+        self, mock_log, mock_echo, mock_create, mock_version
+    ):
+
+        mock_version.return_value = (1, 1)
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.create_cmd, ['hello', '1', '2'])
+
+        assert result.exit_code == 1, result
+        assert mock_log.error.called
