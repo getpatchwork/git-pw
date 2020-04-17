@@ -1,0 +1,16 @@
+.TH "GIT-PW BUNDLE ADD" "1" "2020-04-17" "1.9.0" "git-pw bundle add Manual"
+.SH NAME
+git-pw\-bundle\-add \- Add one or more patches to a bundle.
+.SH SYNOPSIS
+.B git-pw bundle add
+[OPTIONS] BUNDLE_ID PATCH_IDS...
+.SH DESCRIPTION
+Add one or more patches to a bundle.
+.PP
+Append the provided PATCH_IDS to bundle BUNDLE_ID.
+.PP
+Requires API version 1.2 or greater.
+.SH OPTIONS
+.TP
+\fB\-f,\fP \-\-format [simple|table|csv]
+Output format. Defaults to the value of 'git config pw.format' else 'table'.

@@ -1,0 +1,19 @@
+.TH "GIT-PW BUNDLE CREATE" "1" "2020-04-17" "1.9.0" "git-pw bundle create Manual"
+.SH NAME
+git-pw\-bundle\-create \- Create a bundle.
+.SH SYNOPSIS
+.B git-pw bundle create
+[OPTIONS] NAME PATCH_IDS...
+.SH DESCRIPTION
+Create a bundle.
+.PP
+Create a bundle with the given NAME and patches from PATCH_ID.
+.PP
+Requires API version 1.2 or greater.
+.SH OPTIONS
+.TP
+\fB\-\-public\fP / \-\-private
+Allow other users to view this bundle. If private, only you will be able to see this bundle.
+.TP
+\fB\-f,\fP \-\-format [simple|table|csv]
+Output format. Defaults to the value of 'git config pw.format' else 'table'.
