@@ -3,7 +3,6 @@ Bundle subcommands.
 """
 
 import logging
-import pty
 import sys
 
 import click
@@ -72,15 +71,7 @@ def download_cmd(bundle_id, output):
     path = None
     bundle = _get_bundle(bundle_id)
 
-    if output:
-        content = api.get(bundle['mbox']).content
-
-        output.write(content)
-
-        if output.fileno() != pty.STDOUT_FILENO:
-            path = output.name
-    else:
-        path = api.download(bundle['mbox'])
+    path = api.download(bundle['mbox'], output=output)
 
     if path:
         LOG.info('Downloaded bundle to %s', path)

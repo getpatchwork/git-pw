@@ -6,6 +6,7 @@ from functools import update_wrapper
 import logging
 import os.path
 import re
+import pty
 import sys
 import tempfile
 
@@ -17,6 +18,7 @@ from git_pw import config
 
 if 0:  # noqa
     from typing import Dict  # noqa
+    from typing import IO  # noqa
     from typing import List  # noqa
     from typing import Optional  # noqa
     from typing import Tuple  # noqa
@@ -121,20 +123,7 @@ def _handle_error(operation, exc):
         sys.exit(1)
 
 
-def version():
-    # type: () -> Optional[Tuple[int, int]]
-    """Get the version of the server from the URL, if present."""
-    server = _get_server()
-
-    version = re.match(r'.*/(\d)\.(\d)$', server)
-    if version:
-        return (int(version.group(1)), int(version.group(2)))
-
-    # return the oldest version we support if no version provided
-    return (1, 0)
-
-
-def get(url, params=None, stream=False):
+def _get(url, params=None, stream=False):
     # type: (str, Filters, bool) -> requests.Response
     """Make GET request and handle errors."""
     LOG.debug('GET %s', url)
@@ -155,7 +144,7 @@ def get(url, params=None, stream=False):
     return rsp
 
 
-def patch(url, data):
+def _patch(url, data):
     # type: (str, dict) -> requests.Response
     """Make PATCH request and handle errors."""
     LOG.debug('PATCH %s, data=%r', url, data)
@@ -172,39 +161,64 @@ def patch(url, data):
     return rsp
 
 
-def download(url, params=None):
-    # type: (str, Filters) -> str
-    """Retrieve a specific API resource and save it to a file.
+def version():
+    # type: () -> Optional[Tuple[int, int]]
+    """Get the version of the server from the URL, if present."""
+    server = _get_server()
 
-    GET /{resource}/{resourceID}/
+    version = re.match(r'.*/(\d)\.(\d)$', server)
+    if version:
+        return (int(version.group(1)), int(version.group(2)))
+
+    # return the oldest version we support if no version provided
+    return (1, 0)
+
+
+def download(url, params=None, output=None):
+    # type: (str, Filters, IO) -> Optional[str]
+    """Retrieve a specific API resource and save it to a file/stdout.
 
     The ``Content-Disposition`` header is assumed to be present and
-    will be used for the output filename.
+    will be used for the output filename, if not writing to stdout.
 
     Arguments:
         url: The resource URL.
         params: Additional parameters.
+        output: The output file. If provided, the caller is responsible for
+            closing. If None, a temporary file will be used.
 
     Returns:
-        A path to an output file containing the content.
+        A path to an output file containing the content, else None if stdout
+        used.
     """
-    rsp = get(url, params, stream=True)
+    rsp = _get(url, params, stream=True)
 
     # we don't catch anything here because we should break if these are missing
-    header = re.search('filename=(.+)',
-                       rsp.headers.get('content-disposition') or '')
+    header = re.search(
+        'filename=(.+)', rsp.headers.get('content-disposition') or '',
+    )
     if not header:
         LOG.error('Filename was expected but was not provided in response')
         sys.exit(1)
 
-    output_path = os.path.join(tempfile.mkdtemp(prefix='git-pw'),
-                               header.group(1))
+    if output:
+        output_path = None
+        if output.fileno() != pty.STDOUT_FILENO:
+            LOG.debug('Saving to %s', output.name)
+            output_path = output.name
 
-    with open(output_path, 'wb') as output_file:
-        LOG.debug('Saving to %s', output_path)
         # we use iter_content because patches can be binary
         for block in rsp.iter_content(1024):
-            output_file.write(block)
+            output.write(block)
+    else:
+        output_path = os.path.join(
+            tempfile.mkdtemp(prefix='git-pw'), header.group(1),
+        )
+        with open(output_path, 'wb') as output_file:
+            LOG.debug('Saving to %s', output_path)
+            # we use iter_content because patches can be binary
+            for block in rsp.iter_content(1024):
+                output_file.write(block)
 
     return output_path
 
@@ -233,7 +247,7 @@ def index(resource_type, params=None):
     params = params or []
     params.append(('project', _get_project()))
 
-    return get(url, params).json()
+    return _get(url, params).json()
 
 
 def detail(resource_type, resource_id, params=None):
@@ -253,7 +267,7 @@ def detail(resource_type, resource_id, params=None):
     # NOTE(stephenfin): All resources must have a trailing '/'
     url = '/'.join([_get_server(), resource_type, str(resource_id), ''])
 
-    return get(url, params, stream=False).json()
+    return _get(url, params, stream=False).json()
 
 
 def update(resource_type, resource_id, data):
@@ -273,7 +287,7 @@ def update(resource_type, resource_id, data):
     # NOTE(stephenfin): All resources must have a trailing '/'
     url = '/'.join([_get_server(), resource_type, str(resource_id), ''])
 
-    return patch(url, data).json()
+    return _patch(url, data).json()
 
 
 def validate_multiple_filter_support(f):

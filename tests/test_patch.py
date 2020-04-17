@@ -2,6 +2,7 @@ import unittest
 
 import click
 from click.testing import CliRunner as CLIRunner
+from click import utils as click_utils
 import mock
 from packaging import version
 
@@ -92,7 +93,7 @@ class DownloadTestCase(unittest.TestCase):
 
         assert result.exit_code == 0, result
         mock_detail.assert_called_once_with('patches', 123)
-        mock_download.assert_called_once_with(rsp['mbox'])
+        mock_download.assert_called_once_with(rsp['mbox'], output=None)
         assert mock_log.info.called
 
     def test_download_diff(self, mock_log, mock_download, mock_detail):
@@ -106,42 +107,30 @@ class DownloadTestCase(unittest.TestCase):
 
         assert result.exit_code == 0, result
         mock_detail.assert_called_once_with('patches', 123)
-        mock_download.assert_called_once_with(rsp['mbox'].replace(
-            'mbox', 'raw'))
+        mock_download.assert_called_once_with(
+            rsp['mbox'].replace('mbox', 'raw'), output=None,
+        )
         assert mock_log.info.called
 
-    @mock.patch('git_pw.api.get')
-    def test_download_to_file(self, mock_get, mock_log, mock_download,
-                              mock_detail):
+    def test_download_to_file(self, mock_log, mock_download, mock_detail):
         """Validate behavior if downloading to a specific file."""
-
-        class MockResponse(object):
-            @property
-            def content(self):
-                return b'alpha-beta'
 
         rsp = {'mbox': 'hello, world', 'diff': 'test'}
         mock_detail.return_value = rsp
-        mock_get.return_value = MockResponse()
 
         runner = CLIRunner()
-        with runner.isolated_filesystem():
-            result = runner.invoke(patch.download_cmd,
-                                   ['123', 'test.patch'])
+        result = runner.invoke(patch.download_cmd, ['123', 'test.patch'])
 
-            assert result.exit_code == 0, result
-
-            with open('test.patch') as output:
-                assert ['alpha-beta'] == output.readlines()
+        assert result.exit_code == 0, result
 
         mock_detail.assert_called_once_with('patches', 123)
-        mock_download.assert_not_called()
-        mock_get.assert_called_once_with(rsp['mbox'])
+        mock_download.assert_called_once_with(rsp['mbox'], output=mock.ANY)
+        assert isinstance(
+            mock_download.call_args[1]['output'], click_utils.LazyFile,
+        )
         assert mock_log.info.called
 
-    @mock.patch('git_pw.api.get')
-    def test_download_diff_to_file(self, mock_get, mock_log, mock_download,
-                                   mock_detail):
+    def test_download_diff_to_file(self, mock_log, mock_download, mock_detail):
         """Validate behavior if downloading a diff to a specific file."""
 
         rsp = {'mbox': 'hello, world', 'diff': b'test'}
@@ -159,7 +148,6 @@ class DownloadTestCase(unittest.TestCase):
 
         mock_detail.assert_called_once_with('patches', 123)
         mock_download.assert_not_called()
-        mock_get.assert_not_called()
         assert mock_log.info.called
 
 

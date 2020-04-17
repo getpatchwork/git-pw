@@ -1,6 +1,7 @@
 import unittest
 
 from click.testing import CliRunner as CLIRunner
+from click import utils as click_utils
 import mock
 
 from git_pw import series
@@ -45,48 +46,36 @@ class ApplyTestCase(unittest.TestCase):
 
 @mock.patch('git_pw.api.detail')
 @mock.patch('git_pw.api.download')
-@mock.patch('git_pw.api.get')
 class DownloadTestCase(unittest.TestCase):
 
-    def test_download(self, mock_get, mock_download, mock_detail):
+    def test_download(self, mock_download, mock_detail):
         """Validate standard behavior."""
 
         rsp = {'mbox': 'http://example.com/api/patches/123/mbox/'}
         mock_detail.return_value = rsp
-        mock_download.return_value = 'test.patch'
 
         runner = CLIRunner()
         result = runner.invoke(series.download_cmd, ['123'])
 
         assert result.exit_code == 0, result
         mock_detail.assert_called_once_with('series', 123)
-        mock_download.assert_called_once_with(rsp['mbox'])
-        mock_get.assert_not_called()
+        mock_download.assert_called_once_with(rsp['mbox'], output=None)
 
-    def test_download_to_file(self, mock_get, mock_download, mock_detail):
+    def test_download_to_file(self, mock_download, mock_detail):
         """Validate downloading to a file."""
-
-        class MockResponse(object):
-            @property
-            def content(self):
-                return b'alpha-beta'
 
         rsp = {'mbox': 'http://example.com/api/patches/123/mbox/'}
         mock_detail.return_value = rsp
-        mock_get.return_value = MockResponse()
 
         runner = CLIRunner()
-        with runner.isolated_filesystem():
-            result = runner.invoke(series.download_cmd, ['123', 'test.patch'])
+        result = runner.invoke(series.download_cmd, ['123', 'test.patch'])
 
-            assert result.exit_code == 0, result
-
-            with open('test.patch') as output:
-                assert ['alpha-beta'] == output.readlines()
-
+        assert result.exit_code == 0, result
         mock_detail.assert_called_once_with('series', 123)
-        mock_get.assert_called_once_with(rsp['mbox'])
-        mock_download.assert_not_called()
+        mock_download.assert_called_once_with(rsp['mbox'], output=mock.ANY)
+        assert isinstance(
+            mock_download.call_args[1]['output'], click_utils.LazyFile,
+        )
 
 
 class ShowTestCase(unittest.TestCase):

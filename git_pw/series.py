@@ -3,7 +3,6 @@ Series subcommands.
 """
 
 import logging
-import pty
 
 import arrow
 import click
@@ -51,15 +50,7 @@ def download_cmd(series_id, output):
     path = None
     series = api.detail('series', series_id)
 
-    if output:
-        content = api.get(series['mbox']).content
-
-        output.write(content)
-
-        if output.fileno() != pty.STDOUT_FILENO:
-            path = output.name
-    else:
-        path = api.download(series['mbox'])
+    path = api.download(series['mbox'], output=output)
 
     if path:
         LOG.info('Downloaded series to %s', path)

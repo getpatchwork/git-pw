@@ -75,24 +75,20 @@ def download_cmd(patch_id, output, fmt):
     path = None
     patch = api.detail('patches', patch_id)
 
-    if output:
-        if fmt == 'diff':
-            content = patch['diff']
+    if fmt == 'diff':
+        if output:
+            output.write(patch['diff'])
+            if output.fileno() != pty.STDOUT_FILENO:
+                path = output.name
         else:
-            content = api.get(patch['mbox']).content
-
-        output.write(content)
-
-        if output.fileno() != pty.STDOUT_FILENO:
-            path = output.name
-    else:
-        if fmt == 'diff':
             # TODO(stephenfin): We discard the 'diff' field so we can get the
             # filename and save to the correct file. We should expose this
             # information via the API
-            path = api.download(patch['mbox'].replace('mbox', 'raw'))
-        else:
-            path = api.download(patch['mbox'])
+            path = api.download(
+                patch['mbox'].replace('mbox', 'raw'), output=output,
+            )
+    else:
+        path = api.download(patch['mbox'], output=output)
 
     if path:
         LOG.info('Downloaded patch to %s', path)
