@@ -1,0 +1,5 @@
+---
+other:
+  - |
+    *git-pw* 1.9.0 will be the last version to support Python 2.7. *git-pw*
+    2.0.0 will require Python 3.5 or greater.
