@@ -4,6 +4,7 @@ features:
     The following ``bundle`` commands have been added:
 
     - ``bundle create``
+    - ``bundle update``
 
     Together, these allow for creation, modification and deletion of bundles.
     Bundles are custom, user-defined groups of patches that can be used to keep

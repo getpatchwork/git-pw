@@ -24,6 +24,7 @@ if 0:  # noqa
     from typing import List  # noqa
     from typing import Optional  # noqa
     from typing import Tuple  # noqa
+    from typing import Union  # noqa
 
     Filters = List[Tuple[str, str]]
 
@@ -309,7 +310,7 @@ def create(resource_type, data):
 
 
 def update(resource_type, resource_id, data):
-    # type: (str, int, dict) -> dict
+    # type: (str, Union[int, str], dict) -> dict
     """Update a specific API resource.
 
     PATCH /{resource}/{resourceID}/

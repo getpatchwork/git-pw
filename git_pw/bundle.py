@@ -198,3 +198,45 @@ def create_cmd(name, patch_ids, public, fmt):
     bundle = api.create('bundles', data)
 
     _show_bundle(bundle, fmt)
+
+
+@click.command(name='update')
+@click.option('--name')
+@click.option('--patch', 'patch_ids', type=click.INT, multiple=True,
+              help='Add the specified patch(es) to the bundle.')
+@click.option('--public/--private', default=None,
+              help='Allow other users to view this bundle. If private, only '
+              'you will be able to see this bundle.')
+@click.argument('bundle_id')
+@api.validate_minimum_version(
+    (1, 2), 'Updating bundles is only supported from API version 1.2',
+)
+@utils.format_options
+def update_cmd(bundle_id, name, patch_ids, public, fmt):
+    """Update a bundle.
+
+    Update a bundle on the Patchwork instance. If PATCH_IDs are specified, this
+    will overwrite all patches in the bundle. Use 'bundle add' and 'bundle
+    remove' to add or remove patches.
+
+    Requires API version 1.2 or greater.
+    """
+    LOG.debug(
+        'Updating bundle: id=%s, name=%s, patches=%s, public=%s',
+        bundle_id, name, patch_ids, public,
+    )
+
+    data = []
+
+    for key, value in [('name', name), ('public', public)]:
+        if value is None:
+            continue
+
+        data.append((key, value))
+
+    if patch_ids:  # special case patches to ignore the empty set
+        data.append(('patches', patch_ids))
+
+    bundle = api.update('bundles', bundle_id, data)
+
+    _show_bundle(bundle, fmt)
