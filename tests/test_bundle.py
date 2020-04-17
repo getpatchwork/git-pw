@@ -456,3 +456,108 @@ class DeleteTestCase(unittest.TestCase):
 
         assert result.exit_code == 1, result
         assert mock_log.error.called
+
+
+@mock.patch('git_pw.api.version', return_value=(1, 2))
+@mock.patch('git_pw.api.update')
+@mock.patch('git_pw.api.detail')
+@mock.patch('git_pw.utils.echo_via_pager')
+class AddTestCase(unittest.TestCase):
+
+    @staticmethod
+    def _get_bundle(**kwargs):
+        return ShowTestCase._get_bundle(**kwargs)
+
+    def test_add(
+        self, mock_echo, mock_detail, mock_update, mock_version,
+    ):
+        """Validate standard behavior."""
+
+        mock_detail.return_value = self._get_bundle()
+        mock_update.return_value = self._get_bundle()
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.add_cmd, ['1', '1', '2'])
+
+        assert result.exit_code == 0, result
+        mock_detail.assert_called_once_with('bundles', '1')
+        mock_update.assert_called_once_with(
+            'bundles', '1', [('patches', (1, 2, 42))],
+        )
+
+    @mock.patch('git_pw.api.LOG')
+    def test_add_api_v1_1(
+        self, mock_log, mock_echo, mock_detail, mock_update, mock_version,
+    ):
+        """Validate behavior with API v1.1."""
+
+        mock_version.return_value = (1, 1)
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.add_cmd, ['1', '1', '2'])
+
+        assert result.exit_code == 1, result
+        assert mock_log.error.called
+
+
+@mock.patch('git_pw.api.version', return_value=(1, 2))
+@mock.patch('git_pw.api.update')
+@mock.patch('git_pw.api.detail')
+@mock.patch('git_pw.utils.echo_via_pager')
+class RemoveTestCase(unittest.TestCase):
+
+    @staticmethod
+    def _get_bundle(**kwargs):
+        return ShowTestCase._get_bundle(**kwargs)
+
+    def test_remove(
+        self, mock_echo, mock_detail, mock_update, mock_version,
+    ):
+        """Validate standard behavior."""
+
+        mock_detail.return_value = self._get_bundle(
+            patches=[{'id': 1}, {'id': 2}, {'id': 3}],
+        )
+        mock_update.return_value = self._get_bundle()
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.remove_cmd, ['1', '1', '2'])
+
+        assert result.exit_code == 0, result
+        mock_detail.assert_called_once_with('bundles', '1')
+        mock_update.assert_called_once_with(
+            'bundles', '1', [('patches', (3,))],
+        )
+
+    @mock.patch('git_pw.bundle.LOG')
+    def test_remove_empty(
+        self, mock_log, mock_echo, mock_detail, mock_update, mock_version,
+    ):
+        """Validate behavior when deleting would remove all patches."""
+
+        mock_detail.return_value = self._get_bundle(
+            patches=[{'id': 1}, {'id': 2}, {'id': 3}],
+        )
+        mock_update.return_value = self._get_bundle()
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.remove_cmd, ['1', '1', '2', '3'])
+
+        assert result.exit_code == 1, result.output
+        assert mock_log.error.called
+        mock_detail.assert_called_once_with('bundles', '1')
+        mock_update.assert_not_called()
+
+    @mock.patch('git_pw.api.LOG')
+    def test_remove_api_v1_1(
+        self, mock_log, mock_echo, mock_detail, mock_update, mock_version,
+    ):
+        """Validate behavior with API v1.1."""
+
+        mock_version.return_value = (1, 1)
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.remove_cmd, ['1', '1', '2'])
+
+        assert result.exit_code == 1, result
+        assert mock_log.error.called

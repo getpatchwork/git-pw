@@ -215,9 +215,9 @@ def create_cmd(name, patch_ids, public, fmt):
 def update_cmd(bundle_id, name, patch_ids, public, fmt):
     """Update a bundle.
 
-    Update a bundle on the Patchwork instance. If PATCH_IDs are specified, this
-    will overwrite all patches in the bundle. Use 'bundle add' and 'bundle
-    remove' to add or remove patches.
+    Update bundle BUNDLE_ID. If PATCH_IDs are specified, this will overwrite
+    all patches in the bundle. Use 'bundle add' and 'bundle remove' to add or
+    remove patches.
 
     Requires API version 1.2 or greater.
     """
@@ -258,3 +258,62 @@ def delete_cmd(bundle_id, fmt):
     LOG.debug('Delete bundle: id=%s', bundle_id)
 
     api.delete('bundles', bundle_id)
+
+
+@click.command(name='add')
+@click.argument('bundle_id')
+@click.argument('patch_ids', type=click.INT, nargs=-1, required=True)
+@api.validate_minimum_version(
+    (1, 2), 'Modifying bundles is only supported from API version 1.2',
+)
+@utils.format_options
+def add_cmd(bundle_id, patch_ids, fmt):
+    """Add one or more patches to a bundle.
+
+    Append the provided PATCH_IDS to bundle BUNDLE_ID.
+
+    Requires API version 1.2 or greater.
+    """
+    LOG.debug('Add to bundle: id=%s, patches=%s', bundle_id, patch_ids)
+
+    bundle = _get_bundle(bundle_id)
+
+    data = [
+        ('patches', patch_ids + tuple([p['id'] for p in bundle['patches']])),
+    ]
+
+    bundle = api.update('bundles', bundle_id, data)
+
+    _show_bundle(bundle, fmt)
+
+
+@click.command(name='remove')
+@click.argument('bundle_id')
+@click.argument('patch_ids', type=click.INT, nargs=-1, required=True)
+@api.validate_minimum_version(
+    (1, 2), 'Modifying bundles is only supported from API version 1.2',
+)
+@utils.format_options
+def remove_cmd(bundle_id, patch_ids, fmt):
+    """Remove one or more patches from a bundle.
+
+    Remove the provided PATCH_IDS to bundle BUNDLE_ID.
+
+    Requires API version 1.2 or greater.
+    """
+    LOG.debug('Remove from bundle: id=%s, patches=%s', bundle_id, patch_ids)
+
+    bundle = _get_bundle(bundle_id)
+
+    patches = [p['id'] for p in bundle['patches'] if p['id'] not in patch_ids]
+    if not patches:
+        LOG.error(
+            'Bundles cannot be empty. Consider deleting the bundle instead'
+        )
+        sys.exit(1)
+
+    data = [('patches', tuple(patches))]
+
+    bundle = api.update('bundles', bundle_id, data)
+
+    _show_bundle(bundle, fmt)

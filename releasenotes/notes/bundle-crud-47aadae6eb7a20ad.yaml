@@ -6,6 +6,8 @@ features:
     - ``bundle create``
     - ``bundle update``
     - ``bundle delete``
+    - ``bundle add``
+    - ``bundle remove``
 
     Together, these allow for creation, modification and deletion of bundles.
     Bundles are custom, user-defined groups of patches that can be used to keep
