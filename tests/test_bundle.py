@@ -425,3 +425,34 @@ class UpdateTestCase(unittest.TestCase):
 
         assert result.exit_code == 1, result
         assert mock_log.error.called
+
+
+@mock.patch('git_pw.api.version', return_value=(1, 2))
+@mock.patch('git_pw.api.delete')
+@mock.patch('git_pw.utils.echo_via_pager')
+class DeleteTestCase(unittest.TestCase):
+
+    def test_delete(self, mock_echo, mock_delete, mock_version):
+        """Validate standard behavior."""
+
+        mock_delete.return_value = None
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.delete_cmd, ['hello'])
+
+        assert result.exit_code == 0, result
+        mock_delete.assert_called_once_with('bundles', 'hello')
+
+    @mock.patch('git_pw.api.LOG')
+    def test_delete_api_v1_1(
+        self, mock_log, mock_echo, mock_delete, mock_version,
+    ):
+        """Validate standard behavior."""
+
+        mock_version.return_value = (1, 1)
+
+        runner = CLIRunner()
+        result = runner.invoke(bundle.delete_cmd, ['hello'])
+
+        assert result.exit_code == 1, result
+        assert mock_log.error.called

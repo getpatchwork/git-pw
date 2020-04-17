@@ -240,3 +240,21 @@ def update_cmd(bundle_id, name, patch_ids, public, fmt):
     bundle = api.update('bundles', bundle_id, data)
 
     _show_bundle(bundle, fmt)
+
+
+@click.command(name='delete')
+@click.argument('bundle_id')
+@api.validate_minimum_version(
+    (1, 2), 'Deleting bundles is only supported from API version 1.2',
+)
+@utils.format_options
+def delete_cmd(bundle_id, fmt):
+    """Delete a bundle.
+
+    Delete bundle BUNDLE_ID.
+
+    Requires API version 1.2 or greater.
+    """
+    LOG.debug('Delete bundle: id=%s', bundle_id)
+
+    api.delete('bundles', bundle_id)

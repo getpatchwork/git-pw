@@ -181,6 +181,22 @@ def _patch(url, data):
     return rsp
 
 
+def _delete(url):
+    # type: (str) -> requests.Response
+    """Make DELETE request and handle errors."""
+    LOG.debug('DELETE %s', url)
+
+    try:
+        rsp = requests.delete(url, auth=_get_auth(), headers=_get_headers())
+        rsp.raise_for_status()
+    except requests.exceptions.RequestException as exc:
+        _handle_error('delete', exc)
+
+    LOG.debug('Got response')
+
+    return rsp
+
+
 def version():
     # type: () -> Optional[Tuple[int, int]]
     """Get the version of the server from the URL, if present."""
@@ -307,6 +323,25 @@ def create(resource_type, data):
     url = '/'.join([_get_server(), resource_type, ''])
 
     return _post(url, data).json()
+
+
+def delete(resource_type, resource_id):
+    # type: (str, Union[str, int]) -> None
+    """Delete a specific API resource.
+
+    DELETE /{resource}/{resourceID}/
+
+    Arguments:
+        resource_type: The resource endpoint name.
+        resource_id: The ID for the specific resource.
+
+    Returns:
+        A dictionary representing the detailed view of a given resource.
+    """
+    # NOTE(stephenfin): All resources must have a trailing '/'
+    url = '/'.join([_get_server(), resource_type, str(resource_id), ''])
+
+    _delete(url)
 
 
 def update(resource_type, resource_id, data):
