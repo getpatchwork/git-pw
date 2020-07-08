@@ -95,29 +95,33 @@ def show_cmd(fmt, series_id):
 
 
 @click.command(name='list')
-@click.option('--submitter', metavar='SUBMITTER', multiple=True,
+@click.option('--submitter', 'submitters', metavar='SUBMITTER', multiple=True,
               help='Show only series by these submitters. Should be an '
               'email, name or ID.')
 @utils.pagination_options(sort_fields=_sort_fields, default_sort='-date')
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(submitter, limit, page, sort, fmt, headers, name):
+def list_cmd(submitters, limit, page, sort, fmt, headers, name):
     """List series.
 
     List series on the Patchwork instance.
     """
     LOG.debug('List series: submitters=%s, limit=%r, page=%r, sort=%r',
-              ','.join(submitter), limit, page, sort)
+              ','.join(submitters), limit, page, sort)
 
     params = []
 
-    for subm in submitter:
-        # we support server-side filtering by email (but not name) in 1.1
-        if (api.version() >= (1, 1) and '@' in subm) or subm.isdigit():
-            params.append(('submitter', subm))
+    for submitter in submitters:
+        if submitter.isdigit():
+            params.append(('submitter', submitter))
         else:
-            params.extend(api.retrieve_filter_ids('people', 'submitter', subm))
+            # we support server-side filtering by email (but not name) in 1.1
+            if api.version() >= (1, 1) and '@' in submitter:
+                params.append(('submitter', submitter))
+            else:
+                params.extend(
+                    api.retrieve_filter_ids('people', 'submitter', submitter))
 
     params.extend([
         ('q', name),

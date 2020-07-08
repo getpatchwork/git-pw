@@ -190,15 +190,15 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
 
 
 @click.command(name='list')
-@click.option('--state', metavar='STATE', multiple=True,
+@click.option('--state', 'states', metavar='STATE', multiple=True,
               default=['under-review', 'new'],
               help='Show only patches matching these states. Should be '
               'slugified representations of states. The available states '
               'are instance dependant.')
-@click.option('--submitter', metavar='SUBMITTER', multiple=True,
+@click.option('--submitter', 'submitters', metavar='SUBMITTER', multiple=True,
               help='Show only patches by these submitters. Should be an '
               'email, name or ID.')
-@click.option('--delegate', metavar='DELEGATE', multiple=True,
+@click.option('--delegate', 'delegates', metavar='DELEGATE', multiple=True,
               help='Show only patches with these delegates. Should be an '
               'email or username.')
 @click.option('--hash', 'hashes', metavar='HASH', multiple=True,
@@ -209,34 +209,43 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(state, submitter, delegate, hashes, archived, limit, page, sort,
-             fmt, headers, name):
+def list_cmd(states, submitters, delegates, hashes, archived, limit, page,
+             sort, fmt, headers, name):
     """List patches.
 
     List patches on the Patchwork instance.
     """
     LOG.debug('List patches: states=%s, submitters=%s, delegates=%s, '
-              'hashes=%s, archived=%r', ','.join(state), ','.join(submitter),
-              ','.join(delegate), ','.join(hashes), archived)
+              'hashes=%s, archived=%r', ','.join(states), ','.join(submitters),
+              ','.join(delegates), ','.join(hashes), archived)
 
     params = []
 
-    for state in state:
+    for state in states:
         params.append(('state', state))
 
-    for subm in submitter:
-        # we support server-side filtering by email (but not name) in 1.1
-        if (api.version() >= (1, 1) and '@' in subm) or subm.isdigit():
-            params.append(('submitter', subm))
+    for submitter in submitters:
+        if submitter.isdigit():
+            params.append(('submitter', submitter))
         else:
-            params.extend(api.retrieve_filter_ids('people', 'submitter', subm))
+            # we support server-side filtering by email (but not name) in 1.1
+            if api.version() >= (1, 1) and '@' in submitter:
+                params.append(('submitter', submitter))
+            else:
+                params.extend(
+                    api.retrieve_filter_ids('people', 'submitter', submitter))
 
-    for delg in delegate:
-        # we support server-side filtering by username (but not email) in 1.1
-        if (api.version() >= (1, 1) and '@' not in delg) or delg.isdigit():
-            params.append(('delegate', delg))
+    for delegate in delegates:
+        if delegate.isdigit():
+            params.append(('delegate', delegate))
         else:
-            params.extend(api.retrieve_filter_ids('users', 'delegate', delg))
+            # we support server-side filtering by username (but not email) in
+            # 1.1
+            if api.version() >= (1, 1) and '@' not in delegate:
+                params.append(('delegate', delegate))
+            else:
+                params.extend(
+                    api.retrieve_filter_ids('users', 'delegate', delegate))
 
     for hash_ in hashes:
         params.append(('hash', hash_))

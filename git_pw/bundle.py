@@ -114,29 +114,29 @@ def show_cmd(fmt, bundle_id):
 
 
 @click.command(name='list')
-@click.option('--owner', metavar='OWNER', multiple=True,
+@click.option('--owner', 'owners', metavar='OWNER', multiple=True,
               help='Show only bundles with these owners. Should be an email, '
               'name or ID. Private bundles of other users will not be shown.')
 @utils.pagination_options(sort_fields=_sort_fields, default_sort='name')
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(owner, limit, page, sort, fmt, headers, name):
+def list_cmd(owners, limit, page, sort, fmt, headers, name):
     """List bundles.
 
     List bundles on the Patchwork instance.
     """
     LOG.debug('List bundles: owners=%s, limit=%r, page=%r, sort=%r',
-              ','.join(owner), limit, page, sort)
+              ','.join(owners), limit, page, sort)
 
     params = []
 
-    for own in owner:
+    for owner in owners:
         # we support server-side filtering by username (but not email) in 1.1
-        if (api.version() >= (1, 1) and '@' not in own) or own.isdigit():
-            params.append(('owner', own))
+        if (api.version() >= (1, 1) and '@' not in owner) or owner.isdigit():
+            params.append(('owner', owner))
         else:
-            params.extend(api.retrieve_filter_ids('users', 'owner', own))
+            params.extend(api.retrieve_filter_ids('users', 'owner', owner))
 
     params.extend([
         ('q', name),
