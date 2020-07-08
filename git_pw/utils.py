@@ -5,22 +5,24 @@ Utility functions.
 from __future__ import print_function
 
 import csv
+import io
 import os
 import subprocess
 import sys
 
 import click
-import six
 from tabulate import tabulate
 
 
 def ensure_str(s):
     if s is None:
         s = ''
-    elif not isinstance(s, (six.text_type, six.binary_type)):
+    elif isinstance(s, bytes):
+        s = s.decode('utf-8', 'strict')
+    elif not isinstance(s, str):
         s = str(s)
 
-    return six.ensure_str(s)
+    return s
 
 
 def trim(string, length=70):  # type: (str, int) -> str
@@ -68,7 +70,7 @@ def _tabulate(output, headers, fmt):
     elif fmt == 'simple':
         return tabulate(output, headers, tablefmt='simple')
     elif fmt == 'csv':
-        result = six.StringIO()
+        result = io.StringIO()
         writer = csv.writer(
             result, quoting=csv.QUOTE_ALL, lineterminator=os.linesep)
         writer.writerow([ensure_str(h) for h in headers])
@@ -89,7 +91,9 @@ def _echo_via_pager(pager, output):
 
     pager = subprocess.Popen(pager.split(), stdin=subprocess.PIPE, env=env)
 
-    output = six.ensure_binary(output)
+    # TODO(stephenfin): This is potential hangover from Python 2 days
+    if not isinstance(output, bytes):
+        output = output.encode('utf-8', 'strict')
 
     try:
         pager.communicate(input=output)
