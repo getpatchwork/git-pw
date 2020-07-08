@@ -345,7 +345,7 @@ class ListTestCase(unittest.TestCase):
         result = runner.invoke(patch.list_cmd, [
             '--state', 'new', '--submitter', 'john@example.com',
             '--submitter', '2', '--delegate', 'doe@example.com',
-            '--delegate', '2', '--archived',
+            '--delegate', '2', '--hash', 'foo', '--archived',
             '--limit', 1, '--page', 1, '--sort', '-name', 'test'])
 
         assert result.exit_code == 0, result
@@ -354,7 +354,8 @@ class ListTestCase(unittest.TestCase):
             mock.call('users', [('q', 'doe@example.com')]),
             mock.call('patches', [
                 ('state', 'new'), ('submitter', 1), ('submitter', '2'),
-                ('delegate', 1), ('delegate', '2'), ('q', 'test'),
+                ('delegate', 1), ('delegate', '2'), ('hash', 'foo'),
+                ('q', 'test'),
                 ('archived', 'true'), ('page', 1), ('per_page', 1),
                 ('order', '-name')])]
 

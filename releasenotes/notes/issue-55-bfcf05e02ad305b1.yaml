@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    It is now possible to filter patches by hash. For example::
+
+      git pw patch list --hash HASH

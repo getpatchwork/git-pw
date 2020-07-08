@@ -199,23 +199,25 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
               help='Show only patches by these submitters. Should be an '
               'email, name or ID.')
 @click.option('--delegate', metavar='DELEGATE', multiple=True,
-              help='Show only patches by these delegates. Should be an '
+              help='Show only patches with these delegates. Should be an '
               'email or username.')
+@click.option('--hash', 'hashes', metavar='HASH', multiple=True,
+              help='Show only patches with these hashes.')
 @click.option('--archived', default=False, is_flag=True,
               help='Include patches that are archived.')
 @utils.pagination_options(sort_fields=_sort_fields, default_sort='-date')
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(state, submitter, delegate, archived, limit, page, sort, fmt,
-             headers, name):
+def list_cmd(state, submitter, delegate, hashes, archived, limit, page, sort,
+             fmt, headers, name):
     """List patches.
 
     List patches on the Patchwork instance.
     """
     LOG.debug('List patches: states=%s, submitters=%s, delegates=%s, '
-              'archived=%r', ','.join(state), ','.join(submitter),
-              ','.join(delegate), archived)
+              'hashes=%s, archived=%r', ','.join(state), ','.join(submitter),
+              ','.join(delegate), ','.join(hashes), archived)
 
     params = []
 
@@ -235,6 +237,9 @@ def list_cmd(state, submitter, delegate, archived, limit, page, sort, fmt,
             params.append(('delegate', delg))
         else:
             params.extend(api.retrieve_filter_ids('users', 'delegate', delg))
+
+    for hash_ in hashes:
+        params.append(('hash', hash_))
 
     params.extend([
         ('q', name),
