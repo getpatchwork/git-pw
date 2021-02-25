@@ -90,8 +90,8 @@ settings are **required**:
 
       https://patchwork.ozlabs.org/project/{project_name}/list/
 
-You also require authentication - you can use either API tokens or a
-username/password combination:
+For read-write access, you also need authentication - you can use either API
+tokens or a username/password combination:
 
 ``pw.token``
   The API token for your Patchwork account.
@@ -101,6 +101,8 @@ username/password combination:
 
 ``pw.password``
   The password for your Patchwork account.
+
+If only read-only access is desired, credentials can be omitted.
 
 The following settings are **optional** and may need to be set depending on
 your Patchwork instance's configuration:
