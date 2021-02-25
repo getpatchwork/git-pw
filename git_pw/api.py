@@ -5,10 +5,11 @@ Simple wrappers around request methods.
 from functools import update_wrapper
 import logging
 import os.path
-import re
 import pty
+import re
 import sys
 import tempfile
+import typing as ty
 
 import click
 import requests
@@ -16,39 +17,30 @@ import requests
 import git_pw
 from git_pw import config
 
-if 0:  # noqa
-    from typing import Any  # noqa
-    from typing import Callable  # noqa
-    from typing import Dict  # noqa
-    from typing import IO  # noqa
-    from typing import List  # noqa
-    from typing import Optional  # noqa
-    from typing import Tuple  # noqa
-    from typing import Union  # noqa
-
-    Filters = List[Tuple[str, str]]
-
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
+
+Filters = ty.List[ty.Tuple[str, str]]
 
 
 class HTTPTokenAuth(requests.auth.AuthBase):
     """Attaches HTTP Token Authentication to the given Request object."""
-    def __init__(self, token):
+    def __init__(self, token: str):
         self.token = token
 
-    def __call__(self, r):
+    def __call__(
+        self, r: requests.PreparedRequest,
+    ) -> requests.PreparedRequest:
         r.headers['Authorization'] = self._token_auth_str(self.token)
         return r
 
     @staticmethod
-    def _token_auth_str(token):  # type: (str) -> str
+    def _token_auth_str(token: str) -> str:
         """Return a Token auth string."""
         return 'Token {}'.format(token.strip())
 
 
-def _get_auth(optional=False):
-    # type: (bool) -> Optional[requests.auth.AuthBase]
+def _get_auth(optional: bool = False) -> ty.Optional[requests.auth.AuthBase]:
     if CONF.token:
         return HTTPTokenAuth(CONF.token)
     elif CONF.username and CONF.password:
@@ -61,13 +53,13 @@ def _get_auth(optional=False):
     return None
 
 
-def _get_headers():  # type: () -> Dict[str, str]
+def _get_headers() -> ty.Dict[str, str]:
     return {
         'User-Agent': 'git-pw ({})'.format(git_pw.__version__),
     }
 
 
-def _get_server():  # type: () -> str
+def _get_server() -> str:
     if CONF.server:
         server = CONF.server.rstrip('/')
 
@@ -91,7 +83,7 @@ def _get_server():  # type: () -> str
         sys.exit(1)
 
 
-def _get_project():  # type: () -> str
+def _get_project() -> str:
     if CONF.project and CONF.project.strip() == '*':
         return ''  # just don't bother filtering on project
     elif CONF.project:
@@ -104,7 +96,9 @@ def _get_project():  # type: () -> str
         sys.exit(1)
 
 
-def _handle_error(operation, exc):
+def _handle_error(
+    operation: str, exc: requests.exceptions.RequestException,
+) -> None:
     if exc.response is not None and exc.response.content:
         # server errors should always be reported
         if exc.response.status_code in range(500, 512):  # 5xx Server Error
@@ -128,8 +122,9 @@ def _handle_error(operation, exc):
         sys.exit(1)
 
 
-def _get(url, params=None, stream=False):
-    # type: (str, Filters, bool) -> requests.Response
+def _get(
+    url: str, params: Filters = None, stream: bool = False,
+) -> requests.Response:
     """Make GET request and handle errors."""
     LOG.debug('GET %s', url)
 
@@ -149,8 +144,9 @@ def _get(url, params=None, stream=False):
     return rsp
 
 
-def _post(url, data):
-    # type: (str, dict) -> requests.Response
+def _post(
+    url: str, data: ty.List[ty.Tuple[str, ty.Any]],
+) -> requests.Response:
     """Make POST request and handle errors."""
     LOG.debug('POST %s, data=%r', url, data)
 
@@ -166,14 +162,16 @@ def _post(url, data):
     return rsp
 
 
-def _patch(url, data):
-    # type: (str, dict) -> requests.Response
+def _patch(
+    url: str, data: ty.List[ty.Tuple[str, ty.Any]],
+) -> requests.Response:
     """Make PATCH request and handle errors."""
     LOG.debug('PATCH %s, data=%r', url, data)
 
     try:
-        rsp = requests.patch(url, auth=_get_auth(), headers=_get_headers(),
-                             data=data)
+        rsp = requests.patch(
+            url, auth=_get_auth(), headers=_get_headers(), data=data,
+        )
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
         _handle_error('update', exc)
@@ -183,8 +181,7 @@ def _patch(url, data):
     return rsp
 
 
-def _delete(url):
-    # type: (str) -> requests.Response
+def _delete(url: str) -> requests.Response:
     """Make DELETE request and handle errors."""
     LOG.debug('DELETE %s', url)
 
@@ -199,8 +196,7 @@ def _delete(url):
     return rsp
 
 
-def version():
-    # type: () -> Optional[Tuple[int, int]]
+def version() -> ty.Tuple[int, int]:
     """Get the version of the server from the URL, if present."""
     server = _get_server()
 
@@ -212,8 +208,9 @@ def version():
     return (1, 0)
 
 
-def download(url, params=None, output=None):
-    # type: (str, Filters, IO) -> Optional[str]
+def download(
+    url: str, params: Filters = None, output: ty.IO = None,
+) -> ty.Optional[str]:
     """Retrieve a specific API resource and save it to a file/stdout.
 
     The ``Content-Disposition`` header is assumed to be present and
@@ -261,8 +258,7 @@ def download(url, params=None, output=None):
     return output_path
 
 
-def index(resource_type, params=None):
-    # type: (str, Filters) -> dict
+def index(resource_type: str, params: Filters = None) -> dict:
     """List API resources.
 
     GET /{resource}/
@@ -288,8 +284,11 @@ def index(resource_type, params=None):
     return _get(url, params).json()
 
 
-def detail(resource_type, resource_id, params=None):
-    # type: (str, int, Filters) -> Dict
+def detail(
+    resource_type: str,
+    resource_id: ty.Union[str, int],
+    params: Filters = None,
+) -> ty.Dict:
     """Retrieve a specific API resource.
 
     GET /{resource}/{resourceID}/
@@ -308,8 +307,9 @@ def detail(resource_type, resource_id, params=None):
     return _get(url, params, stream=False).json()
 
 
-def create(resource_type, data):
-    # type: (str, dict) -> dict
+def create(
+    resource_type: str, data: ty.List[ty.Tuple[str, ty.Any]],
+) -> dict:
     """Create a new API resource.
 
     POST /{resource}/
@@ -327,8 +327,7 @@ def create(resource_type, data):
     return _post(url, data).json()
 
 
-def delete(resource_type, resource_id):
-    # type: (str, Union[str, int]) -> None
+def delete(resource_type: str, resource_id: ty.Union[str, int]) -> None:
     """Delete a specific API resource.
 
     DELETE /{resource}/{resourceID}/
@@ -346,8 +345,11 @@ def delete(resource_type, resource_id):
     _delete(url)
 
 
-def update(resource_type, resource_id, data):
-    # type: (str, Union[int, str], dict) -> dict
+def update(
+    resource_type: str,
+    resource_id: ty.Union[str, int],
+    data: ty.List[ty.Tuple[str, ty.Any]],
+) -> dict:
     """Update a specific API resource.
 
     PATCH /{resource}/{resourceID}/
@@ -366,8 +368,9 @@ def update(resource_type, resource_id, data):
     return _patch(url, data).json()
 
 
-def validate_minimum_version(min_version, msg):
-    # type: (Tuple[int, int], str) -> Callable[[Any], Any]
+def validate_minimum_version(
+    min_version: ty.Tuple[int, int], msg: str,
+) -> ty.Callable[[ty.Any], ty.Any]:
 
     def inner(f):
         @click.pass_context
@@ -383,7 +386,7 @@ def validate_minimum_version(min_version, msg):
     return inner
 
 
-def validate_multiple_filter_support(f):
+def validate_multiple_filter_support(f: ty.Callable) -> ty.Callable:
 
     @click.pass_context
     def new_func(ctx, *args, **kwargs):
@@ -412,7 +415,9 @@ def validate_multiple_filter_support(f):
     return update_wrapper(new_func, f)
 
 
-def retrieve_filter_ids(resource_type, filter_name, filter_value):
+def retrieve_filter_ids(
+    resource_type: str, filter_name: str, filter_value: str,
+) -> ty.List[ty.Tuple[str, str]]:
     """Retrieve IDs for items passed through by filter.
 
     Some filters require client-side filtering, e.g. filtering patches by

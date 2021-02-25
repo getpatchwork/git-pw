@@ -9,12 +9,13 @@ import io
 import os
 import subprocess
 import sys
+import typing as ty
 
 import click
 from tabulate import tabulate
 
 
-def ensure_str(s):
+def ensure_str(s: ty.Any) -> str:
     if s is None:
         s = ''
     elif isinstance(s, bytes):
@@ -25,12 +26,12 @@ def ensure_str(s):
     return s
 
 
-def trim(string, length=70):  # type: (str, int) -> str
+def trim(string: str, length: int = 70) -> str:
     """Trim a string to the given length."""
     return (string[:length - 1] + '...') if len(string) > length else string
 
 
-def git_config(value):
+def git_config(value: str) -> str:
     """Parse config from ``git-config`` cache.
 
     Returns:
@@ -44,7 +45,7 @@ def git_config(value):
     return output.decode('utf-8').strip()
 
 
-def git_am(mbox, args):
+def git_am(mbox: str, args: ty.Tuple[str, ...]) -> None:
     """Execute git-am on a given mbox file."""
     cmd = ['git', 'am']
     if args:
@@ -62,7 +63,11 @@ def git_am(mbox, args):
         print(output.decode('utf-8'), end='')
 
 
-def _tabulate(output, headers, fmt):
+def _tabulate(
+    output: ty.List[ty.Tuple[str, ty.Any]],
+    headers: ty.List[str],
+    fmt: str,
+) -> str:
     fmt = fmt or git_config('pw.format') or 'table'
 
     if fmt == 'table':
@@ -82,36 +87,37 @@ def _tabulate(output, headers, fmt):
     sys.exit(1)
 
 
-def _echo_via_pager(pager, output):
+def _echo_via_pager(pager: str, output: str) -> None:
     env = dict(os.environ)
     # When the LESS environment variable is unset, Git sets it to FRX (if
     # LESS environment variable is set, Git does not change it at all).
     if 'LESS' not in env:
         env['LESS'] = 'FRX'
 
-    pager = subprocess.Popen(pager.split(), stdin=subprocess.PIPE, env=env)
-
-    # TODO(stephenfin): This is potential hangover from Python 2 days
-    if not isinstance(output, bytes):
-        output = output.encode('utf-8', 'strict')
+    proc = subprocess.Popen(pager.split(), stdin=subprocess.PIPE, env=env)
 
     try:
-        pager.communicate(input=output)
+        proc.communicate(input=output.encode('utf-8', 'strict'))
     except (IOError, KeyboardInterrupt):
         pass
     else:
-        pager.stdin.close()
+        if proc.stdin:
+            proc.stdin.close()
 
     while True:
         try:
-            pager.wait()
+            proc.wait()
         except KeyboardInterrupt:
             pass
         else:
             break
 
 
-def echo_via_pager(output, headers, fmt):
+def echo_via_pager(
+    output: ty.List[ty.Tuple[str, ty.Any]],
+    headers: ty.List[str],
+    fmt: str,
+) -> None:
     """Echo using git's default pager.
 
     Wrap ``click.echo_via_pager``, setting some environment variables in the
@@ -121,31 +127,37 @@ def echo_via_pager(output, headers, fmt):
         then ``core.pager`` configuration, then ``$PAGER``, and then the
         default chosen at compile time (usually ``less``).
     """
-    output = _tabulate(output, headers, fmt)
+    out = _tabulate(output, headers, fmt)
 
     pager = os.environ.get('GIT_PAGER', None)
     if pager:
-        _echo_via_pager(pager, output)
+        _echo_via_pager(pager, out)
         return
 
     pager = git_config('core.parser')
     if pager:
-        _echo_via_pager(pager, output)
+        _echo_via_pager(pager, out)
         return
 
     pager = os.environ.get('PAGER', None)
     if pager:
-        _echo_via_pager(pager, output)
+        _echo_via_pager(pager, out)
         return
 
-    _echo_via_pager('less', output)
+    _echo_via_pager('less', out)
 
 
-def echo(output, headers, fmt):
+def echo(
+    output: ty.List[ty.Tuple[str, ty.Any]],
+    headers: ty.List[str],
+    fmt: str,
+) -> None:
     click.echo(_tabulate(output, headers, fmt))
 
 
-def pagination_options(sort_fields, default_sort):
+def pagination_options(
+    sort_fields: ty.Tuple[str, ...], default_sort: str,
+) -> ty.Callable:
     """Shared pagination options."""
 
     def _pagination_options(f):
@@ -163,7 +175,10 @@ def pagination_options(sort_fields, default_sort):
     return _pagination_options
 
 
-def format_options(original_function=None, headers=None):
+def format_options(
+    original_function: ty.Callable = None,
+    headers: ty.Tuple[str, ...] = None,
+) -> ty.Callable:
     """Shared output format options."""
 
     def _format_options(f):

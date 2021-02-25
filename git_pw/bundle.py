@@ -4,6 +4,7 @@ Bundle subcommands.
 
 import logging
 import sys
+import typing as ty
 
 import click
 
@@ -16,7 +17,7 @@ _list_headers = ('ID', 'Name', 'Owner', 'Public')
 _sort_fields = ('id', '-id', 'name', '-name')
 
 
-def _get_bundle(bundle_id):
+def _get_bundle(bundle_id: str) -> dict:
     """Fetch bundle by ID or name.
 
     Allow users to provide a string to search for bundles. This doesn't make
@@ -42,7 +43,7 @@ def _get_bundle(bundle_id):
 ))
 @click.argument('bundle_id')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
-def apply_cmd(bundle_id, args):
+def apply_cmd(bundle_id: str, args: ty.Tuple[str]) -> None:
     """Apply bundle.
 
     Apply a bundle locally using the 'git-am' command. Any additional ARGS
@@ -53,13 +54,14 @@ def apply_cmd(bundle_id, args):
     bundle = _get_bundle(bundle_id)
     mbox = api.download(bundle['mbox'])
 
-    utils.git_am(mbox, args)
+    if mbox:
+        utils.git_am(mbox, args)
 
 
 @click.command(name='download')
 @click.argument('bundle_id')
 @click.argument('output', type=click.File('wb'), required=False)
-def download_cmd(bundle_id, output):
+def download_cmd(bundle_id: str, output: ty.IO) -> None:
     """Download bundle in mbox format.
 
     Download a bundle but do not apply it. ``OUTPUT`` is optional and can be an
@@ -77,7 +79,7 @@ def download_cmd(bundle_id, output):
         LOG.info('Downloaded bundle to %s', path)
 
 
-def _show_bundle(bundle, fmt):
+def _show_bundle(bundle: dict, fmt: str) -> None:
 
     def _format_patch(patch):
         return '%-4d %s' % (patch.get('id'), patch.get('name'))
@@ -86,12 +88,12 @@ def _show_bundle(bundle, fmt):
         ('ID', bundle.get('id')),
         ('Name', bundle.get('name')),
         ('URL', bundle.get('web_url')),
-        ('Owner', bundle.get('owner').get('username')),
-        ('Project', bundle.get('project').get('name')),
+        ('Owner', bundle.get('owner', {}).get('username')),
+        ('Project', bundle.get('project', {}).get('name')),
         ('Public', bundle.get('public'))]
 
     prefix = 'Patches'
-    for patch in bundle.get('patches'):
+    for patch in bundle.get('patches', []):
         output.append((prefix, _format_patch(patch)))
         prefix = ''
 
@@ -101,7 +103,7 @@ def _show_bundle(bundle, fmt):
 @click.command(name='show')
 @utils.format_options
 @click.argument('bundle_id')
-def show_cmd(fmt, bundle_id):
+def show_cmd(fmt: str, bundle_id: str) -> None:
     """Show information about bundle.
 
     Retrieve Patchwork metadata for a bundle.
@@ -179,7 +181,9 @@ def list_cmd(owners, limit, page, sort, fmt, headers, name):
     (1, 2), 'Creating bundles is only supported from API version 1.2',
 )
 @utils.format_options
-def create_cmd(name, patch_ids, public, fmt):
+def create_cmd(
+    name: str, patch_ids: ty.Tuple[int], public: bool, fmt: str,
+) -> None:
     """Create a bundle.
 
     Create a bundle with the given NAME and patches from PATCH_ID.
@@ -212,7 +216,9 @@ def create_cmd(name, patch_ids, public, fmt):
     (1, 2), 'Updating bundles is only supported from API version 1.2',
 )
 @utils.format_options
-def update_cmd(bundle_id, name, patch_ids, public, fmt):
+def update_cmd(
+    bundle_id: str, name: str, patch_ids: ty.List[int], public: bool, fmt: str,
+) -> None:
     """Update a bundle.
 
     Update bundle BUNDLE_ID. If PATCH_IDs are specified, this will overwrite
@@ -248,7 +254,7 @@ def update_cmd(bundle_id, name, patch_ids, public, fmt):
     (1, 2), 'Deleting bundles is only supported from API version 1.2',
 )
 @utils.format_options
-def delete_cmd(bundle_id, fmt):
+def delete_cmd(bundle_id: str, fmt: str) -> None:
     """Delete a bundle.
 
     Delete bundle BUNDLE_ID.
@@ -267,7 +273,7 @@ def delete_cmd(bundle_id, fmt):
     (1, 2), 'Modifying bundles is only supported from API version 1.2',
 )
 @utils.format_options
-def add_cmd(bundle_id, patch_ids, fmt):
+def add_cmd(bundle_id: str, patch_ids: ty.Tuple[int], fmt: str) -> None:
     """Add one or more patches to a bundle.
 
     Append the provided PATCH_IDS to bundle BUNDLE_ID.
@@ -294,7 +300,9 @@ def add_cmd(bundle_id, patch_ids, fmt):
     (1, 2), 'Modifying bundles is only supported from API version 1.2',
 )
 @utils.format_options
-def remove_cmd(bundle_id, patch_ids, fmt):
+def remove_cmd(
+    bundle_id: str, patch_ids: ty.Tuple[int], fmt: str,
+) -> None:
     """Remove one or more patches from a bundle.
 
     Remove the provided PATCH_IDS to bundle BUNDLE_ID.
