@@ -1,37 +1,38 @@
+---
 language: python
 sudo: false
 cache: pip
 python:
-- 3.5
-- 3.6
-- 3.7
-- 3.8
+  - 3.6
+  - 3.7
+  - 3.8
+  - 3.9
 install:
-- pip install tox-travis
+  - pip install tox-travis
 script:
-- tox
+  - tox
 stages:
-- test
-- deploy
+  - test
+  - deploy
 jobs:
   include:
-  - stage: deploy
-    python: 3.8
-    install: skip  # no tests, no dependencies needed
-    script: skip  # we're not running tests
-    deploy:
-    - provider: pypi
-      user: "__token__"
-      password:
-        secure: "uRtyVTX52PK4NIll439jQ8pBYrtbzs8ICRxbNdyEUuGGlmhPTWFlNBJMpD5J4U9d0XKLN18uUxzKR6/8wte7Pfj3SimgarwvscpuW/0jnQx3lDsdfZ5K6bfkzZKPd4tHgmF5oHbkI2mdB6b4ZcQJ511iZmvsPp9LVCpgFGuL+3iiUMDQcX++syAIpW/M6kFqtJVqyNJXkMg1PxErEau1Wj2aaU6rGnCexf2pzdPcDZf2QZBh3fbD9c0L8G7lSpVVnoCtArUTKaGjS2fsYWc/DDXS7D0xg2MgwsI1kdkwkfsfX5fCQVvKIGPyu4sn2W/ZHRc69v/1SaRu77VFAIgDfc1quaZ8tEpOSliZT8FHuVO4qRUpI8whe7eSxucSSSgHMC+47A+mjLF5cTzRi9MoKXMiwLKY8gSq/1gNDFum0d4ILPc/mje47PidDg5E1VOsa7HS2TuJVZLqHGSLNO0K/CDnEzjVGma8DH/RbEo2/wsX6K6zj9hbiWTqiFYFnqq9giBGsL6B1cj1CIcRMyo/dYBKyuSz47bOH1gd1637uCI206b7Jj/G6aSXy/l6zEAI9M/dyPfDivQ2QqFW+WCAFAYjDxZtMAfscVQI/6c/ystqOE9+MhrpUUCFzxZmE3aNtOtx7PzdizFRGY8cNEycsgdGeSm5wKU+QaXzdKGNh6I="
-      on:
-        tags: true
-      distributions: sdist bdist_wheel
-      skip_cleanup: true
-    - provider: releases
-      token:
-        secure: "aLlmj98VGm+MKrvYWFDab5gTEkL9dcMzJq6b0p2c8oHEKd4wrpGlhELGQlnYiaUyMEZcbn3Vkuacw0JN9nZqDBFRnSxtWhZgBAz31IGfM9AXpvXr1bOa1hwUTOnMflR1kcYLyy3kmDsGkk1njNEWu/vK6rORNTIh6oXXnb87GHso7lAc8U1iwwTJ8+ELGZfxhmfvgptGgtIabA42F1zrnd1cHH1ygdSZhxeexHgSIiFh6BleTfHAVJSGrdMaUZKM7MFDZmYvtnRt+JwlL3VqqOjgMA57qVSwWVUQMTMWheh1vj5s3BzcugQOkNSh4gbb9jkAXNK9Y9fsw7ixzNw74gIMNp+BYnyMX83Q7U4xfeojKwxTgvJv6xwwT1S9W565Hn997E22R5DgSj2ldcLer0kYUGwrKu5/5oE19AzOykeMaVShRHE/2YbW7ugWmrJtEUcaOU+t/6AGReiknse186S/9JoHQIzVhWm6NjeD/wg7Wet/75bxzqEbf8UXjsmTZbJmTCPEhtOrDxC7PJ0tDSmDLXgCiqwUJ8ZtCZuu7p3TC1nyVVligutZ90MhU4UGSWMtyzu4JbX2oJEv8Bk2QaVxFA28jKRhNH5UKQnLbRLRKL+vZEsYjY6jXOYIlwUxjokmx/r5fhEbBSZI5TlvJ2LJJBWU2h5St6Gnemi4ZmU="
-      on:
-        tags: true
-      file: "dist/*"
-      skip_cleanup: true
+    - stage: deploy
+      python: 3.9
+      install: skip  # no tests, no dependencies needed
+      script: skip  # we're not running tests
+      deploy:
+        - provider: pypi
+          user: "__token__"
+          password:
+            secure: "uRtyVTX52PK4NIll439jQ8pBYrtbzs8ICRxbNdyEUuGGlmhPTWFlNBJMpD5J4U9d0XKLN18uUxzKR6/8wte7Pfj3SimgarwvscpuW/0jnQx3lDsdfZ5K6bfkzZKPd4tHgmF5oHbkI2mdB6b4ZcQJ511iZmvsPp9LVCpgFGuL+3iiUMDQcX++syAIpW/M6kFqtJVqyNJXkMg1PxErEau1Wj2aaU6rGnCexf2pzdPcDZf2QZBh3fbD9c0L8G7lSpVVnoCtArUTKaGjS2fsYWc/DDXS7D0xg2MgwsI1kdkwkfsfX5fCQVvKIGPyu4sn2W/ZHRc69v/1SaRu77VFAIgDfc1quaZ8tEpOSliZT8FHuVO4qRUpI8whe7eSxucSSSgHMC+47A+mjLF5cTzRi9MoKXMiwLKY8gSq/1gNDFum0d4ILPc/mje47PidDg5E1VOsa7HS2TuJVZLqHGSLNO0K/CDnEzjVGma8DH/RbEo2/wsX6K6zj9hbiWTqiFYFnqq9giBGsL6B1cj1CIcRMyo/dYBKyuSz47bOH1gd1637uCI206b7Jj/G6aSXy/l6zEAI9M/dyPfDivQ2QqFW+WCAFAYjDxZtMAfscVQI/6c/ystqOE9+MhrpUUCFzxZmE3aNtOtx7PzdizFRGY8cNEycsgdGeSm5wKU+QaXzdKGNh6I="
+          on:
+            tags: true
+          distributions: sdist bdist_wheel
+          skip_cleanup: true
+        - provider: releases
+          token:
+            secure: "aLlmj98VGm+MKrvYWFDab5gTEkL9dcMzJq6b0p2c8oHEKd4wrpGlhELGQlnYiaUyMEZcbn3Vkuacw0JN9nZqDBFRnSxtWhZgBAz31IGfM9AXpvXr1bOa1hwUTOnMflR1kcYLyy3kmDsGkk1njNEWu/vK6rORNTIh6oXXnb87GHso7lAc8U1iwwTJ8+ELGZfxhmfvgptGgtIabA42F1zrnd1cHH1ygdSZhxeexHgSIiFh6BleTfHAVJSGrdMaUZKM7MFDZmYvtnRt+JwlL3VqqOjgMA57qVSwWVUQMTMWheh1vj5s3BzcugQOkNSh4gbb9jkAXNK9Y9fsw7ixzNw74gIMNp+BYnyMX83Q7U4xfeojKwxTgvJv6xwwT1S9W565Hn997E22R5DgSj2ldcLer0kYUGwrKu5/5oE19AzOykeMaVShRHE/2YbW7ugWmrJtEUcaOU+t/6AGReiknse186S/9JoHQIzVhWm6NjeD/wg7Wet/75bxzqEbf8UXjsmTZbJmTCPEhtOrDxC7PJ0tDSmDLXgCiqwUJ8ZtCZuu7p3TC1nyVVligutZ90MhU4UGSWMtyzu4JbX2oJEv8Bk2QaVxFA28jKRhNH5UKQnLbRLRKL+vZEsYjY6jXOYIlwUxjokmx/r5fhEbBSZI5TlvJ2LJJBWU2h5St6Gnemi4ZmU="
+          on:
+            tags: true
+          file: "dist/*"
+          skip_cleanup: true
