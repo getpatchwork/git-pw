@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    It is no longer necessary to provide credentials when interacting with
+    read-only APIs. You will continue to be prompted for credentials for write
+    access.
