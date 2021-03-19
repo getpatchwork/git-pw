@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: git-pw
+Version: 2.0.0
+Summary: A tool for integrating Git with Patchwork
+Home-page: https://github.com/getpatchwork/git-pw
+Author: Stephen Finucane
+Author-email:
+License: Apache 2.0
+Project-URL: Repository, https://github.com/getpatchwork/git-pw
+Project-URL: Bug Reports, https://github.com/getpatchwork/git-pw/issues
+Project-URL: Documentation,
+Description: git-pw: A tool for integrating Git with Patchwork
