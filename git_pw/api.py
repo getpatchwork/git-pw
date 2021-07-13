@@ -236,7 +236,7 @@ def download(
         LOG.error('Filename was expected but was not provided in response')
         sys.exit(1)
 
-    if output:
+    if output and not type(output) == str:
         output_path = None
         if output.fileno() != pty.STDOUT_FILENO:
             LOG.debug('Saving to %s', output.name)
@@ -246,9 +246,13 @@ def download(
         for block in rsp.iter_content(1024):
             output.write(block)
     else:
-        output_path = os.path.join(
-            tempfile.mkdtemp(prefix='git-pw'), header.group(1),
-        )
+        output_path = None
+        if output and type(output) == str:
+            output_path = os.path.join(output, header.group(1))
+        else:
+            output_path = os.path.join(
+                tempfile.mkdtemp(prefix='git-pw'), header.group(1),
+            )
         with open(output_path, 'wb') as output_file:
             LOG.debug('Saving to %s', output_path)
             # we use iter_content because patches can be binary

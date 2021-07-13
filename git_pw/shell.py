@@ -118,6 +118,7 @@ series.add_command(series_cmds.apply_cmd)
 series.add_command(series_cmds.show_cmd)
 series.add_command(series_cmds.download_cmd)
 series.add_command(series_cmds.list_cmd)
+series.add_command(series_cmds.download_patches_cmd)
 
 bundle.add_command(bundle_cmds.apply_cmd)
 bundle.add_command(bundle_cmds.show_cmd)

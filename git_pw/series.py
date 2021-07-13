@@ -34,6 +34,27 @@ def apply_cmd(series_id, args):
 
     utils.git_am(mbox, args)
 
+@click.command(name='download-patches')
+@click.argument('series_id', type=click.INT)
+@click.argument('output', type=click.Path(file_okay=False, writable=True, readable=True), required=False)
+def download_patches_cmd(series_id, output):
+    """Download series in mbox format.
+
+    Download each patch in a series but do not apply them. ``OUTPUT`` is optional and can be an
+    output directory to which to download the patches. If ``OUTPUT`` is not
+    provided, the output pathes of the patches will be automatically chosen.
+    """
+    LOG.debug('Downloading series: id=%d', series_id)
+
+    path = None
+    series = api.detail('series', series_id)
+
+    for patch in series.get('patches'):
+        path = api.download(patch['mbox'], output=output)
+        if path:
+            LOG.info('Downloaded patch %s from series %s to %s',patch.get('id'), series.get('id'),  path)
+
+
 
 @click.command(name='download')
 @click.argument('series_id', type=click.INT)
