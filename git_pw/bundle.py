@@ -60,12 +60,12 @@ def apply_cmd(bundle_id: str, args: ty.Tuple[str]) -> None:
 
 @click.command(name='download')
 @click.argument('bundle_id')
-@click.argument('output', type=click.File('wb'), required=False)
-def download_cmd(bundle_id: str, output: ty.IO) -> None:
+@click.argument('output', type=click.Path(file_okay=True, writable=True, readable=True), required=False)
+def download_cmd(bundle_id: str, output: str) -> None:
     """Download bundle in mbox format.
 
     Download a bundle but do not apply it. ``OUTPUT`` is optional and can be an
-    output path or ``-`` to output to ``stdout``. If ``OUTPUT`` is not
+    output full file path or a directory or ``-`` to output to ``stdout``. If ``OUTPUT`` is not
     provided, the output path will be automatically chosen.
     """
     LOG.debug('Downloading bundle: id=%s', bundle_id)

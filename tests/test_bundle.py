@@ -125,7 +125,7 @@ class DownloadTestCase(unittest.TestCase):
         mock_get_bundle.assert_called_once_with('123')
         mock_download.assert_called_once_with(rsp['mbox'], output=mock.ANY)
         assert isinstance(
-            mock_download.call_args[1]['output'], click_utils.LazyFile,
+            mock_download.call_args[1]['output'], str,
         )
 
 

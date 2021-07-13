@@ -34,10 +34,9 @@ def apply_cmd(series_id, args):
 
     utils.git_am(mbox, args)
 
-
 @click.command(name='download')
 @click.argument('series_id', type=click.INT)
-@click.argument('output', type=click.File('wb'), required=False)
+@click.argument('output', type=click.Path(file_okay=True, writable=True, readable=True), required=False)
 def download_cmd(series_id, output):
     """Download series in mbox format.
 
