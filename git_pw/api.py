@@ -209,7 +209,7 @@ def version() -> ty.Tuple[int, int]:
 
 
 def download(
-    url: str, params: Filters = None, output: ty.IO = None,
+    url: str, params: Filters = None, output: str = None,
 ) -> ty.Optional[str]:
     """Retrieve a specific API resource and save it to a file/stdout.
 
@@ -219,8 +219,10 @@ def download(
     Arguments:
         url: The resource URL.
         params: Additional parameters.
-        output: The output file. If provided, the caller is responsible for
-            closing. If None, a temporary file will be used.
+        output: The output file. If output is a directory then
+            the file name will be according to the patch subject and
+            will be downloaded into the output directory.
+            If None, a temporary file will be used.
 
     Returns:
         A path to an output file containing the content, else None if stdout
@@ -237,23 +239,20 @@ def download(
         sys.exit(1)
 
     if output:
-        output_path = None
-        if output.fileno() != pty.STDOUT_FILENO:
-            LOG.debug('Saving to %s', output.name)
-            output_path = output.name
-
-        # we use iter_content because patches can be binary
-        for block in rsp.iter_content(1024):
-            output.write(block)
+        output_path = output
+        if output == '-':
+            output_path = 0 #stdout fd
+        elif os.path.isdir(output):
+            output_path = os.path.join(output, header.group(1))
     else:
         output_path = os.path.join(
             tempfile.mkdtemp(prefix='git-pw'), header.group(1),
         )
-        with open(output_path, 'wb') as output_file:
-            LOG.debug('Saving to %s', output_path)
-            # we use iter_content because patches can be binary
-            for block in rsp.iter_content(1024):
-                output_file.write(block)
+    with open(output_path, 'wb') as output_file:
+        LOG.debug('Saving to %s', output_path)
+        # we use iter_content because patches can be binary
+        for block in rsp.iter_content(1024):
+            output_file.write(block)
 
     return output_path
 
