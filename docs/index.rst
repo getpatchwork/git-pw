@@ -5,7 +5,7 @@ Overview
 --------
 
 .. include:: ../README.rst
-   :start-line: 15
+   :start-line: 19
    :end-line: -7
 
 Usage
