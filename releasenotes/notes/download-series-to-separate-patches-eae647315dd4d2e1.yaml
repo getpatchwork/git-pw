@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    The ``series download`` command now accepts an optional toggle flag pair,
+    ``--separate`` / ``--combine``, to either download series patches to
+    separate files or to a combined mbox file (default).
+  - |
+    The ``patch download``, ``bundle download``, and ``series download``
+    commands now accept a directory for the ``OUTPUT`` argument as well as a
+    file. If a directory is provided, the file will use the name provided
+    by Patchwork but will be downloaded to the specified directory rather
+    than the current working directory.
