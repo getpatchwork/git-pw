@@ -5,7 +5,6 @@ Simple wrappers around request methods.
 from functools import update_wrapper
 import logging
 import os.path
-import pty
 import re
 import sys
 import tempfile
@@ -241,7 +240,7 @@ def download(
     if output:
         output_path = output
         if output == '-':
-            output_path = 0 #stdout fd
+            output_path = 0  # stdout fd
         elif os.path.isdir(output):
             output_path = os.path.join(output, header.group(1))
     else:

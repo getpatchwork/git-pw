@@ -3,7 +3,6 @@ Patch subcommands.
 """
 
 import logging
-import pty
 import sys
 import os
 
@@ -59,7 +58,11 @@ def apply_cmd(patch_id, series, deps, args):
 
 @click.command(name='download')
 @click.argument('patch_id', type=click.INT)
-@click.argument('output', type=click.Path(file_okay=True, writable=True, readable=True), required=False)
+@click.argument(
+    'output',
+    type=click.Path(file_okay=True, writable=True, readable=True),
+    required=False
+)
 @click.option('--diff', 'fmt', flag_value='diff',
               help='Show patch in diff format.')
 @click.option('--mbox', 'fmt', flag_value='mbox', default=True,
@@ -68,8 +71,8 @@ def download_cmd(patch_id, output, fmt):
     """Download patch in diff or mbox format.
 
     Download a patch but do not apply it. ``OUTPUT`` is optional and can be an
-    output file path or a directory or ``-`` to output to ``stdout``. If ``OUTPUT`` is not
-    provided, the output path will be automatically chosen.
+    output file path or a directory or ``-`` to output to ``stdout``. If
+    ``OUTPUT`` is not provided, the output path will be automatically chosen.
     """
     LOG.debug('Downloading patch: id=%d, format=%s', patch_id, fmt)
 
@@ -79,7 +82,7 @@ def download_cmd(patch_id, output, fmt):
     if fmt == 'diff':
         if output and not os.path.isdir(output):
             if output == '-':
-                output_path = 0 #stdout fd
+                output_path = 0  # stdout fd
             else:
                 output_path = output
                 path = output

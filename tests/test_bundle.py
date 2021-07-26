@@ -1,7 +1,6 @@
 import unittest
 
 from click.testing import CliRunner as CLIRunner
-from click import utils as click_utils
 import mock
 
 from git_pw import bundle

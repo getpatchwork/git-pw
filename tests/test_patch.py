@@ -2,7 +2,6 @@ import unittest
 
 import click
 from click.testing import CliRunner as CLIRunner
-from click import utils as click_utils
 import mock
 from packaging import version
 

@@ -36,9 +36,14 @@ def apply_cmd(series_id, args):
 
     utils.git_am(mbox, args)
 
+
 @click.command(name='download')
 @click.argument('series_id', type=click.INT)
-@click.argument('output', type=click.Path(file_okay=True, writable=True, readable=True), required=False)
+@click.argument(
+    'output',
+    type=click.Path(file_okay=True, writable=True, readable=True),
+    required=False,
+)
 @click.option('--separate', 'fmt', flag_value='separate',
               help='download each patch to a separate file')
 @click.option('--combined', 'fmt', flag_value='combined', default=True,
@@ -57,13 +62,19 @@ def download_cmd(series_id, output, fmt):
 
     if fmt == 'separate':
         if output and not os.path.isdir(output):
-            LOG.error('When downloading into separate files, OUTPUT can only be a directoy')
+            LOG.error(
+                'When downloading into separate files, OUTPUT can only be a '
+                'directoy'
+            )
             sys.exit(1)
 
         for patch in series.get('patches'):
             path = api.download(patch['mbox'], output=output)
             if path:
-                LOG.info('Downloaded patch %s from series %s to %s',patch.get('id'), series.get('id'),  path)
+                LOG.info(
+                    'Downloaded patch %s from series %s to %s',
+                    patch.get('id'), series.get('id'), path,
+                )
         return
 
     path = api.download(series['mbox'], output=output)
