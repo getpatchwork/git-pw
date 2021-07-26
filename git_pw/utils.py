@@ -2,8 +2,6 @@
 Utility functions.
 """
 
-from __future__ import print_function
-
 import csv
 import io
 import os
