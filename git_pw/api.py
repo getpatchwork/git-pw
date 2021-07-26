@@ -249,10 +249,10 @@ def download(
             output_path = os.path.join(
                 tempfile.mkdtemp(prefix='git-pw'), header.group(1),
             )
+        LOG.debug('Saving to %s', output_path)
         output_file = open(output_path, 'wb')
 
     try:
-        LOG.debug('Saving to %s', output_path)
         # we use iter_content because patches can be binary
         for block in rsp.iter_content(1024):
             output_file.write(block)
