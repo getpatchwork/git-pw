@@ -9,6 +9,8 @@ import click
 
 from git_pw import api
 from git_pw import utils
+import os.path
+import sys
 
 LOG = logging.getLogger(__name__)
 
@@ -37,8 +39,20 @@ def apply_cmd(series_id, args):
 
 @click.command(name='download')
 @click.argument('series_id', type=click.INT)
-@click.argument('output', type=click.File('wb'), required=False)
-def download_cmd(series_id, output):
+@click.argument(
+    'output',
+    type=click.Path(file_okay=True, writable=True, readable=True),
+    required=False,
+)
+@click.option(
+    '--separate', 'fmt', flag_value='separate',
+    help='Download each series patch to a separate file',
+)
+@click.option(
+    '--combined', 'fmt', flag_value='combined', default=True,
+    help='Download all series patches to one file',
+)
+def download_cmd(series_id, output, fmt):
     """Download series in mbox format.
 
     Download a series but do not apply it. ``OUTPUT`` is optional and can be an
@@ -49,6 +63,23 @@ def download_cmd(series_id, output):
 
     path = None
     series = api.detail('series', series_id)
+
+    if fmt == 'separate':
+        if output and not os.path.isdir(output):
+            LOG.error(
+                'When downloading into separate files, OUTPUT can only be a '
+                'directoy'
+            )
+            sys.exit(1)
+
+        for patch in series.get('patches'):
+            path = api.download(patch['mbox'], output=output)
+            if path:
+                LOG.info(
+                    'Downloaded patch %s from series %s to %s',
+                    patch.get('id'), series.get('id'), path,
+                )
+        return
 
     path = api.download(series['mbox'], output=output)
 

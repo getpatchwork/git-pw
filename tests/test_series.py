@@ -1,7 +1,6 @@
 import unittest
 
 from click.testing import CliRunner as CLIRunner
-from click import utils as click_utils
 import mock
 
 from git_pw import series
@@ -74,7 +73,34 @@ class DownloadTestCase(unittest.TestCase):
         mock_detail.assert_called_once_with('series', 123)
         mock_download.assert_called_once_with(rsp['mbox'], output=mock.ANY)
         assert isinstance(
-            mock_download.call_args[1]['output'], click_utils.LazyFile,
+            mock_download.call_args[1]['output'], str,
+        )
+
+    def test_download_separate_to_dir(self, mock_download, mock_detail):
+        """Validate downloading seperate to a directory."""
+
+        rsp = {
+            'mbox': 'http://example.com/api/patches/123/mbox/',
+            'patches': [
+                {
+                    'id': 10539359,
+                    'mbox': 'https://example.com/project/foo/patch/123/mbox/',
+                }
+
+            ]
+        }
+        mock_detail.return_value = rsp
+
+        runner = CLIRunner()
+        result = runner.invoke(series.download_cmd, ['123', '--separate', '.'])
+
+        assert result.exit_code == 0, result
+        mock_detail.assert_called_once_with('series', 123)
+        mock_download.assert_called_once_with(
+            rsp['patches'][0]['mbox'], output=mock.ANY,
+        )
+        assert isinstance(
+            mock_download.call_args[1]['output'], str,
         )
 
 

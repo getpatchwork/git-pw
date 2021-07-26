@@ -2,7 +2,6 @@ import unittest
 
 import click
 from click.testing import CliRunner as CLIRunner
-from click import utils as click_utils
 import mock
 from packaging import version
 
@@ -126,7 +125,7 @@ class DownloadTestCase(unittest.TestCase):
         mock_detail.assert_called_once_with('patches', 123)
         mock_download.assert_called_once_with(rsp['mbox'], output=mock.ANY)
         assert isinstance(
-            mock_download.call_args[1]['output'], click_utils.LazyFile,
+            mock_download.call_args[1]['output'], str,
         )
         assert mock_log.info.called
 
