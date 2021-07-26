@@ -208,7 +208,7 @@ def version() -> ty.Tuple[int, int]:
 
 
 def download(
-    url: str, params: Filters = None, output: str = None,
+    url: str, params: Filters = None, output: ty.Optional[str] = None,
 ) -> ty.Optional[str]:
     """Retrieve a specific API resource and save it to a file/stdout.
 
@@ -237,21 +237,27 @@ def download(
         LOG.error('Filename was expected but was not provided in response')
         sys.exit(1)
 
-    if output:
+    if output == '-':
         output_path = output
-        if output == '-':
-            output_path = 0  # stdout fd
-        elif os.path.isdir(output):
-            output_path = os.path.join(output, header.group(1))
+        output_file = sys.stdout.buffer
     else:
-        output_path = os.path.join(
-            tempfile.mkdtemp(prefix='git-pw'), header.group(1),
-        )
-    with open(output_path, 'wb') as output_file:
+        if output:
+            output_path = output
+            if os.path.isdir(output):
+                output_path = os.path.join(output, header.group(1))
+        else:
+            output_path = os.path.join(
+                tempfile.mkdtemp(prefix='git-pw'), header.group(1),
+            )
+        output_file = open(output_path, 'wb')
+
+    try:
         LOG.debug('Saving to %s', output_path)
         # we use iter_content because patches can be binary
         for block in rsp.iter_content(1024):
             output_file.write(block)
+    finally:
+        output_file.close()
 
     return output_path
 
