@@ -13,10 +13,6 @@ git-pw
    :target: http://git-pw.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
-.. image:: https://travis-ci.org/getpatchwork/git-pw.svg?branch=master
-   :target: https://travis-ci.org/getpatchwork/git-pw
-   :alt: Build Status
-
 *git-pw* is a tool for integrating Git with `Patchwork`__, the web-based patch
 tracking system.
 
