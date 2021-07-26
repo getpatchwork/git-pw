@@ -65,7 +65,7 @@ def apply_cmd(bundle_id: str, args: ty.Tuple[str]) -> None:
     type=click.Path(file_okay=True, writable=True, readable=True),
     required=False,
 )
-def download_cmd(bundle_id: str, output: str) -> None:
+def download_cmd(bundle_id: str, output: ty.Optional[str]) -> None:
     """Download bundle in mbox format.
 
     Download a bundle but do not apply it. ``OUTPUT`` is optional and can be an

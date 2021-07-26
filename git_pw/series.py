@@ -44,10 +44,14 @@ def apply_cmd(series_id, args):
     type=click.Path(file_okay=True, writable=True, readable=True),
     required=False,
 )
-@click.option('--separate', 'fmt', flag_value='separate',
-              help='download each patch to a separate file')
-@click.option('--combined', 'fmt', flag_value='combined', default=True,
-              help='download all the series into one file')
+@click.option(
+    '--separate', 'fmt', flag_value='separate',
+    help='Download each series patch to a separate file',
+)
+@click.option(
+    '--combined', 'fmt', flag_value='combined', default=True,
+    help='Download all series patches to one file',
+)
 def download_cmd(series_id, output, fmt):
     """Download series in mbox format.
 
