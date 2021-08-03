@@ -4,6 +4,7 @@ Utility functions.
 
 import csv
 import io
+import logging
 import os
 import subprocess
 import sys
@@ -11,6 +12,8 @@ import typing as ty
 
 import click
 from tabulate import tabulate
+
+LOG = logging.getLogger(__name__)
 
 
 def ensure_str(s: ty.Any) -> str:
@@ -35,8 +38,13 @@ def git_config(value: str) -> str:
     Returns:
         Matching setting for ``key`` if available, else None.
     """
+    cmd = ['git', 'config', value]
+
+    LOG.debug('Fetching git config info for %s', value)
+    LOG.debug('Running: %s', ' '.join(cmd))
+
     try:
-        output = subprocess.check_output(['git', 'config', value])
+        output = subprocess.check_output(cmd)
     except subprocess.CalledProcessError:
         output = b''
 
@@ -51,6 +59,9 @@ def git_am(mbox: str, args: ty.Tuple[str, ...]) -> None:
     else:
         cmd.append('-3')
     cmd.append(mbox)
+
+    LOG.debug('Applying patch at %s', mbox)
+    LOG.debug('Running: %s', ' '.join(cmd))
 
     try:
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
