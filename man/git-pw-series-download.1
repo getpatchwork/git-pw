@@ -1,4 +1,4 @@
-.TH "GIT-PW SERIES DOWNLOAD" "1" "2020-04-17" "1.9.0" "git-pw series download Manual"
+.TH "GIT-PW SERIES DOWNLOAD" "1" "2021-08-03" "2.1.1" "git-pw series download Manual"
 .SH NAME
 git-pw\-series\-download \- Download series in mbox format.
 .SH SYNOPSIS
@@ -10,3 +10,10 @@ Download series in mbox format.
 Download a series but do not apply it. ``OUTPUT`` is optional and can be an
 output path or ``-`` to output to ``stdout``. If ``OUTPUT`` is not
 provided, the output path will be automatically chosen.
+.SH OPTIONS
+.TP
+\fB\-\-separate\fP
+Download each series patch to a separate file
+.TP
+\fB\-\-combined\fP
+Download all series patches to one file
