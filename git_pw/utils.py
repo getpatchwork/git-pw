@@ -66,10 +66,10 @@ def git_am(mbox: str, args: ty.Tuple[str, ...]) -> None:
     try:
         output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as exc:
-        print(exc.output.decode('utf-8'))
+        LOG.error('Failed to apply patch:\n%s', exc.output.decode('utf-8'))
         sys.exit(exc.returncode)
     else:
-        print(output.decode('utf-8'), end='')
+        LOG.info(output.decode('utf-8'))
 
 
 def _tabulate(
@@ -92,7 +92,7 @@ def _tabulate(
             writer.writerow([ensure_str(i) for i in item])
         return result.getvalue()
 
-    print('pw.format must be one of: table, simple, csv')
+    LOG.error('pw.format must be one of: table, simple, csv')
     sys.exit(1)
 
 
