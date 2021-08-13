@@ -12,6 +12,7 @@ import typing as ty
 
 import click
 from tabulate import tabulate
+import yaml
 
 LOG = logging.getLogger(__name__)
 
@@ -92,8 +93,14 @@ def _tabulate(
         for item in output:
             writer.writerow([ensure_str(i) for i in item])
         return result.getvalue()
+    elif fmt == 'yaml':
+        data = [
+            {headers[i].lower(): entry[i] for i in range(len(headers))}
+            for entry in output
+        ]
+        return yaml.dump(data, default_flow_style=False)
 
-    LOG.error('pw.format must be one of: table, simple, csv')
+    LOG.error('pw.format must be one of: table, simple, csv, yaml')
     sys.exit(1)
 
 
@@ -210,7 +217,7 @@ def format_options(
             '-f',
             'fmt',
             default=None,
-            type=click.Choice(['simple', 'table', 'csv']),
+            type=click.Choice(['simple', 'table', 'csv', 'yaml']),
             help=(
                 "Output format. Defaults to the value of "
                 "'git config pw.format' else 'table'."

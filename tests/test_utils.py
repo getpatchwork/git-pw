@@ -7,6 +7,7 @@ import textwrap
 import os
 
 import mock
+import yaml
 
 from git_pw import utils
 
@@ -118,6 +119,23 @@ def test_tabulate_csv(mock_tabulate):
         "col1","colb","colIII","colX","colY","colZ"
         "foo","bar","baz","😀","","1"
     """)
+
+
+@mock.patch.object(yaml, 'dump')
+def test_tabulate_yaml(mock_dump):
+    output, headers, result = _test_tabulate('yaml')
+
+    mock_dump.assert_called_once_with(
+        [{
+            'col1': b'foo',
+            'colb': 'bar',
+            'coliii': u'baz',
+            'colx': '😀',
+            'coly': None,
+            'colz': 1,
+        }],
+        default_flow_style=False,
+    )
 
 
 @mock.patch.object(utils, 'git_config', return_value='simple')

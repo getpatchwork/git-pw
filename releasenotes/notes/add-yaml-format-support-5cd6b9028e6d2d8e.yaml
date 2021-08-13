@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``-f`` / ``--format`` option used for many ``list`` commands now
+    supports a new option: ``yaml``. This can be useful in environments where
+    limited horizontal space is available.
