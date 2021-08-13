@@ -46,15 +46,15 @@ dependencies.  On Fedora, run:
 
 .. code-block:: bash
 
-   $ sudo dnf install python-requests python-click python-pbr python-arrow \
-     python-tabulate
+   $ sudo dnf install python3-requests python3-click python3-pbr \
+       python3-arrow python3-tabulate
 
 On Ubuntu, run:
 
 .. code-block:: bash
 
-   $ sudo apt-get install python-requests python-click python-pbr python-arrow \
-     python-tabulate
+   $ sudo apt-get install python3-requests python3-click python3-pbr \
+       python3-arrow python3-tabulate
 
 Once dependencies are installed, clone this repo and run ``setup.py``:
 
