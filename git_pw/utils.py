@@ -29,7 +29,7 @@ def ensure_str(s: ty.Any) -> str:
 
 def trim(string: str, length: int = 70) -> str:
     """Trim a string to the given length."""
-    return (string[:length - 1] + '...') if len(string) > length else string
+    return (string[: length - 1] + '...') if len(string) > length else string
 
 
 def git_config(value: str) -> str:
@@ -86,7 +86,8 @@ def _tabulate(
     elif fmt == 'csv':
         result = io.StringIO()
         writer = csv.writer(
-            result, quoting=csv.QUOTE_ALL, lineterminator=os.linesep)
+            result, quoting=csv.QUOTE_ALL, lineterminator=os.linesep
+        )
         writer.writerow([ensure_str(h) for h in headers])
         for item in output:
             writer.writerow([ensure_str(i) for i in item])
@@ -165,19 +166,32 @@ def echo(
 
 
 def pagination_options(
-    sort_fields: ty.Tuple[str, ...], default_sort: str,
+    sort_fields: ty.Tuple[str, ...],
+    default_sort: str,
 ) -> ty.Callable:
     """Shared pagination options."""
 
     def _pagination_options(f):
-        f = click.option('--limit', metavar='LIMIT', type=click.INT,
-                         help='Maximum number of items to show.')(f)
-        f = click.option('--page', metavar='PAGE', type=click.INT,
-                         help='Page to retrieve items from. This is '
-                         'influenced by the size of LIMIT.')(f)
-        f = click.option('--sort', metavar='FIELD', default=default_sort,
-                         type=click.Choice(sort_fields),
-                         help='Sort output on given field.')(f)
+        f = click.option(
+            '--limit',
+            metavar='LIMIT',
+            type=click.INT,
+            help='Maximum number of items to show.',
+        )(f)
+        f = click.option(
+            '--page',
+            metavar='PAGE',
+            type=click.INT,
+            help='Page to retrieve items from. This is '
+            'influenced by the size of LIMIT.',
+        )(f)
+        f = click.option(
+            '--sort',
+            metavar='FIELD',
+            default=default_sort,
+            type=click.Choice(sort_fields),
+            help='Sort output on given field.',
+        )(f)
 
         return f
 
@@ -191,16 +205,29 @@ def format_options(
     """Shared output format options."""
 
     def _format_options(f):
-        f = click.option('--format', '-f', 'fmt', default=None,
-                         type=click.Choice(['simple', 'table', 'csv']),
-                         help="Output format. Defaults to the value of "
-                         "'git config pw.format' else 'table'.")(f)
+        f = click.option(
+            '--format',
+            '-f',
+            'fmt',
+            default=None,
+            type=click.Choice(['simple', 'table', 'csv']),
+            help=(
+                "Output format. Defaults to the value of "
+                "'git config pw.format' else 'table'."
+            ),
+        )(f)
 
         if headers:
-            f = click.option('--column', '-c', 'headers', metavar='COLUMN',
-                             multiple=True, default=headers,
-                             type=click.Choice(headers),
-                             help='Columns to be included in output.')(f)
+            f = click.option(
+                '--column',
+                '-c',
+                'headers',
+                metavar='COLUMN',
+                multiple=True,
+                default=headers,
+                type=click.Choice(headers),
+                help='Columns to be included in output.',
+            )(f)
         return f
 
     if original_function:
