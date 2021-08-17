@@ -2,8 +2,7 @@
 git-pw
 ======
 
-.. NOTE: If editing this, be sure to update the line numbers in
-     'doc/introduction'
+.. NOTE: If editing this, be sure to update the line numbers in 'doc/index'
 
 .. image:: https://badge.fury.io/py/git-pw.svg
    :target: https://badge.fury.io/py/git-pw
