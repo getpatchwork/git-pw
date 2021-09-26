@@ -75,6 +75,7 @@ def test_echo_via_pager_env_PAGER(mock_inner, mock_tabulate, mock_config):
 @mock.patch.object(utils, 'git_config', return_value=None)
 @mock.patch.object(utils, '_tabulate')
 @mock.patch.object(utils, '_echo_via_pager')
+@mock.patch.dict(os.environ, {'PAGER': ''})
 def test_echo_via_pager_env_default(mock_inner, mock_tabulate, mock_config):
     utils.echo_via_pager('test', ('foo',), None)
 
