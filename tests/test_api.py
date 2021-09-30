@@ -1,6 +1,7 @@
 """Unit tests for ``git_pw/api.py``."""
 
-import mock
+from unittest import mock
+
 import pytest
 
 from git_pw import api

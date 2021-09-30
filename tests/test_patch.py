@@ -1,8 +1,8 @@
 import unittest
+from unittest import mock
 
 import click
 from click.testing import CliRunner as CLIRunner
-import mock
 from packaging import version
 
 from git_pw import patch

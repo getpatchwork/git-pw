@@ -6,8 +6,8 @@ import subprocess
 import textwrap
 import os
 
-import mock
 import yaml
+from unittest import mock
 
 from git_pw import utils
 
