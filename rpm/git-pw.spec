@@ -15,6 +15,11 @@ BuildRequires:  python3-setuptools
 BuildRequires:  python3-pytest
 
 Requires:       git
+Requires:       python3-arrow
+Requires:       python3-click
+Requires:       python3-requests
+Requires:       python3-tabulate
+Requires:       python3-pyyaml
 
 %description
 git-pw is a tool for integrating Git with Patchwork, the web-based patch
