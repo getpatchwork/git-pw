@@ -1,5 +1,5 @@
 Name:           git-pw
-Version:        2.2.1
+Version:        2.2.2
 Release:        1%{?dist}
 Summary:        Git-Patchwork integration tool
 
@@ -50,6 +50,9 @@ install -p -D -m 644 man/*.1 %{buildroot}%{_mandir}/man1/
 %{python3_sitelib}/git_pw-%{version}-py%{python3_version}*.egg-info
 
 %changelog
+* Fri Nov 26 2021 Stephen Finucane <stephen@that.guru> - 2.2.2-1
+- Update to 2.2.2
+
 * Fri Nov 26 2021 Stephen Finucane <stephen@that.guru> - 2.2.1-1
 - Update to 2.2.1
 
