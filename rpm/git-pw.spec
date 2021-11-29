@@ -12,14 +12,6 @@ BuildArch:      noarch
 BuildRequires:  python3-devel
 BuildRequires:  python3-pbr
 BuildRequires:  python3-setuptools
-BuildRequires:  python3-pytest
-
-Requires:       git
-Requires:       python3-arrow
-Requires:       python3-click
-Requires:       python3-requests
-Requires:       python3-tabulate
-Requires:       python3-pyyaml
 
 %description
 git-pw is a tool for integrating Git with Patchwork, the web-based patch
@@ -30,24 +22,26 @@ tracking system.
 # Remove bundled egg-info
 rm -rf %{name}.egg-info
 
+%generate_buildrequires
+%pyproject_buildrequires -t
+
 %build
-%py3_build
+%pyproject_wheel
 
 %install
-%py3_install
+%pyproject_install
+%pyproject_save_files git_pw
 mkdir -p %{buildroot}%{_mandir}/man1
 install -p -D -m 644 man/*.1 %{buildroot}%{_mandir}/man1/
 
 %check
-%pytest -Wall
+%tox
 
-%files
+%files -f %{pyproject_files}
 %license LICENSE
 %doc README.rst
 %{_bindir}/git-pw
 %{_mandir}/man1/git-pw*.1*
-%{python3_sitelib}/git_pw/
-%{python3_sitelib}/git_pw-%{version}-py%{python3_version}*.egg-info
 
 %changelog
 * Fri Nov 26 2021 Stephen Finucane <stephen@that.guru> - 2.2.2-1
