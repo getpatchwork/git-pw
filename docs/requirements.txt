@@ -1,5 +1,5 @@
 -r ../requirements.txt
-sphinx>=1.5,<2.0
-sphinx-click>=2.0,<3.0
-reno>=3.0,<4.0
-sphinx-rtd-theme==0.4.3
+sphinx
+sphinx-click
+reno
+sphinx-rtd-theme
