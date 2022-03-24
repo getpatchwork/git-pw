@@ -10,6 +10,21 @@ from git_pw import utils
 LOG = logging.getLogger(__name__)
 
 
+def parse_boolean(value: str) -> bool:
+    """Parse a boolean config value.
+
+    Based on https://git-scm.com/docs/git-config#_values
+    """
+    if value in ('yes', 'on', 'true', '1', ''):
+        return True
+
+    if value in ('no', 'off', 'false', '0'):
+        return False
+
+    LOG.error("'{}' is not a valid boolean value".format(value))
+    return False
+
+
 class Config(object):
     def __init__(self) -> None:
         self._git_config: ty.Dict[str, str] = {}

@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``patch apply`` command will now respect the ``pw.applyPatchDeps``
+    git config option. This can be a boolean value (one of: ``yes``, ``on``,
+    ``true``, ``1``, ``no``, ``off``, ``false``, ``0``).

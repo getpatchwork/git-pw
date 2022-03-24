@@ -40,6 +40,12 @@ _default_states = (
 )
 
 
+def _get_apply_patch_deps() -> bool:
+    if CONF.applyPatchDeps is not None:
+        return config.parse_boolean(CONF.applyPatchDeps)
+    return True
+
+
 @click.command(
     name='apply',
     context_settings=dict(
@@ -55,10 +61,11 @@ _default_states = (
 )
 @click.option(
     '--deps/--no-deps',
-    default=True,
+    default=_get_apply_patch_deps(),
     help=(
-        'When applying the patch, include dependencies if '
-        'available. Defaults to using the most recent series.'
+        "When applying the patch, include series dependencies if available. "
+        "Dependencies are retrieved from the most recent series by default. "
+        "Defaults to the value of 'git config pw applyPatchDeps' else 'true'."
     ),
 )
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
