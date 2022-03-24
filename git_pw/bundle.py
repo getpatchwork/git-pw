@@ -38,9 +38,12 @@ def _get_bundle(bundle_id: str) -> dict:
     return bundles[0]
 
 
-@click.command(name='apply', context_settings=dict(
-    ignore_unknown_options=True,
-))
+@click.command(
+    name='apply',
+    context_settings=dict(
+        ignore_unknown_options=True,
+    ),
+)
 @click.argument('bundle_id')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 def apply_cmd(bundle_id: str, args: ty.Tuple[str]) -> None:
@@ -84,7 +87,6 @@ def download_cmd(bundle_id: str, output: ty.Optional[str]) -> None:
 
 
 def _show_bundle(bundle: dict, fmt: str) -> None:
-
     def _format_patch(patch):
         return '%-4d %s' % (patch.get('id'), patch.get('name'))
 
@@ -94,7 +96,8 @@ def _show_bundle(bundle: dict, fmt: str) -> None:
         ('URL', bundle.get('web_url')),
         ('Owner', bundle.get('owner', {}).get('username')),
         ('Project', bundle.get('project', {}).get('name')),
-        ('Public', bundle.get('public'))]
+        ('Public', bundle.get('public')),
+    ]
 
     prefix = 'Patches'
     for patch in bundle.get('patches', []):
@@ -120,9 +123,14 @@ def show_cmd(fmt: str, bundle_id: str) -> None:
 
 
 @click.command(name='list')
-@click.option('--owner', 'owners', metavar='OWNER', multiple=True,
-              help='Show only bundles with these owners. Should be an email, '
-              'name or ID. Private bundles of other users will not be shown.')
+@click.option(
+    '--owner',
+    'owners',
+    metavar='OWNER',
+    multiple=True,
+    help='Show only bundles with these owners. Should be an email, '
+    'name or ID. Private bundles of other users will not be shown.',
+)
 @utils.pagination_options(sort_fields=_sort_fields, default_sort='name')
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
@@ -132,8 +140,13 @@ def list_cmd(owners, limit, page, sort, fmt, headers, name):
 
     List bundles on the Patchwork instance.
     """
-    LOG.debug('List bundles: owners=%s, limit=%r, page=%r, sort=%r',
-              ','.join(owners), limit, page, sort)
+    LOG.debug(
+        'List bundles: owners=%s, limit=%r, page=%r, sort=%r',
+        ','.join(owners),
+        limit,
+        page,
+        sort,
+    )
 
     params = []
 
@@ -144,12 +157,14 @@ def list_cmd(owners, limit, page, sort, fmt, headers, name):
         else:
             params.extend(api.retrieve_filter_ids('users', 'owner', owner))
 
-    params.extend([
-        ('q', name),
-        ('page', page),
-        ('per_page', limit),
-        ('order', sort),
-    ])
+    params.extend(
+        [
+            ('q', name),
+            ('page', page),
+            ('per_page', limit),
+            ('order', sort),
+        ]
+    )
 
     bundles = api.index('bundles', params)
 
@@ -176,17 +191,24 @@ def list_cmd(owners, limit, page, sort, fmt, headers, name):
 
 
 @click.command(name='create')
-@click.option('--public/--private', default=False,
-              help='Allow other users to view this bundle. If private, only '
-              'you will be able to see this bundle.')
+@click.option(
+    '--public/--private',
+    default=False,
+    help='Allow other users to view this bundle. If private, only '
+    'you will be able to see this bundle.',
+)
 @click.argument('name')
 @click.argument('patch_ids', type=click.INT, nargs=-1, required=True)
 @api.validate_minimum_version(
-    (1, 2), 'Creating bundles is only supported from API version 1.2',
+    (1, 2),
+    'Creating bundles is only supported from API version 1.2',
 )
 @utils.format_options
 def create_cmd(
-    name: str, patch_ids: ty.Tuple[int], public: bool, fmt: str,
+    name: str,
+    patch_ids: ty.Tuple[int],
+    public: bool,
+    fmt: str,
 ) -> None:
     """Create a bundle.
 
@@ -194,8 +216,12 @@ def create_cmd(
 
     Requires API version 1.2 or greater.
     """
-    LOG.debug('Create bundle: name=%s, patches=%s, public=%s',
-              name, patch_ids, public)
+    LOG.debug(
+        'Create bundle: name=%s, patches=%s, public=%s',
+        name,
+        patch_ids,
+        public,
+    )
 
     data = [
         ('name', name),
@@ -210,18 +236,31 @@ def create_cmd(
 
 @click.command(name='update')
 @click.option('--name')
-@click.option('--patch', 'patch_ids', type=click.INT, multiple=True,
-              help='Add the specified patch(es) to the bundle.')
-@click.option('--public/--private', default=None,
-              help='Allow other users to view this bundle. If private, only '
-              'you will be able to see this bundle.')
+@click.option(
+    '--patch',
+    'patch_ids',
+    type=click.INT,
+    multiple=True,
+    help='Add the specified patch(es) to the bundle.',
+)
+@click.option(
+    '--public/--private',
+    default=None,
+    help='Allow other users to view this bundle. If private, only '
+    'you will be able to see this bundle.',
+)
 @click.argument('bundle_id')
 @api.validate_minimum_version(
-    (1, 2), 'Updating bundles is only supported from API version 1.2',
+    (1, 2),
+    'Updating bundles is only supported from API version 1.2',
 )
 @utils.format_options
 def update_cmd(
-    bundle_id: str, name: str, patch_ids: ty.List[int], public: bool, fmt: str,
+    bundle_id: str,
+    name: str,
+    patch_ids: ty.List[int],
+    public: bool,
+    fmt: str,
 ) -> None:
     """Update a bundle.
 
@@ -233,7 +272,10 @@ def update_cmd(
     """
     LOG.debug(
         'Updating bundle: id=%s, name=%s, patches=%s, public=%s',
-        bundle_id, name, patch_ids, public,
+        bundle_id,
+        name,
+        patch_ids,
+        public,
     )
 
     data = []
@@ -255,7 +297,8 @@ def update_cmd(
 @click.command(name='delete')
 @click.argument('bundle_id')
 @api.validate_minimum_version(
-    (1, 2), 'Deleting bundles is only supported from API version 1.2',
+    (1, 2),
+    'Deleting bundles is only supported from API version 1.2',
 )
 @utils.format_options
 def delete_cmd(bundle_id: str, fmt: str) -> None:
@@ -274,7 +317,8 @@ def delete_cmd(bundle_id: str, fmt: str) -> None:
 @click.argument('bundle_id')
 @click.argument('patch_ids', type=click.INT, nargs=-1, required=True)
 @api.validate_minimum_version(
-    (1, 2), 'Modifying bundles is only supported from API version 1.2',
+    (1, 2),
+    'Modifying bundles is only supported from API version 1.2',
 )
 @utils.format_options
 def add_cmd(bundle_id: str, patch_ids: ty.Tuple[int], fmt: str) -> None:
@@ -301,11 +345,14 @@ def add_cmd(bundle_id: str, patch_ids: ty.Tuple[int], fmt: str) -> None:
 @click.argument('bundle_id')
 @click.argument('patch_ids', type=click.INT, nargs=-1, required=True)
 @api.validate_minimum_version(
-    (1, 2), 'Modifying bundles is only supported from API version 1.2',
+    (1, 2),
+    'Modifying bundles is only supported from API version 1.2',
 )
 @utils.format_options
 def remove_cmd(
-    bundle_id: str, patch_ids: ty.Tuple[int], fmt: str,
+    bundle_id: str,
+    patch_ids: ty.Tuple[int],
+    fmt: str,
 ) -> None:
     """Remove one or more patches from a bundle.
 

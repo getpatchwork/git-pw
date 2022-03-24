@@ -24,11 +24,13 @@ Filters = ty.List[ty.Tuple[str, str]]
 
 class HTTPTokenAuth(requests.auth.AuthBase):
     """Attaches HTTP Token Authentication to the given Request object."""
+
     def __init__(self, token: str):
         self.token = token
 
     def __call__(
-        self, r: requests.PreparedRequest,
+        self,
+        r: requests.PreparedRequest,
     ) -> requests.PreparedRequest:
         r.headers['Authorization'] = self._token_auth_str(self.token)
         return r
@@ -46,8 +48,10 @@ def _get_auth(optional: bool = False) -> ty.Optional[requests.auth.AuthBase]:
         return requests.auth.HTTPBasicAuth(CONF.username, CONF.password)
     elif not optional:
         LOG.error('Authentication information missing')
-        LOG.error('You must configure authentication via git-config or via '
-                  '--token or --username, --password')
+        LOG.error(
+            'You must configure authentication via git-config or via '
+            '--token or --username, --password'
+        )
         sys.exit(1)
     return None
 
@@ -64,8 +68,10 @@ def _get_server() -> str:
 
         if not re.match(r'.*/api/\d\.\d$', server):
             LOG.warning('Server version missing')
-            LOG.warning('You should provide the server version in the URL '
-                        'configured via git-config or --server')
+            LOG.warning(
+                'You should provide the server version in the URL '
+                'configured via git-config or --server'
+            )
             LOG.warning('This will be required in git-pw 2.0')
 
         if not re.match(r'.*/api(/\d\.\d)?$', server):
@@ -77,8 +83,10 @@ def _get_server() -> str:
         return server
     else:
         LOG.error('Server information missing')
-        LOG.error('You must provide server information via git-config or via '
-                  '--server')
+        LOG.error(
+            'You must provide server information via git-config or via '
+            '--server'
+        )
         sys.exit(1)
 
 
@@ -89,20 +97,25 @@ def _get_project() -> str:
         return CONF.project.strip()
     else:
         LOG.error('Project information missing')
-        LOG.error('You must provide project information via git-config or '
-                  'via --project')
+        LOG.error(
+            'You must provide project information via git-config or '
+            'via --project'
+        )
         LOG.error('To list all projects, set project to "*"')
         sys.exit(1)
 
 
 def _handle_error(
-    operation: str, exc: requests.exceptions.RequestException,
+    operation: str,
+    exc: requests.exceptions.RequestException,
 ) -> None:
     if exc.response is not None and exc.response.content:
         # server errors should always be reported
         if exc.response.status_code in range(500, 512):  # 5xx Server Error
-            LOG.error('Server error. Please report this issue to '
-                      'https://github.com/getpatchwork/patchwork')
+            LOG.error(
+                'Server error. Please report this issue to '
+                'https://github.com/getpatchwork/patchwork'
+            )
             raise
 
         # we make the assumption that all responses will be JSON encoded
@@ -111,8 +124,10 @@ def _handle_error(
         else:
             LOG.error(exc.response.json())
     else:
-        LOG.error('Failed to %s resource. Is your configuration '
-                  'correct?' % operation)
+        LOG.error(
+            'Failed to %s resource. Is your configuration '
+            'correct?' % operation
+        )
         LOG.error("Use the '--debug' flag for more information")
 
     if CONF.debug:
@@ -122,7 +137,9 @@ def _handle_error(
 
 
 def _get(
-    url: str, params: Filters = None, stream: bool = False,
+    url: str,
+    params: Filters = None,
+    stream: bool = False,
 ) -> requests.Response:
     """Make GET request and handle errors."""
     LOG.debug('GET %s', url)
@@ -132,8 +149,12 @@ def _get(
         # 'params' (namely a list of tuples) but it doesn't seem possible to
         # indicate this
         rsp = requests.get(
-            url, auth=_get_auth(optional=True), headers=_get_headers(),
-            stream=stream, params=params)  # type: ignore
+            url,
+            auth=_get_auth(optional=True),
+            headers=_get_headers(),
+            stream=stream,
+            params=params,
+        )  # type: ignore
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
         _handle_error('fetch', exc)
@@ -144,14 +165,16 @@ def _get(
 
 
 def _post(
-    url: str, data: ty.List[ty.Tuple[str, ty.Any]],
+    url: str,
+    data: ty.List[ty.Tuple[str, ty.Any]],
 ) -> requests.Response:
     """Make POST request and handle errors."""
     LOG.debug('POST %s, data=%r', url, data)
 
     try:
-        rsp = requests.post(url, auth=_get_auth(), headers=_get_headers(),
-                            data=data)
+        rsp = requests.post(
+            url, auth=_get_auth(), headers=_get_headers(), data=data
+        )
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
         _handle_error('create', exc)
@@ -162,14 +185,18 @@ def _post(
 
 
 def _patch(
-    url: str, data: ty.List[ty.Tuple[str, ty.Any]],
+    url: str,
+    data: ty.List[ty.Tuple[str, ty.Any]],
 ) -> requests.Response:
     """Make PATCH request and handle errors."""
     LOG.debug('PATCH %s, data=%r', url, data)
 
     try:
         rsp = requests.patch(
-            url, auth=_get_auth(), headers=_get_headers(), data=data,
+            url,
+            auth=_get_auth(),
+            headers=_get_headers(),
+            data=data,
         )
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
@@ -208,7 +235,9 @@ def version() -> ty.Tuple[int, int]:
 
 
 def download(
-    url: str, params: Filters = None, output: ty.Optional[str] = None,
+    url: str,
+    params: Filters = None,
+    output: ty.Optional[str] = None,
 ) -> ty.Optional[str]:
     """Retrieve a specific API resource and save it to a file/stdout.
 
@@ -231,7 +260,8 @@ def download(
 
     # we don't catch anything here because we should break if these are missing
     header = re.search(
-        'filename=(.+)', rsp.headers.get('content-disposition') or '',
+        'filename=(.+)',
+        rsp.headers.get('content-disposition') or '',
     )
     if not header:
         LOG.error('Filename was expected but was not provided in response')
@@ -247,7 +277,8 @@ def download(
                 output_path = os.path.join(output, header.group(1))
         else:
             output_path = os.path.join(
-                tempfile.mkdtemp(prefix='git-pw'), header.group(1),
+                tempfile.mkdtemp(prefix='git-pw'),
+                header.group(1),
             )
         LOG.debug('Saving to %s', output_path)
         output_file = open(output_path, 'wb')
@@ -312,7 +343,8 @@ def detail(
 
 
 def create(
-    resource_type: str, data: ty.List[ty.Tuple[str, ty.Any]],
+    resource_type: str,
+    data: ty.List[ty.Tuple[str, ty.Any]],
 ) -> dict:
     """Create a new API resource.
 
@@ -373,9 +405,9 @@ def update(
 
 
 def validate_minimum_version(
-    min_version: ty.Tuple[int, int], msg: str,
+    min_version: ty.Tuple[int, int],
+    msg: str,
 ) -> ty.Callable[[ty.Any], ty.Any]:
-
     def inner(f):
         @click.pass_context
         def new_func(ctx, *args, **kwargs):
@@ -391,7 +423,6 @@ def validate_minimum_version(
 
 
 def validate_multiple_filter_support(f: ty.Callable) -> ty.Callable:
-
     @click.pass_context
     def new_func(ctx, *args, **kwargs):
         if version() >= (1, 1):
@@ -406,11 +437,13 @@ def validate_multiple_filter_support(f: ty.Callable) -> ty.Callable:
 
             value = list(kwargs[param.name] or [])
             if value and len(value) > 1 and value != param.default:
-                msg = ('The `--%s` filter was specified multiple times. '
-                       'Filtering by multiple %ss is not supported with API '
-                       'version 1.0. If the server supports it, use version '
-                       '1.1 instead. Refer to https://git.io/vN3vX for more '
-                       'information.')
+                msg = (
+                    'The `--%s` filter was specified multiple times. '
+                    'Filtering by multiple %ss is not supported with API '
+                    'version 1.0. If the server supports it, use version '
+                    '1.1 instead. Refer to https://git.io/vN3vX for more '
+                    'information.'
+                )
 
                 LOG.warning(msg, param.name, param.name)
 
@@ -420,7 +453,9 @@ def validate_multiple_filter_support(f: ty.Callable) -> ty.Callable:
 
 
 def retrieve_filter_ids(
-    resource_type: str, filter_name: str, filter_value: str,
+    resource_type: str,
+    filter_name: str,
+    filter_value: str,
 ) -> ty.List[ty.Tuple[str, str]]:
     """Retrieve IDs for items passed through by filter.
 
@@ -447,11 +482,13 @@ def retrieve_filter_ids(
         LOG.warning('No matching %s found: %s', filter_name, filter_value)
     elif len(items) > 1 and version() < (1, 1):
         # we don't support multiple filters in 1.0
-        msg = ('More than one match for found for `--%s=%s`. '
-               'Filtering by multiple %ss is not supported with '
-               'API version 1.0. If the server supports it, use '
-               'version 1.1 instead. Refer to https://git.io/vN3vX '
-               'for more information.')
+        msg = (
+            'More than one match for found for `--%s=%s`. '
+            'Filtering by multiple %ss is not supported with '
+            'API version 1.0. If the server supports it, use '
+            'version 1.1 instead. Refer to https://git.io/vN3vX '
+            'for more information.'
+        )
 
         LOG.warning(msg, filter_name, filter_value, filter_name)
 

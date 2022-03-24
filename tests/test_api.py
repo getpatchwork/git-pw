@@ -96,10 +96,12 @@ def test_retrieve_filter_ids_no_matches(mock_index, mock_log):
 @mock.patch.object(api, 'LOG')
 @mock.patch.object(api, 'version')
 @mock.patch.object(api, 'index')
-def test_retrieve_filter_ids_multiple_matches_1_0(mock_index, mock_version,
-                                                  mock_log):
+def test_retrieve_filter_ids_multiple_matches_1_0(
+    mock_index, mock_version, mock_log
+):
     mock_index.return_value = [
-        {'id': 1}, {'id': 2},  # incomplete but good enough
+        {'id': 1},
+        {'id': 2},  # incomplete but good enough
     ]
     mock_version.return_value = (1, 0)
 
@@ -112,10 +114,12 @@ def test_retrieve_filter_ids_multiple_matches_1_0(mock_index, mock_version,
 @mock.patch.object(api, 'LOG')
 @mock.patch.object(api, 'version')
 @mock.patch.object(api, 'index')
-def test_retrieve_filter_ids_multiple_matches_1_1(mock_index, mock_version,
-                                                  mock_log):
+def test_retrieve_filter_ids_multiple_matches_1_1(
+    mock_index, mock_version, mock_log
+):
     mock_index.return_value = [
-        {'id': 1}, {'id': 2},  # incomplete but good enough
+        {'id': 1},
+        {'id': 2},  # incomplete but good enough
     ]
     mock_version.return_value = (1, 1)
 

@@ -10,7 +10,6 @@ from git_pw import series
 @mock.patch('git_pw.api.download')
 @mock.patch('git_pw.utils.git_am')
 class ApplyTestCase(unittest.TestCase):
-
     def test_apply_without_args(self, mock_git_am, mock_download, mock_detail):
         """Validate calling with no arguments."""
 
@@ -39,14 +38,14 @@ class ApplyTestCase(unittest.TestCase):
         assert result.exit_code == 0, result
         mock_detail.assert_called_once_with('series', 123)
         mock_download.assert_called_once_with(rsp['mbox'])
-        mock_git_am.assert_called_once_with(mock_download.return_value,
-                                            ('-3',))
+        mock_git_am.assert_called_once_with(
+            mock_download.return_value, ('-3',)
+        )
 
 
 @mock.patch('git_pw.api.detail')
 @mock.patch('git_pw.api.download')
 class DownloadTestCase(unittest.TestCase):
-
     def test_download(self, mock_download, mock_detail):
         """Validate standard behavior."""
 
@@ -73,7 +72,8 @@ class DownloadTestCase(unittest.TestCase):
         mock_detail.assert_called_once_with('series', 123)
         mock_download.assert_called_once_with(rsp['mbox'], output=mock.ANY)
         assert isinstance(
-            mock_download.call_args[1]['output'], str,
+            mock_download.call_args[1]['output'],
+            str,
         )
 
     def test_download_separate_to_dir(self, mock_download, mock_detail):
@@ -86,8 +86,7 @@ class DownloadTestCase(unittest.TestCase):
                     'id': 10539359,
                     'mbox': 'https://example.com/project/foo/patch/123/mbox/',
                 }
-
-            ]
+            ],
         }
         mock_detail.return_value = rsp
 
@@ -97,15 +96,16 @@ class DownloadTestCase(unittest.TestCase):
         assert result.exit_code == 0, result
         mock_detail.assert_called_once_with('series', 123)
         mock_download.assert_called_once_with(
-            rsp['patches'][0]['mbox'], output=mock.ANY,
+            rsp['patches'][0]['mbox'],
+            output=mock.ANY,
         )
         assert isinstance(
-            mock_download.call_args[1]['output'], str,
+            mock_download.call_args[1]['output'],
+            str,
         )
 
 
 class ShowTestCase(unittest.TestCase):
-
     @staticmethod
     def _get_series(**kwargs):
         rsp = {
@@ -149,7 +149,6 @@ class ShowTestCase(unittest.TestCase):
 @mock.patch('git_pw.api.index')
 @mock.patch('git_pw.utils.echo_via_pager')
 class ListTestCase(unittest.TestCase):
-
     @staticmethod
     def _get_series(**kwargs):
         return ShowTestCase._get_series(**kwargs)
@@ -174,9 +173,15 @@ class ListTestCase(unittest.TestCase):
         result = runner.invoke(series.list_cmd, [])
 
         assert result.exit_code == 0, result
-        mock_index.assert_called_once_with('series', [
-            ('q', None), ('page', None), ('per_page', None),
-            ('order', '-date')])
+        mock_index.assert_called_once_with(
+            'series',
+            [
+                ('q', None),
+                ('page', None),
+                ('per_page', None),
+                ('order', '-date'),
+            ],
+        )
 
     def test_list_with_formatting(self, mock_echo, mock_index, mock_version):
         """Validate behavior with formatting applied."""
@@ -185,13 +190,16 @@ class ListTestCase(unittest.TestCase):
         mock_index.return_value = rsp
 
         runner = CLIRunner()
-        result = runner.invoke(series.list_cmd, [
-            '--format', 'simple', '--column', 'ID', '--column', 'Name'])
+        result = runner.invoke(
+            series.list_cmd,
+            ['--format', 'simple', '--column', 'ID', '--column', 'Name'],
+        )
 
         assert result.exit_code == 0, result
 
-        mock_echo.assert_called_once_with(mock.ANY, ('ID', 'Name'),
-                                          fmt='simple')
+        mock_echo.assert_called_once_with(
+            mock.ANY, ('ID', 'Name'), fmt='simple'
+        )
 
     def test_list_with_filters(self, mock_echo, mock_index, mock_version):
         """Validate behavior with filters applied.
@@ -204,22 +212,45 @@ class ListTestCase(unittest.TestCase):
         mock_index.side_effect = [people_rsp, series_rsp]
 
         runner = CLIRunner()
-        result = runner.invoke(series.list_cmd, [
-            '--submitter', 'john@example.com', '--submitter', '2',
-            '--limit', 1, '--page', 1, '--sort', '-name', 'test'])
+        result = runner.invoke(
+            series.list_cmd,
+            [
+                '--submitter',
+                'john@example.com',
+                '--submitter',
+                '2',
+                '--limit',
+                1,
+                '--page',
+                1,
+                '--sort',
+                '-name',
+                'test',
+            ],
+        )
 
         assert result.exit_code == 0, result
         calls = [
             mock.call('people', [('q', 'john@example.com')]),
-            mock.call('series', [
-                ('submitter', 1), ('submitter', '2'), ('q', 'test'),
-                ('page', 1), ('per_page', 1), ('order', '-name')])]
+            mock.call(
+                'series',
+                [
+                    ('submitter', 1),
+                    ('submitter', '2'),
+                    ('q', 'test'),
+                    ('page', 1),
+                    ('per_page', 1),
+                    ('order', '-name'),
+                ],
+            ),
+        ]
 
         mock_index.assert_has_calls(calls)
 
     @mock.patch('git_pw.api.LOG')
-    def test_list_with_wildcard_filters(self, mock_log, mock_echo, mock_index,
-                                        mock_version):
+    def test_list_with_wildcard_filters(
+        self, mock_log, mock_echo, mock_index, mock_version
+    ):
         """Validate behavior with a "wildcard" filter.
 
         Patchwork API v1.0 did not support multiple filters correctly. Ensure
@@ -236,8 +267,9 @@ class ListTestCase(unittest.TestCase):
         assert mock_log.warning.called
 
     @mock.patch('git_pw.api.LOG')
-    def test_list_with_multiple_filters(self, mock_log, mock_echo, mock_index,
-                                        mock_version):
+    def test_list_with_multiple_filters(
+        self, mock_log, mock_echo, mock_index, mock_version
+    ):
         """Validate behavior with use of multiple filters.
 
         Patchwork API v1.0 did not support multiple filters correctly. Ensure
@@ -249,16 +281,23 @@ class ListTestCase(unittest.TestCase):
         mock_index.side_effect = [people_rsp, people_rsp, series_rsp]
 
         runner = CLIRunner()
-        result = runner.invoke(series.list_cmd, [
-            '--submitter', 'john@example.com',
-            '--submitter', 'jimmy@example.com'])
+        result = runner.invoke(
+            series.list_cmd,
+            [
+                '--submitter',
+                'john@example.com',
+                '--submitter',
+                'jimmy@example.com',
+            ],
+        )
 
         assert result.exit_code == 0, result
         assert mock_log.warning.called
 
     @mock.patch('git_pw.api.LOG')
-    def test_list_api_v1_1(self, mock_log, mock_echo, mock_index,
-                           mock_version):
+    def test_list_api_v1_1(
+        self, mock_log, mock_echo, mock_index, mock_version
+    ):
         """Validate behavior with API v1.1."""
 
         mock_version.return_value = (1, 1)
@@ -268,9 +307,10 @@ class ListTestCase(unittest.TestCase):
         mock_index.side_effect = [people_rsp, series_rsp]
 
         runner = CLIRunner()
-        result = runner.invoke(series.list_cmd, [
-            '--submitter', 'jimmy@example.com',
-            '--submitter', 'John Doe'])
+        result = runner.invoke(
+            series.list_cmd,
+            ['--submitter', 'jimmy@example.com', '--submitter', 'John Doe'],
+        )
 
         assert result.exit_code == 0, result
 
@@ -278,10 +318,18 @@ class ListTestCase(unittest.TestCase):
         # supports filtering with emails natively
         calls = [
             mock.call('people', [('q', 'John Doe')]),
-            mock.call('series', [
-                ('submitter', 'jimmy@example.com'), ('submitter', 1),
-                ('q', None), ('page', None), ('per_page', None),
-                ('order', '-date')])]
+            mock.call(
+                'series',
+                [
+                    ('submitter', 'jimmy@example.com'),
+                    ('submitter', 1),
+                    ('q', None),
+                    ('page', None),
+                    ('per_page', None),
+                    ('order', '-date'),
+                ],
+            ),
+        ]
         mock_index.assert_has_calls(calls)
 
         # We shouldn't see a warning about multiple versions either

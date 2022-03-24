@@ -20,8 +20,9 @@ def test_git_config(mock_subprocess):
     mock_subprocess.assert_called_once_with(['git', 'config', 'foo'])
 
 
-@mock.patch.object(utils.subprocess, 'check_output',
-                   return_value=b'\xf0\x9f\xa4\xb7')
+@mock.patch.object(
+    utils.subprocess, 'check_output', return_value=b'\xf0\x9f\xa4\xb7'
+)
 def test_git_config_unicode(mock_subprocess):
     value = utils.git_config('foo')
 
@@ -29,8 +30,11 @@ def test_git_config_unicode(mock_subprocess):
     mock_subprocess.assert_called_once_with(['git', 'config', 'foo'])
 
 
-@mock.patch.object(utils.subprocess, 'check_output',
-                   side_effect=subprocess.CalledProcessError(1, 'xyz', '123'))
+@mock.patch.object(
+    utils.subprocess,
+    'check_output',
+    side_effect=subprocess.CalledProcessError(1, 'xyz', '123'),
+)
 def test_git_config_error(mock_subprocess):
     value = utils.git_config('foo')
 
@@ -115,10 +119,12 @@ def test_tabulate_csv(mock_tabulate):
     output, headers, result = _test_tabulate('csv')
 
     mock_tabulate.assert_not_called()
-    assert result == textwrap.dedent("""\
+    assert result == textwrap.dedent(
+        """\
         "col1","colb","colIII","colX","colY","colZ"
         "foo","bar","baz","😀","","1"
-    """)
+    """
+    )
 
 
 @mock.patch.object(yaml, 'dump')
@@ -126,14 +132,16 @@ def test_tabulate_yaml(mock_dump):
     output, headers, result = _test_tabulate('yaml')
 
     mock_dump.assert_called_once_with(
-        [{
-            'col1': b'foo',
-            'colb': 'bar',
-            'coliii': u'baz',
-            'colx': '😀',
-            'coly': None,
-            'colz': 1,
-        }],
+        [
+            {
+                'col1': b'foo',
+                'colb': 'bar',
+                'coliii': u'baz',
+                'colx': '😀',
+                'coly': None,
+                'colz': 1,
+            }
+        ],
         default_flow_style=False,
     )
 

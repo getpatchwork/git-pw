@@ -11,7 +11,6 @@ LOG = logging.getLogger(__name__)
 
 
 class Config(object):
-
     def __init__(self) -> None:
         self._git_config: ty.Dict[str, str] = {}
 

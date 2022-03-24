@@ -18,9 +18,12 @@ _list_headers = ('ID', 'Date', 'Name', 'Version', 'Submitter')
 _sort_fields = ('id', '-id', 'name', '-name', 'date', '-date')
 
 
-@click.command(name='apply', context_settings=dict(
-    ignore_unknown_options=True,
-))
+@click.command(
+    name='apply',
+    context_settings=dict(
+        ignore_unknown_options=True,
+    ),
+)
 @click.argument('series_id', type=click.INT)
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 def apply_cmd(series_id, args):
@@ -45,11 +48,16 @@ def apply_cmd(series_id, args):
     required=False,
 )
 @click.option(
-    '--separate', 'fmt', flag_value='separate',
+    '--separate',
+    'fmt',
+    flag_value='separate',
     help='Download each series patch to a separate file',
 )
 @click.option(
-    '--combined', 'fmt', flag_value='combined', default=True,
+    '--combined',
+    'fmt',
+    flag_value='combined',
+    default=True,
     help='Download all series patches to one file',
 )
 def download_cmd(series_id, output, fmt):
@@ -77,7 +85,9 @@ def download_cmd(series_id, output, fmt):
             if path:
                 LOG.info(
                     'Downloaded patch %s from series %s to %s',
-                    patch.get('id'), series.get('id'), path,
+                    patch.get('id'),
+                    series.get('id'),
+                    path,
                 )
         return
 
@@ -107,15 +117,30 @@ def show_cmd(fmt, series_id):
         ('Date', series.get('date')),
         ('Name', series.get('name')),
         ('URL', series.get('web_url')),
-        ('Submitter', '%s (%s)' % (series.get('submitter').get('name'),
-                                   series.get('submitter').get('email'))),
+        (
+            'Submitter',
+            '%s (%s)'
+            % (
+                series.get('submitter').get('name'),
+                series.get('submitter').get('email'),
+            ),
+        ),
         ('Project', series.get('project').get('name')),
         ('Version', series.get('version')),
-        ('Received', '%d of %d' % (series.get('received_total'),
-                                   series.get('total'))),
+        (
+            'Received',
+            '%d of %d' % (series.get('received_total'), series.get('total')),
+        ),
         ('Complete', series.get('received_all')),
-        ('Cover', (_format_submission(series.get('cover_letter'))
-                   if series.get('cover_letter') else ''))]
+        (
+            'Cover',
+            (
+                _format_submission(series.get('cover_letter'))
+                if series.get('cover_letter')
+                else ''
+            ),
+        ),
+    ]
 
     prefix = 'Patches'
     for patch in series.get('patches'):
@@ -126,9 +151,14 @@ def show_cmd(fmt, series_id):
 
 
 @click.command(name='list')
-@click.option('--submitter', 'submitters', metavar='SUBMITTER', multiple=True,
-              help='Show only series by these submitters. Should be an '
-              'email, name or ID.')
+@click.option(
+    '--submitter',
+    'submitters',
+    metavar='SUBMITTER',
+    multiple=True,
+    help='Show only series by these submitters. Should be an '
+    'email, name or ID.',
+)
 @utils.pagination_options(sort_fields=_sort_fields, default_sort='-date')
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
@@ -138,8 +168,13 @@ def list_cmd(submitters, limit, page, sort, fmt, headers, name):
 
     List series on the Patchwork instance.
     """
-    LOG.debug('List series: submitters=%s, limit=%r, page=%r, sort=%r',
-              ','.join(submitters), limit, page, sort)
+    LOG.debug(
+        'List series: submitters=%s, limit=%r, page=%r, sort=%r',
+        ','.join(submitters),
+        limit,
+        page,
+        sort,
+    )
 
     params = []
 
@@ -152,14 +187,17 @@ def list_cmd(submitters, limit, page, sort, fmt, headers, name):
                 params.append(('submitter', submitter))
             else:
                 params.extend(
-                    api.retrieve_filter_ids('people', 'submitter', submitter))
+                    api.retrieve_filter_ids('people', 'submitter', submitter)
+                )
 
-    params.extend([
-        ('q', name),
-        ('page', page),
-        ('per_page', limit),
-        ('order', sort),
-    ])
+    params.extend(
+        [
+            ('q', name),
+            ('page', page),
+            ('per_page', limit),
+            ('order', sort),
+        ]
+    )
 
     series = api.index('series', params)
 
@@ -173,8 +211,11 @@ def list_cmd(submitters, limit, page, sort, fmt, headers, name):
             arrow.get(series_.get('date')).humanize(),
             utils.trim(series_.get('name') or ''),
             series_.get('version'),
-            '%s (%s)' % (series_.get('submitter').get('name'),
-                         series_.get('submitter').get('email'))
+            '%s (%s)'
+            % (
+                series_.get('submitter').get('name'),
+                series_.get('submitter').get('email'),
+            ),
         ]
 
         output.append([])

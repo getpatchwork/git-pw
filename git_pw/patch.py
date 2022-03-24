@@ -3,8 +3,8 @@ Patch subcommands.
 """
 
 import logging
-import sys
 import os
+import sys
 
 import arrow
 import click
@@ -17,23 +17,48 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 _list_headers = (
-    'ID', 'Date', 'Name', 'Submitter', 'State', 'Archived', 'Delegate')
-_sort_fields = (
-    'id', '-id', 'name', '-name', 'date', '-date')
+    'ID',
+    'Date',
+    'Name',
+    'Submitter',
+    'State',
+    'Archived',
+    'Delegate',
+)
+_sort_fields = ('id', '-id', 'name', '-name', 'date', '-date')
 _default_states = (
-    'new', 'under-review', 'accepted', 'rejected', 'rfc', 'not-applicable',
-    'changes-requested', 'awaiting-upstream', 'superseded', 'deferred')
+    'new',
+    'under-review',
+    'accepted',
+    'rejected',
+    'rfc',
+    'not-applicable',
+    'changes-requested',
+    'awaiting-upstream',
+    'superseded',
+    'deferred',
+)
 
 
-@click.command(name='apply', context_settings=dict(
-    ignore_unknown_options=True,
-))
+@click.command(
+    name='apply',
+    context_settings=dict(
+        ignore_unknown_options=True,
+    ),
+)
 @click.argument('patch_id', type=click.INT)
-@click.option('--series', type=click.INT, metavar='SERIES',
-              help='Series to include dependencies from. Defaults to latest.')
-@click.option('--deps/--no-deps', default=True,
-              help='When applying the patch, include dependencies if '
-              'available. Defaults to using the most recent series.')
+@click.option(
+    '--series',
+    type=click.INT,
+    metavar='SERIES',
+    help='Series to include dependencies from. Defaults to latest.',
+)
+@click.option(
+    '--deps/--no-deps',
+    default=True,
+    help='When applying the patch, include dependencies if '
+    'available. Defaults to using the most recent series.',
+)
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 def apply_cmd(patch_id, series, deps, args):
     """Apply patch.
@@ -41,8 +66,13 @@ def apply_cmd(patch_id, series, deps, args):
     Apply a patch locally using the 'git-am' command. Any additional ARGS
     provided will be passed to the 'git-am' command.
     """
-    LOG.debug('Applying patch: id=%d, series=%s, deps=%r, args=%s', patch_id,
-              series, deps, ' '.join(args))
+    LOG.debug(
+        'Applying patch: id=%d, series=%s, deps=%r, args=%s',
+        patch_id,
+        series,
+        deps,
+        ' '.join(args),
+    )
 
     patch = api.detail('patches', patch_id)
 
@@ -61,12 +91,18 @@ def apply_cmd(patch_id, series, deps, args):
 @click.argument(
     'output',
     type=click.Path(file_okay=True, writable=True, readable=True),
-    required=False
+    required=False,
 )
-@click.option('--diff', 'fmt', flag_value='diff',
-              help='Show patch in diff format.')
-@click.option('--mbox', 'fmt', flag_value='mbox', default=True,
-              help='Show patch in mbox format.')
+@click.option(
+    '--diff', 'fmt', flag_value='diff', help='Show patch in diff format.'
+)
+@click.option(
+    '--mbox',
+    'fmt',
+    flag_value='mbox',
+    default=True,
+    help='Show patch in mbox format.',
+)
 def download_cmd(patch_id, output, fmt):
     """Download patch in diff or mbox format.
 
@@ -94,7 +130,8 @@ def download_cmd(patch_id, output, fmt):
             # filename and save to the correct file. We should expose this
             # information via the API
             path = api.download(
-                patch['mbox'].replace('mbox', 'raw'), output=output,
+                patch['mbox'].replace('mbox', 'raw'),
+                output=output,
             )
     else:
         path = api.download(patch['mbox'], output=output)
@@ -104,7 +141,6 @@ def download_cmd(patch_id, output, fmt):
 
 
 def _show_patch(patch, fmt):
-
     def _format_series(series):
         return '%-4d %s' % (series.get('id'), series.get('name') or '-')
 
@@ -114,14 +150,27 @@ def _show_patch(patch, fmt):
         ('Date', patch.get('date')),
         ('Name', patch.get('name')),
         ('URL', patch.get('web_url')),
-        ('Submitter', '%s (%s)' % (patch.get('submitter').get('name'),
-                                   patch.get('submitter').get('email'))),
+        (
+            'Submitter',
+            '%s (%s)'
+            % (
+                patch.get('submitter').get('name'),
+                patch.get('submitter').get('email'),
+            ),
+        ),
         ('State', patch.get('state')),
         ('Archived', patch.get('archived')),
         ('Project', patch.get('project').get('name')),
-        ('Delegate', (patch.get('delegate').get('username')
-                      if patch.get('delegate') else '')),
-        ('Commit Ref', patch.get('commit_ref'))]
+        (
+            'Delegate',
+            (
+                patch.get('delegate').get('username')
+                if patch.get('delegate')
+                else ''
+            ),
+        ),
+        ('Commit Ref', patch.get('commit_ref')),
+    ]
 
     prefix = 'Series'
     for series in patch.get('series'):
@@ -152,17 +201,31 @@ def _get_states():
 
 @click.command(name='update')
 @click.argument('patch_ids', type=click.INT, nargs=-1, required=True)
-@click.option('--commit-ref', metavar='COMMIT_REF',
-              help='Set the patch commit reference hash')
-@click.option('--state', metavar='STATE', type=click.Choice(_get_states()),
-              help="Set the patch state. Should be a slugified representation "
-              "of a state. The available states are instance dependant and "
-              "can be configured using 'git config pw.states'.")
-@click.option('--delegate', metavar='DELEGATE',
-              help='Set the patch delegate. Should be unique user identifier: '
-              'either a username or a user\'s email address.')
-@click.option('--archived', metavar='ARCHIVED', type=click.BOOL,
-              help='Set the patch archived state.')
+@click.option(
+    '--commit-ref',
+    metavar='COMMIT_REF',
+    help='Set the patch commit reference hash',
+)
+@click.option(
+    '--state',
+    metavar='STATE',
+    type=click.Choice(_get_states()),
+    help="Set the patch state. Should be a slugified representation "
+    "of a state. The available states are instance dependant and "
+    "can be configured using 'git config pw.states'.",
+)
+@click.option(
+    '--delegate',
+    metavar='DELEGATE',
+    help='Set the patch delegate. Should be unique user identifier: '
+    'either a username or a user\'s email address.',
+)
+@click.option(
+    '--archived',
+    metavar='ARCHIVED',
+    type=click.BOOL,
+    help='Set the patch archived state.',
+)
 @utils.format_options
 def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
     """Update one or more patches.
@@ -171,8 +234,13 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
     require admin or maintainer permissions.
     """
     for patch_id in patch_ids:
-        LOG.debug('Updating patch: id=%d, commit_ref=%s, state=%s, '
-                  'archived=%s', patch_id, commit_ref, state, archived)
+        LOG.debug(
+            'Updating patch: id=%d, commit_ref=%s, state=%s, ' 'archived=%s',
+            patch_id,
+            commit_ref,
+            state,
+            archived,
+        )
 
         if delegate:
             users = api.index('users', [('q', delegate)])
@@ -186,8 +254,12 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
             delegate = users[0]['id']
 
         data = []
-        for key, value in [('commit_ref', commit_ref), ('state', state),
-                           ('archived', archived), ('delegate', delegate)]:
+        for key, value in [
+            ('commit_ref', commit_ref),
+            ('state', state),
+            ('archived', archived),
+            ('delegate', delegate),
+        ]:
             if value is None:
                 continue
 
@@ -199,34 +271,75 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
 
 
 @click.command(name='list')
-@click.option('--state', 'states', metavar='STATE', multiple=True,
-              default=['under-review', 'new'],
-              help='Show only patches matching these states. Should be '
-              'slugified representations of states. The available states '
-              'are instance dependant.')
-@click.option('--submitter', 'submitters', metavar='SUBMITTER', multiple=True,
-              help='Show only patches by these submitters. Should be an '
-              'email, name or ID.')
-@click.option('--delegate', 'delegates', metavar='DELEGATE', multiple=True,
-              help='Show only patches with these delegates. Should be an '
-              'email or username.')
-@click.option('--hash', 'hashes', metavar='HASH', multiple=True,
-              help='Show only patches with these hashes.')
-@click.option('--archived', default=False, is_flag=True,
-              help='Include patches that are archived.')
+@click.option(
+    '--state',
+    'states',
+    metavar='STATE',
+    multiple=True,
+    default=['under-review', 'new'],
+    help='Show only patches matching these states. Should be '
+    'slugified representations of states. The available states '
+    'are instance dependant.',
+)
+@click.option(
+    '--submitter',
+    'submitters',
+    metavar='SUBMITTER',
+    multiple=True,
+    help='Show only patches by these submitters. Should be an '
+    'email, name or ID.',
+)
+@click.option(
+    '--delegate',
+    'delegates',
+    metavar='DELEGATE',
+    multiple=True,
+    help='Show only patches with these delegates. Should be an '
+    'email or username.',
+)
+@click.option(
+    '--hash',
+    'hashes',
+    metavar='HASH',
+    multiple=True,
+    help='Show only patches with these hashes.',
+)
+@click.option(
+    '--archived',
+    default=False,
+    is_flag=True,
+    help='Include patches that are archived.',
+)
 @utils.pagination_options(sort_fields=_sort_fields, default_sort='-date')
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(states, submitters, delegates, hashes, archived, limit, page,
-             sort, fmt, headers, name):
+def list_cmd(
+    states,
+    submitters,
+    delegates,
+    hashes,
+    archived,
+    limit,
+    page,
+    sort,
+    fmt,
+    headers,
+    name,
+):
     """List patches.
 
     List patches on the Patchwork instance.
     """
-    LOG.debug('List patches: states=%s, submitters=%s, delegates=%s, '
-              'hashes=%s, archived=%r', ','.join(states), ','.join(submitters),
-              ','.join(delegates), ','.join(hashes), archived)
+    LOG.debug(
+        'List patches: states=%s, submitters=%s, delegates=%s, '
+        'hashes=%s, archived=%r',
+        ','.join(states),
+        ','.join(submitters),
+        ','.join(delegates),
+        ','.join(hashes),
+        archived,
+    )
 
     params = []
 
@@ -242,7 +355,8 @@ def list_cmd(states, submitters, delegates, hashes, archived, limit, page,
                 params.append(('submitter', submitter))
             else:
                 params.extend(
-                    api.retrieve_filter_ids('people', 'submitter', submitter))
+                    api.retrieve_filter_ids('people', 'submitter', submitter)
+                )
 
     for delegate in delegates:
         if delegate.isdigit():
@@ -254,18 +368,21 @@ def list_cmd(states, submitters, delegates, hashes, archived, limit, page,
                 params.append(('delegate', delegate))
             else:
                 params.extend(
-                    api.retrieve_filter_ids('users', 'delegate', delegate))
+                    api.retrieve_filter_ids('users', 'delegate', delegate)
+                )
 
     for hash_ in hashes:
         params.append(('hash', hash_))
 
-    params.extend([
-        ('q', name),
-        ('archived', 'true' if archived else 'false'),
-        ('page', page),
-        ('per_page', limit),
-        ('order', sort),
-    ])
+    params.extend(
+        [
+            ('q', name),
+            ('archived', 'true' if archived else 'false'),
+            ('page', page),
+            ('per_page', limit),
+            ('order', sort),
+        ]
+    )
 
     patches = api.index('patches', params)
 
@@ -278,7 +395,8 @@ def list_cmd(states, submitters, delegates, hashes, archived, limit, page,
             patch.get('id'),
             arrow.get(patch.get('date')).humanize(),
             utils.trim(patch.get('name')),
-            '%s (%s)' % (
+            '%s (%s)'
+            % (
                 patch.get('submitter').get('name'),
                 patch.get('submitter').get('email'),
             ),
