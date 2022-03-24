@@ -128,8 +128,10 @@ def show_cmd(fmt: str, bundle_id: str) -> None:
     'owners',
     metavar='OWNER',
     multiple=True,
-    help='Show only bundles with these owners. Should be an email, '
-    'name or ID. Private bundles of other users will not be shown.',
+    help=(
+        'Show only bundles with these owners. Should be an email, '
+        'name or ID. Private bundles of other users will not be shown.'
+    ),
 )
 @utils.pagination_options(sort_fields=_sort_fields, default_sort='name')
 @utils.format_options(headers=_list_headers)
@@ -194,8 +196,10 @@ def list_cmd(owners, limit, page, sort, fmt, headers, name):
 @click.option(
     '--public/--private',
     default=False,
-    help='Allow other users to view this bundle. If private, only '
-    'you will be able to see this bundle.',
+    help=(
+        'Allow other users to view this bundle. If private, only '
+        'you will be able to see this bundle.'
+    ),
 )
 @click.argument('name')
 @click.argument('patch_ids', type=click.INT, nargs=-1, required=True)
@@ -246,8 +250,10 @@ def create_cmd(
 @click.option(
     '--public/--private',
     default=None,
-    help='Allow other users to view this bundle. If private, only '
-    'you will be able to see this bundle.',
+    help=(
+        'Allow other users to view this bundle. If private, only '
+        'you will be able to see this bundle.'
+    ),
 )
 @click.argument('bundle_id')
 @api.validate_minimum_version(

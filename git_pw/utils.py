@@ -189,8 +189,10 @@ def pagination_options(
             '--page',
             metavar='PAGE',
             type=click.INT,
-            help='Page to retrieve items from. This is '
-            'influenced by the size of LIMIT.',
+            help=(
+                'Page to retrieve items from. This is '
+                'influenced by the size of LIMIT.'
+            ),
         )(f)
         f = click.option(
             '--sort',

@@ -24,36 +24,45 @@ CONF = config.CONF
     '--token',
     metavar='TOKEN',
     envvar='PW_TOKEN',
-    help="Authentication token. Defaults to the value of "
-    "'git config pw.token'.",
+    help=(
+        "Authentication token. "
+        "Defaults to the value of 'git config pw.token'."
+    ),
 )
 @click.option(
     '--username',
     metavar='USERNAME',
     envvar='PW_USERNAME',
-    help="Authentication username. Defaults to the value of "
-    "'git config pw.username'.",
+    help=(
+        "Authentication username. "
+        "Defaults to the value of 'git config pw.username'."
+    ),
 )
 @click.option(
     '--password',
     metavar='PASSWORD',
     envvar='PW_PASSWORD',
-    help="Authentication password. Defaults to the value of "
-    "'git config pw.password'.",
+    help=(
+        "Authentication password. "
+        "Defaults to the value of 'git config pw.password'."
+    ),
 )
 @click.option(
     '--server',
     metavar='SERVER',
     envvar='PW_SERVER',
-    help="Patchwork server address/hostname. Defaults to the value "
-    "of 'git config pw.server'.",
+    help=(
+        "Patchwork server address/hostname. "
+        "Defaults to the value of 'git config pw.server'."
+    ),
 )
 @click.option(
     '--project',
     metavar='PROJECT',
     envvar='PW_PROJECT',
-    help="Patchwork project. Defaults the value of "
-    "'git config pw.project'.",
+    help=(
+        "Patchwork project. Defaults to the value of 'git config pw.project'."
+    ),
 )
 @click.version_option()
 def cli(debug, token, username, password, server, project):

@@ -56,8 +56,10 @@ _default_states = (
 @click.option(
     '--deps/--no-deps',
     default=True,
-    help='When applying the patch, include dependencies if '
-    'available. Defaults to using the most recent series.',
+    help=(
+        'When applying the patch, include dependencies if '
+        'available. Defaults to using the most recent series.'
+    ),
 )
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 def apply_cmd(patch_id, series, deps, args):
@@ -210,15 +212,19 @@ def _get_states():
     '--state',
     metavar='STATE',
     type=click.Choice(_get_states()),
-    help="Set the patch state. Should be a slugified representation "
-    "of a state. The available states are instance dependant and "
-    "can be configured using 'git config pw.states'.",
+    help=(
+        "Set the patch state. Should be a slugified representation "
+        "of a state. The available states are instance dependant and "
+        "can be configured using 'git config pw.states'."
+    ),
 )
 @click.option(
     '--delegate',
     metavar='DELEGATE',
-    help='Set the patch delegate. Should be unique user identifier: '
-    'either a username or a user\'s email address.',
+    help=(
+        "Set the patch delegate. Should be unique user identifier: "
+        "either a username or a user's email address."
+    ),
 )
 @click.option(
     '--archived',
@@ -277,25 +283,31 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
     metavar='STATE',
     multiple=True,
     default=['under-review', 'new'],
-    help='Show only patches matching these states. Should be '
-    'slugified representations of states. The available states '
-    'are instance dependant.',
+    help=(
+        'Show only patches matching these states. Should be '
+        'slugified representations of states. The available states '
+        'are instance dependant.'
+    ),
 )
 @click.option(
     '--submitter',
     'submitters',
     metavar='SUBMITTER',
     multiple=True,
-    help='Show only patches by these submitters. Should be an '
-    'email, name or ID.',
+    help=(
+        'Show only patches by these submitters. Should be an '
+        'email, name or ID.'
+    ),
 )
 @click.option(
     '--delegate',
     'delegates',
     metavar='DELEGATE',
     multiple=True,
-    help='Show only patches with these delegates. Should be an '
-    'email or username.',
+    help=(
+        'Show only patches with these delegates. Should be an '
+        'email or username.'
+    ),
 )
 @click.option(
     '--hash',

@@ -156,8 +156,10 @@ def show_cmd(fmt, series_id):
     'submitters',
     metavar='SUBMITTER',
     multiple=True,
-    help='Show only series by these submitters. Should be an '
-    'email, name or ID.',
+    help=(
+        'Show only series by these submitters. Should be an '
+        'email, name or ID.'
+    ),
 )
 @utils.pagination_options(sort_fields=_sort_fields, default_sort='-date')
 @utils.format_options(headers=_list_headers)
