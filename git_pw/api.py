@@ -441,8 +441,8 @@ def validate_multiple_filter_support(f: ty.Callable) -> ty.Callable:
                     'The `--%s` filter was specified multiple times. '
                     'Filtering by multiple %ss is not supported with API '
                     'version 1.0. If the server supports it, use version '
-                    '1.1 instead. Refer to https://git.io/vN3vX for more '
-                    'information.'
+                    '1.1 instead. Refer to https://tinyurl.com/2p8swbpn for '
+                    'more information.'
                 )
 
                 LOG.warning(msg, param.name, param.name)
@@ -486,7 +486,7 @@ def retrieve_filter_ids(
             'More than one match for found for `--%s=%s`. '
             'Filtering by multiple %ss is not supported with '
             'API version 1.0. If the server supports it, use '
-            'version 1.1 instead. Refer to https://git.io/vN3vX '
+            'version 1.1 instead. Refer to https://tinyurl.com/2p8swbpn '
             'for more information.'
         )
 
