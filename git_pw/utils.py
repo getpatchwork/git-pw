@@ -208,8 +208,8 @@ def pagination_options(
 
 
 def format_options(
-    original_function: ty.Callable = None,
-    headers: ty.Tuple[str, ...] = None,
+    original_function: ty.Optional[ty.Callable] = None,
+    headers: ty.Optional[ty.Tuple[str, ...]] = None,
 ) -> ty.Callable:
     """Shared output format options."""
 

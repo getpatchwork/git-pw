@@ -138,7 +138,7 @@ def _handle_error(
 
 def _get(
     url: str,
-    params: Filters = None,
+    params: ty.Optional[Filters] = None,
     stream: bool = False,
 ) -> requests.Response:
     """Make GET request and handle errors."""
@@ -236,8 +236,8 @@ def version() -> ty.Tuple[int, int]:
 
 def download(
     url: str,
-    params: Filters = None,
-    output: ty.Optional[str] = None,
+    params: ty.Optional[Filters] = None,
+    output: ty.Optional[ty.Optional[str]] = None,
 ) -> ty.Optional[str]:
     """Retrieve a specific API resource and save it to a file/stdout.
 
@@ -293,7 +293,7 @@ def download(
     return output_path
 
 
-def index(resource_type: str, params: Filters = None) -> dict:
+def index(resource_type: str, params: ty.Optional[Filters] = None) -> dict:
     """List API resources.
 
     GET /{resource}/
@@ -322,7 +322,7 @@ def index(resource_type: str, params: Filters = None) -> dict:
 def detail(
     resource_type: str,
     resource_id: ty.Union[str, int],
-    params: Filters = None,
+    params: ty.Optional[Filters] = None,
 ) -> ty.Dict:
     """Retrieve a specific API resource.
 
