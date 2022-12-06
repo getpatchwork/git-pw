@@ -1,4 +1,4 @@
-.TH "GIT-PW" "1" "2022-03-24" "2.3.0" "git-pw Manual"
+.TH "GIT-PW" "1" "2022-12-06" "2.4.0" "git-pw Manual"
 .SH NAME
 git-pw \- git-pw is a tool for integrating Git with...
 .SH SYNOPSIS
@@ -7,26 +7,27 @@ git-pw \- git-pw is a tool for integrating Git with...
 .SH DESCRIPTION
 git-pw is a tool for integrating Git with Patchwork.
 .PP
-git-pw can interact with individual patches, complete patch series, and
-customized bundles.  The three major subcommands are *patch*, *bundle*,
-and *series*.
+    git-pw can interact with individual patches, complete patch series, and
+    customized bundles.  The three major subcommands are *patch*, *bundle*,
+    and *series*.
 .PP
-The git-pw utility is a wrapper which makes REST calls to the Patchwork
-service. To use git-pw, you must set up your environment by configuring
-your Patchwork server URL and either an API token or a username and
-password. To configure the server URL, run::
+    The git-pw utility is a wrapper which makes REST calls to the Patchwork
+    service. To use git-pw, you must set up your environment by configuring
+    your Patchwork server URL and either an API token or a username and
+    password. To configure the server URL, run::
 .PP
-  git config pw.server http://pw.server.com/path/to/patchwork
+      git config pw.server http://pw.server.com/path/to/patchwork
 .PP
-To configure the token, run::
+    To configure the token, run::
 .PP
-  git config pw.token token
+      git config pw.token token
 .PP
-Alternatively, you can pass these options via command line parameters or
-environment variables.
+    Alternatively, you can pass these options via command line parameters or
+    environment variables.
 .PP
-For more information on any of the commands, simply pass ``--help`` to the
-appropriate command.
+    For more information on any of the commands, simply pass ``--help`` to the
+    appropriate command.
+
 .SH OPTIONS
 .TP
 \fB\-\-debug\fP
@@ -45,7 +46,7 @@ Authentication password. Defaults to the value of 'git config pw.password'.
 Patchwork server address/hostname. Defaults to the value of 'git config pw.server'.
 .TP
 \fB\-\-project\fP PROJECT
-Patchwork project. Defaults the value of 'git config pw.project'.
+Patchwork project. Defaults to the value of 'git config pw.project'.
 .TP
 \fB\-\-version\fP
 Show the version and exit.
