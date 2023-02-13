@@ -412,7 +412,6 @@ class CreateTestCase(unittest.TestCase):
     def test_create_api_v1_1(
         self, mock_log, mock_echo, mock_create, mock_version
     ):
-
         mock_version.return_value = (1, 1)
 
         runner = CLIRunner()
@@ -475,7 +474,6 @@ class UpdateTestCase(unittest.TestCase):
         mock_update,
         mock_version,
     ):
-
         mock_version.return_value = (1, 1)
 
         runner = CLIRunner()
