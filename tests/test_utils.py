@@ -60,7 +60,7 @@ def test_echo_via_pager_env_GIT_PAGER(mock_inner, mock_tabulate, mock_config):
 def test_echo_via_pager_config(mock_inner, mock_tabulate, mock_config):
     utils.echo_via_pager('test', ('foo',), None)
 
-    mock_config.assert_called_once_with('core.parser')
+    mock_config.assert_called_once_with('core.pager')
     mock_tabulate.assert_called_once_with('test', ('foo',), None)
     mock_inner.assert_called_once_with('bar', mock_tabulate.return_value)
 
@@ -72,7 +72,7 @@ def test_echo_via_pager_config(mock_inner, mock_tabulate, mock_config):
 def test_echo_via_pager_env_PAGER(mock_inner, mock_tabulate, mock_config):
     utils.echo_via_pager('test', ('foo',), None)
 
-    mock_config.assert_called_once_with('core.parser')
+    mock_config.assert_called_once_with('core.pager')
     mock_tabulate.assert_called_once_with('test', ('foo',), None)
     mock_inner.assert_called_once_with('baz', mock_tabulate.return_value)
 
@@ -84,7 +84,7 @@ def test_echo_via_pager_env_PAGER(mock_inner, mock_tabulate, mock_config):
 def test_echo_via_pager_env_default(mock_inner, mock_tabulate, mock_config):
     utils.echo_via_pager('test', ('foo',), None)
 
-    mock_config.assert_called_once_with('core.parser')
+    mock_config.assert_called_once_with('core.pager')
     mock_tabulate.assert_called_once_with('test', ('foo',), None)
     mock_inner.assert_called_once_with('less', mock_tabulate.return_value)
 
