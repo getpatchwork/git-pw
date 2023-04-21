@@ -151,7 +151,7 @@ def echo_via_pager(
         _echo_via_pager(pager, out)
         return
 
-    pager = git_config('core.parser')
+    pager = git_config('core.pager')
     if pager:
         _echo_via_pager(pager, out)
         return
