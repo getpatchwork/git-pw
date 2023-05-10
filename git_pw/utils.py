@@ -207,6 +207,28 @@ def pagination_options(
     return _pagination_options
 
 
+def date_options() -> ty.Callable:
+    """Shared date bounding options."""
+
+    def _date_options(f):
+        f = click.option(
+            '--since',
+            metavar='SINCE',
+            type=click.DateTime(),
+            help='Show only items since a given date in ISO 8601 format',
+        )(f)
+        f = click.option(
+            '--before',
+            metavar='BEFORE',
+            type=click.DateTime(),
+            help='Show only items before a given date in ISO 8601 format',
+        )(f)
+
+        return f
+
+    return _date_options
+
+
 def format_options(
     original_function: ty.Optional[ty.Callable] = None,
     headers: ty.Optional[ty.Tuple[str, ...]] = None,
