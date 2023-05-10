@@ -329,6 +329,7 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
     is_flag=True,
     help='Include patches that are archived.',
 )
+@utils.date_options()
 @utils.pagination_options(sort_fields=_sort_fields, default_sort='-date')
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
@@ -339,6 +340,8 @@ def list_cmd(
     delegates,
     hashes,
     archived,
+    since,
+    before,
     limit,
     page,
     sort,
@@ -402,6 +405,12 @@ def list_cmd(
             ('order', sort),
         ]
     )
+
+    if since:
+        params.append(('since', since.isoformat()))
+
+    if before:
+        params.append(('before', before.isoformat()))
 
     patches = api.index('patches', params)
 

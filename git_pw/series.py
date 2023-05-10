@@ -161,11 +161,12 @@ def show_cmd(fmt, series_id):
         'email, name or ID.'
     ),
 )
+@utils.date_options()
 @utils.pagination_options(sort_fields=_sort_fields, default_sort='-date')
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(submitters, limit, page, sort, fmt, headers, name):
+def list_cmd(submitters, limit, page, sort, fmt, headers, name, since, before):
     """List series.
 
     List series on the Patchwork instance.
@@ -200,6 +201,12 @@ def list_cmd(submitters, limit, page, sort, fmt, headers, name):
             ('order', sort),
         ]
     )
+
+    if since:
+        params.append(('since', since.isoformat()))
+
+    if before:
+        params.append(('before', before.isoformat()))
 
     series = api.index('series', params)
 

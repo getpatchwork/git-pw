@@ -391,6 +391,10 @@ class ListTestCase(unittest.TestCase):
                 '--sort',
                 '-name',
                 'test',
+                '--since',
+                '2022-01-01',
+                '--before',
+                '2022-12-31',
             ],
         )
 
@@ -412,6 +416,8 @@ class ListTestCase(unittest.TestCase):
                     ('page', 1),
                     ('per_page', 1),
                     ('order', '-name'),
+                    ('since', '2022-01-01T00:00:00'),
+                    ('before', '2022-12-31T00:00:00'),
                 ],
             ),
         ]
