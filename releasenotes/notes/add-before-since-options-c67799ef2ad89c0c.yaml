@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``series list`` and ``patch list`` commands now support ``--since`` and
+    ``--before`` filters to list items created since or before a given
+    date-time.
