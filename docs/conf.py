@@ -6,6 +6,7 @@ import git_pw
 
 try:
     import sphinx_rtd_theme  # noqa
+
     has_rtd_theme = True
 except ImportError:
     has_rtd_theme = False
