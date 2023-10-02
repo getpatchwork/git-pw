@@ -47,14 +47,14 @@ dependencies.  On Fedora, run:
 .. code-block:: bash
 
    $ sudo dnf install python3-requests python3-click python3-pbr \
-       python3-arrow python3-tabulate python3-yaml
+       python3-arrow python3-tabulate python3-yaml python3-hatch
 
 On Ubuntu, run:
 
 .. code-block:: bash
 
    $ sudo apt-get install python3-requests python3-click python3-pbr \
-       python3-arrow python3-tabulate python3-yaml
+       python3-arrow python3-tabulate python3-yaml python3-hatchling
 
 Once dependencies are installed, clone this repo and run ``setup.py``:
 
