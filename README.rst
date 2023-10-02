@@ -62,7 +62,7 @@ Once dependencies are installed, clone this repo and run ``setup.py``:
 
    $ git clone https://github.com/getpatchwork/git-pw
    $ cd git-pw
-   $ pip install --user .  # or 'sudo python setup.py install'
+   $ pip install --user .
 
 Getting Started
 ---------------
