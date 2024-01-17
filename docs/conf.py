@@ -1,13 +1,15 @@
+# -*- coding: utf-8 -*-
+#
 # git-pw documentation build configuration file
 
 import git_pw
 
 try:
-    import furo  # noqa
+    import sphinx_rtd_theme  # noqa
 
-    has_furo_theme = True
+    has_rtd_theme = True
 except ImportError:
-    has_furo_theme = False
+    has_rtd_theme = False
 
 # -- General configuration ------------------------------------------------
 
@@ -19,16 +21,19 @@ needs_sphinx = '1.5'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'reno.sphinxext',
     'sphinx_click.ext',
+    'reno.sphinxext',
 ]
+
+# Add any paths that contain templates here, relative to this directory.
+templates_path = []
 
 # The master toctree document.
 master_doc = 'contents'
 
 # General information about the project.
 project = 'git-pw'
-copyright = '2018-present, Stephen Finucane'
+copyright = '2018, Stephen Finucane'
 author = 'Stephen Finucane'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -54,5 +59,5 @@ suppress_warnings = ['image.nonlocal_uri']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-if has_furo_theme:
-    html_theme = 'furo'
+if has_rtd_theme:
+    html_theme = 'sphinx_rtd_theme'
