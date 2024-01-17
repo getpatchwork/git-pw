@@ -3,6 +3,6 @@ git-pw -- A tool for integrating Git with Patchwork, the web-based patch
 tracking system.
 """
 
-import pkg_resources
+import importlib.metadata
 
-__version__ = pkg_resources.get_distribution('git-pw').version
+__version__ = importlib.metadata.version('git-pw')
