@@ -138,7 +138,7 @@ def echo_via_pager(
     """Echo using git's default pager.
 
     Wrap ``click.echo_via_pager``, setting some environment variables in the
-    processs to mimic the pager settings used by Git:
+    process to mimic the pager settings used by Git:
 
         The order of preference is the ``$GIT_PAGER`` environment variable,
         then ``core.pager`` configuration, then ``$PAGER``, and then the
