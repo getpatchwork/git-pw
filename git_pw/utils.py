@@ -94,6 +94,23 @@ def _tabulate(
             writer.writerow([ensure_str(i) for i in item])
         return result.getvalue()
     elif fmt == 'yaml':
+
+        tempout = []
+        patch = ()
+        for entry in output:
+
+            if entry[0] == 'Patches':
+                l1 = [entry[1]]
+                patch = ('Patches',l1)
+
+            elif len(patch) != 0 and entry[0] == '':
+                elem = entry[1]
+                patch[1].append(elem)
+            else:
+                tempout.append(entry)
+        output = tempout
+        output.append(patch)
+
         data = [
             {headers[i].lower(): entry[i] for i in range(len(headers))}
             for entry in output
