@@ -28,8 +28,8 @@ tracking system.
    The `pwclient`__ utility can be used to interact with older Patchwork
    instances or instances with the REST API disabled.
 
-__ http://jk.ozlabs.org/projects/patchwork/
-__ https://patchwork.ozlabs.org/help/pwclient/
+.. __: http://jk.ozlabs.org/projects/patchwork/
+.. __: https://patchwork.ozlabs.org/help/pwclient/
 
 Installation
 ------------
@@ -81,7 +81,7 @@ settings are **required**:
   `documentation`__. For example, if your server is running Patchwork version
   3.0.x, you should use API version 1.2.
 
-  __ https://patchwork.readthedocs.io/en/stable-3.0/api/rest/#rest-api-versions
+  .. __: https://patchwork.readthedocs.io/en/stable-3.0/api/rest/#rest-api-versions
 
 ``pw.project``
   The project name or list-id. This will appear in the URL when using the web
@@ -139,11 +139,11 @@ Create a *virtualenv*, then install the package in `editable`__ mode:
    $ source .venv/bin/activate
    $ pip install --editable .
 
-__ https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs
+.. __: https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs
 
 Documentation
 -------------
 
 Documentation is available on `Read the Docs`__
 
-__ https://git-pw.readthedocs.org/
+.. __: https://git-pw.readthedocs.org/
