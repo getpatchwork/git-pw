@@ -6,11 +6,14 @@ from click.testing import CliRunner as CLIRunner
 from git_pw import series
 
 
+@mock.patch('git_pw.api.get')
 @mock.patch('git_pw.api.detail')
 @mock.patch('git_pw.api.download')
 @mock.patch('git_pw.utils.git_am')
 class ApplyTestCase(unittest.TestCase):
-    def test_apply_without_args(self, mock_git_am, mock_download, mock_detail):
+    def test_apply_without_args(
+        self, mock_git_am, mock_download, mock_detail, mock_api_get
+    ):
         """Validate calling with no arguments."""
 
         rsp = {'mbox': 'http://example.com/api/patches/123/mbox/'}
@@ -25,7 +28,9 @@ class ApplyTestCase(unittest.TestCase):
         mock_download.assert_called_once_with(rsp['mbox'])
         mock_git_am.assert_called_once_with(mock_download.return_value, ())
 
-    def test_apply_with_args(self, mock_git_am, mock_download, mock_detail):
+    def test_apply_with_args(
+        self, mock_git_am, mock_download, mock_detail, mock_api_get
+    ):
         """Validate passthrough of arbitrary arguments to git-am."""
 
         rsp = {'mbox': 'http://example.com/api/patches/123/mbox/'}
@@ -41,6 +46,63 @@ class ApplyTestCase(unittest.TestCase):
         mock_git_am.assert_called_once_with(
             mock_download.return_value, ('-3',)
         )
+
+    def test_apply_with_deps_unsupported(
+        self, mock_git_am, mock_download, mock_detail, mock_api_get
+    ):
+        """
+        Validate that a series is applied when dependencies are
+        requested and dependencies do not appear in the API.
+        """
+
+        rsp = {'mbox': 'http://example.com/api/series/123/mbox/'}
+        mock_detail.return_value = rsp
+        mock_download.return_value = 'test.patch'
+
+        runner = CLIRunner()
+        result = runner.invoke(series.apply_cmd, ['123', '--deps'])
+
+        assert result.exit_code == 0, result
+        mock_detail.assert_called_once_with('series', 123)
+        mock_download.assert_called_once_with(rsp['mbox'])
+        mock_git_am.assert_called_once_with(mock_download.return_value, ())
+
+    def test_apply_with_deps(
+        self, mock_git_am, mock_download, mock_detail, mock_api_get
+    ):
+        """Validate that dependencies are applied when flag is given."""
+        dep_ids = [
+            '120',
+            '121',
+            '122',
+        ]
+        dependencies = list(
+            map(lambda x: f"http://example.com/api/series/{x}/", dep_ids)
+        )
+        dep_details = list(map(lambda x: {"mbox": f"{x}mbox/"}, dependencies))
+        mboxes = list(map(lambda x: x["mbox"], dep_details))
+        mboxes.append('http://example.com/api/series/123/mbox/')
+        files = list(map(lambda x: f"series_{x}.mbox", [*dep_ids, '123']))
+
+        rsp_base = {
+            'mbox': 'http://example.com/api/series/123/mbox/',
+            'dependencies': dependencies,
+        }
+
+        mock_detail.return_value = rsp_base
+        mock_api_get.side_effect = dep_details
+        mock_download.side_effect = files
+
+        runner = CLIRunner()
+        result = runner.invoke(series.apply_cmd, ['123', '--deps'])
+
+        assert result.exit_code == 0, result
+        mock_detail.assert_called_once_with('series', 123)
+        mock_api_get.assert_has_calls(
+            map(lambda x: mock.call(x), dependencies)
+        )
+        mock_download.assert_has_calls(map(lambda x: mock.call(x), mboxes))
+        mock_git_am.assert_has_calls(map(lambda x: mock.call(x, ()), files))
 
 
 @mock.patch('git_pw.api.detail')
@@ -125,6 +187,8 @@ class ShowTestCase(unittest.TestCase):
             'received_all': True,
             'cover_letter': None,
             'patches': [],
+            'dependencies': [],
+            'dependents': [],
         }
 
         rsp.update(**kwargs)
