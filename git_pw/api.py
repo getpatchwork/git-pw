@@ -232,6 +232,11 @@ def version() -> ty.Tuple[int, int]:
     return (1, 0)
 
 
+def get(url: str, params: ty.Optional[Filters]) -> ty.Dict:
+    """Get a JSON document from the API and return it as a dict."""
+    return _get(url, params, stream=False).json()
+
+
 def download(
     url: str,
     params: ty.Optional[Filters] = None,
