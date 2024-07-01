@@ -25,8 +25,15 @@ _sort_fields = ('id', '-id', 'name', '-name', 'date', '-date')
     ),
 )
 @click.argument('series_id', type=click.INT)
+@click.option(
+    '--deps/--no-deps',
+    'deps',
+    default=False,
+    help='Download any dependencies this series may have, and apply them'
+    'first.',
+)
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
-def apply_cmd(series_id, args):
+def apply_cmd(series_id, args, deps):
     """Apply series.
 
     Apply a series locally using the 'git-am' command. Any additional ARGS
@@ -35,9 +42,31 @@ def apply_cmd(series_id, args):
     LOG.debug('Applying series: id=%d, args=%s', series_id, ' '.join(args))
 
     series = api.detail('series', series_id)
-    mbox = api.download(series['mbox'])
 
-    utils.git_am(mbox, args)
+    # .mbox files are applied in the order they appear in this list.
+    to_apply = []
+
+    if deps:
+        if dependencies := series.get('dependencies'):
+            to_apply.extend(
+                map(lambda url: api.get(url)['mbox'], dependencies)
+            )
+        else:
+            # Notify the user that dependency information could not be found.
+            LOG.warning(
+                "Dependency information was not found for this series."
+            )
+            LOG.warning(
+                "Either dependencies are unsupported by this Patchwork"
+                "server or the feature is disabled for this project."
+            )
+            LOG.warning("No dependencies will be applied.")
+
+    to_apply.append(series['mbox'])
+
+    for mbox_url in to_apply:
+        mbox = api.download(mbox_url)
+        utils.git_am(mbox, args)
 
 
 @click.command(name='download')
