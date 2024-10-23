@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Python 3.13 is now officially supported and tested.
+upgrade:
+  - |
+    Python 3.8 is no longer supported.
