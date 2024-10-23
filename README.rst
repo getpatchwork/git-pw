@@ -56,13 +56,13 @@ On Ubuntu, run:
    $ sudo apt-get install python3-requests python3-click python3-pbr \
        python3-arrow python3-tabulate python3-yaml
 
-Once dependencies are installed, clone this repo and run ``setup.py``:
+Once dependencies are installed, clone this repo and install with ``pip``:
 
 .. code-block:: bash
 
    $ git clone https://github.com/getpatchwork/git-pw
    $ cd git-pw
-   $ pip install --user .  # or 'sudo python setup.py install'
+   $ pip install --user .
 
 Getting Started
 ---------------
@@ -74,14 +74,14 @@ settings are **required**:
   The URL for the Patchwork instance's API. This should include the API
   version::
 
-      https://patchwork.ozlabs.org/api/1.2
+      https://patchwork.ozlabs.org/api/1.3
 
   You can discover the API version supported by your instance by comparing the
   server version, found at ``/about``, with the API versions provided in the
   `documentation`__. For example, if your server is running Patchwork version
-  3.0.x, you should use API version 1.2.
+  3.2.x, you should use API version 1.3.
 
-  .. __: https://patchwork.readthedocs.io/en/stable-3.0/api/rest/#rest-api-versions
+  .. __: https://patchwork.readthedocs.io/en/stable-3.2/api/rest/#rest-api-versions
 
 ``pw.project``
   The project name or list-id. This will appear in the URL when using the web
