@@ -116,13 +116,11 @@ def _handle_error(
                 'Server error. Please report this issue to '
                 'https://github.com/getpatchwork/patchwork'
             )
-            raise
-
-        # we make the assumption that all responses will be JSON encoded
-        if exc.response.status_code == 404:
+        elif exc.response.status_code == 404:
             LOG.error('Resource not found')
         else:
-            LOG.error(exc.response.json())
+            LOG.error(exc.response.text)
+
     else:
         LOG.error(
             'Failed to %s resource. Is your configuration '
@@ -131,7 +129,7 @@ def _handle_error(
         LOG.error("Use the '--debug' flag for more information")
 
     if CONF.debug:
-        raise
+        raise exc
     else:
         sys.exit(1)
 

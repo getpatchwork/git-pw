@@ -2,6 +2,7 @@
 
 from unittest import mock
 
+import requests
 import pytest
 
 from git_pw import api
@@ -72,6 +73,52 @@ def test_version(mock_server):
     mock_server.return_value = 'https://example.com/api/1.1'
 
     assert api.version() == (1, 1)
+
+
+def test_handle_error__server_error(caplog):
+    fake_response = mock.MagicMock(autospec=requests.Response)
+    fake_response.content = b'InternalServerError'
+    fake_response.status_code = 500
+    exc = requests.exceptions.RequestException(response=fake_response)
+
+    with pytest.raises(SystemExit):
+        api._handle_error('fetch', exc)
+
+    assert 'Server error.' in caplog.text
+
+
+def test_handle_error__not_found(caplog):
+    fake_response = mock.MagicMock(autospec=requests.Response)
+    fake_response.content = b'NotFound'
+    fake_response.status_code = 404
+    exc = requests.exceptions.RequestException(response=fake_response)
+
+    with pytest.raises(SystemExit):
+        api._handle_error('fetch', exc)
+
+    assert 'Resource not found' in caplog.text
+
+
+def test_handle_error__other(caplog):
+    fake_response = mock.MagicMock(autospec=requests.Response)
+    fake_response.content = b'{"key": "value"}'
+    fake_response.status_code = 403
+    fake_response.text = '{"key": "value"}'
+    exc = requests.exceptions.RequestException(response=fake_response)
+
+    with pytest.raises(SystemExit):
+        api._handle_error('fetch', exc)
+
+    assert '{"key": "value"}' in caplog.text
+
+
+def test_handle_error__no_response(caplog):
+    exc = requests.exceptions.RequestException()
+
+    with pytest.raises(SystemExit):
+        api._handle_error('fetch', exc)
+
+    assert 'Failed to fetch resource.' in caplog.text
 
 
 @mock.patch.object(api, 'index')
