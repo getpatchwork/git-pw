@@ -148,8 +148,7 @@ def show_cmd(fmt, series_id):
         ('URL', series.get('web_url')),
         (
             'Submitter',
-            '%s (%s)'
-            % (
+            '{} ({})'.format(
                 series.get('submitter').get('name'),
                 series.get('submitter').get('email'),
             ),
@@ -248,8 +247,7 @@ def list_cmd(submitters, limit, page, sort, fmt, headers, name, since, before):
             arrow.get(series_.get('date')).humanize(),
             utils.trim(series_.get('name') or ''),
             series_.get('version'),
-            '%s (%s)'
-            % (
+            '{} ({})'.format(
                 series_.get('submitter').get('name'),
                 series_.get('submitter').get('email'),
             ),

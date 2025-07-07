@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Unit tests for ``git_pw/utils.py``."""
 
 import subprocess

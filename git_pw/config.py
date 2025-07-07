@@ -3,7 +3,6 @@ Configuration loader using 'git-config'.
 """
 
 import logging
-import typing as ty
 
 from git_pw import utils
 
@@ -21,28 +20,28 @@ def parse_boolean(value: str) -> bool:
     if value in ('no', 'off', 'false', '0'):
         return False
 
-    LOG.error("'{}' is not a valid boolean value".format(value))
+    LOG.error(f"'{value}' is not a valid boolean value")
     return False
 
 
-class Config(object):
+class Config:
     def __init__(self) -> None:
-        self._git_config: ty.Dict[str, str] = {}
+        self._git_config: dict[str, str] = {}
 
     def __getattribute__(self, name: str) -> str:
         # attempt to use any attributes first
         try:
-            value = super(Config, self).__getattribute__(name)
+            value = super().__getattribute__(name)
         except AttributeError:
             value = None
         if value:
-            LOG.debug("Retrieved '{}' setting from cache".format(name))
+            LOG.debug(f"Retrieved '{name}' setting from cache")
             return value
 
         # fallback to reading from git config otherwise
-        value = utils.git_config('pw.{}'.format(name))
+        value = utils.git_config(f'pw.{name}')
         if value:
-            LOG.debug("Retrieved '{}' setting from git-config".format(name))
+            LOG.debug(f"Retrieved '{name}' setting from git-config")
 
         setattr(self, name, value)
 

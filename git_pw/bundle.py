@@ -4,7 +4,6 @@ Bundle subcommands.
 
 import logging
 import sys
-import typing as ty
 
 import click
 
@@ -46,7 +45,7 @@ def _get_bundle(bundle_id: str) -> dict:
 )
 @click.argument('bundle_id')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
-def apply_cmd(bundle_id: str, args: ty.Tuple[str]) -> None:
+def apply_cmd(bundle_id: str, args: tuple[str]) -> None:
     """Apply bundle.
 
     Apply a bundle locally using the 'git-am' command. Any additional ARGS
@@ -68,7 +67,7 @@ def apply_cmd(bundle_id: str, args: ty.Tuple[str]) -> None:
     type=click.Path(file_okay=True, writable=True, readable=True),
     required=False,
 )
-def download_cmd(bundle_id: str, output: ty.Optional[str]) -> None:
+def download_cmd(bundle_id: str, output: str | None) -> None:
     """Download bundle in mbox format.
 
     Download a bundle but do not apply it. ``OUTPUT`` is optional and can be an
@@ -210,7 +209,7 @@ def list_cmd(owners, limit, page, sort, fmt, headers, name):
 @utils.format_options
 def create_cmd(
     name: str,
-    patch_ids: ty.Tuple[int],
+    patch_ids: tuple[int],
     public: bool,
     fmt: str,
 ) -> None:
@@ -264,7 +263,7 @@ def create_cmd(
 def update_cmd(
     bundle_id: str,
     name: str,
-    patch_ids: ty.List[int],
+    patch_ids: list[int],
     public: bool,
     fmt: str,
 ) -> None:
@@ -327,7 +326,7 @@ def delete_cmd(bundle_id: str, fmt: str) -> None:
     'Modifying bundles is only supported from API version 1.2',
 )
 @utils.format_options
-def add_cmd(bundle_id: str, patch_ids: ty.Tuple[int], fmt: str) -> None:
+def add_cmd(bundle_id: str, patch_ids: tuple[int], fmt: str) -> None:
     """Add one or more patches to a bundle.
 
     Append the provided PATCH_IDS to bundle BUNDLE_ID.
@@ -357,7 +356,7 @@ def add_cmd(bundle_id: str, patch_ids: ty.Tuple[int], fmt: str) -> None:
 @utils.format_options
 def remove_cmd(
     bundle_id: str,
-    patch_ids: ty.Tuple[int],
+    patch_ids: tuple[int],
     fmt: str,
 ) -> None:
     """Remove one or more patches from a bundle.

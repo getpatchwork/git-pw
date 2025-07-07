@@ -45,7 +45,7 @@ quote-style = "preserve"
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F", "S"]
+select = ["E4", "E7", "E9", "F", "S", "U"]
 ignore = [
     # we only use asserts for type narrowing
     "S101",
@@ -53,8 +53,9 @@ ignore = [
     "S113",
     # client tool can use subprocess as they like
     "S603",
+    # FIXME: Use f-strings instead of printf
+    "UP031",
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S"]
-"examples/*" = ["S"]

@@ -19,7 +19,7 @@ from git_pw import config
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
-Filters = ty.List[ty.Tuple[str, str]]
+Filters = list[tuple[str, str]]
 
 
 class HTTPTokenAuth(requests.auth.AuthBase):
@@ -38,10 +38,10 @@ class HTTPTokenAuth(requests.auth.AuthBase):
     @staticmethod
     def _token_auth_str(token: str) -> str:
         """Return a Token auth string."""
-        return 'Token {}'.format(token.strip())
+        return f'Token {token.strip()}'
 
 
-def _get_auth(optional: bool = False) -> ty.Optional[requests.auth.AuthBase]:
+def _get_auth(optional: bool = False) -> requests.auth.AuthBase | None:
     if CONF.token:
         return HTTPTokenAuth(CONF.token)
     elif CONF.username and CONF.password:
@@ -56,9 +56,9 @@ def _get_auth(optional: bool = False) -> ty.Optional[requests.auth.AuthBase]:
     return None
 
 
-def _get_headers() -> ty.Dict[str, str]:
+def _get_headers() -> dict[str, str]:
     return {
-        'User-Agent': 'git-pw ({})'.format(git_pw.__version__),
+        'User-Agent': f'git-pw ({git_pw.__version__})',
     }
 
 
@@ -123,7 +123,7 @@ def _handle_error(
 
     else:
         LOG.error(
-            'Failed to %s resource. Is your configuration correct?' % operation
+            f'Failed to {operation} resource. Is your configuration correct?'
         )
         LOG.error("Use the '--debug' flag for more information")
 
@@ -135,7 +135,7 @@ def _handle_error(
 
 def _get(
     url: str,
-    params: ty.Optional[Filters] = None,
+    params: Filters | None = None,
     stream: bool = False,
 ) -> requests.Response:
     """Make GET request and handle errors."""
@@ -163,7 +163,7 @@ def _get(
 
 def _post(
     url: str,
-    data: ty.List[ty.Tuple[str, ty.Any]],
+    data: list[tuple[str, ty.Any]],
 ) -> requests.Response:
     """Make POST request and handle errors."""
     LOG.debug('POST %s, data=%r', url, data)
@@ -183,7 +183,7 @@ def _post(
 
 def _patch(
     url: str,
-    data: ty.List[ty.Tuple[str, ty.Any]],
+    data: list[tuple[str, ty.Any]],
 ) -> requests.Response:
     """Make PATCH request and handle errors."""
     LOG.debug('PATCH %s, data=%r', url, data)
@@ -219,7 +219,7 @@ def _delete(url: str) -> requests.Response:
     return rsp
 
 
-def version() -> ty.Tuple[int, int]:
+def version() -> tuple[int, int]:
     """Get the version of the server from the URL, if present."""
     server = _get_server()
 
@@ -231,16 +231,16 @@ def version() -> ty.Tuple[int, int]:
     return (1, 0)
 
 
-def get(url: str, params: ty.Optional[Filters]) -> ty.Dict:
+def get(url: str, params: Filters | None) -> dict:
     """Get a JSON document from the API and return it as a dict."""
     return _get(url, params, stream=False).json()
 
 
 def download(
     url: str,
-    params: ty.Optional[Filters] = None,
-    output: ty.Optional[ty.Optional[str]] = None,
-) -> ty.Optional[str]:
+    params: Filters | None = None,
+    output: str | None = None,
+) -> str | None:
     """Retrieve a specific API resource and save it to a file/stdout.
 
     The ``Content-Disposition`` header is assumed to be present and
@@ -295,7 +295,7 @@ def download(
     return output_path
 
 
-def index(resource_type: str, params: ty.Optional[Filters] = None) -> dict:
+def index(resource_type: str, params: Filters | None = None) -> dict:
     """List API resources.
 
     GET /{resource}/
@@ -323,9 +323,9 @@ def index(resource_type: str, params: ty.Optional[Filters] = None) -> dict:
 
 def detail(
     resource_type: str,
-    resource_id: ty.Union[str, int],
-    params: ty.Optional[Filters] = None,
-) -> ty.Dict:
+    resource_id: str | int,
+    params: Filters | None = None,
+) -> dict:
     """Retrieve a specific API resource.
 
     GET /{resource}/{resourceID}/
@@ -346,7 +346,7 @@ def detail(
 
 def create(
     resource_type: str,
-    data: ty.List[ty.Tuple[str, ty.Any]],
+    data: list[tuple[str, ty.Any]],
 ) -> dict:
     """Create a new API resource.
 
@@ -365,7 +365,7 @@ def create(
     return _post(url, data).json()
 
 
-def delete(resource_type: str, resource_id: ty.Union[str, int]) -> None:
+def delete(resource_type: str, resource_id: str | int) -> None:
     """Delete a specific API resource.
 
     DELETE /{resource}/{resourceID}/
@@ -385,8 +385,8 @@ def delete(resource_type: str, resource_id: ty.Union[str, int]) -> None:
 
 def update(
     resource_type: str,
-    resource_id: ty.Union[str, int],
-    data: ty.List[ty.Tuple[str, ty.Any]],
+    resource_id: str | int,
+    data: list[tuple[str, ty.Any]],
 ) -> dict:
     """Update a specific API resource.
 
@@ -407,7 +407,7 @@ def update(
 
 
 def validate_minimum_version(
-    min_version: ty.Tuple[int, int],
+    min_version: tuple[int, int],
     msg: str,
 ) -> ty.Callable[[ty.Any], ty.Any]:
     def inner(f):
@@ -458,7 +458,7 @@ def retrieve_filter_ids(
     resource_type: str,
     filter_name: str,
     filter_value: str,
-) -> ty.List[ty.Tuple[str, str]]:
+) -> list[tuple[str, str]]:
     """Retrieve IDs for items passed through by filter.
 
     Some filters require client-side filtering, e.g. filtering patches by

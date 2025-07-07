@@ -161,8 +161,7 @@ def _show_patch(patch, fmt):
         ('URL', patch.get('web_url')),
         (
             'Submitter',
-            '%s (%s)'
-            % (
+            '{} ({})'.format(
                 patch.get('submitter').get('name'),
                 patch.get('submitter').get('email'),
             ),
@@ -423,8 +422,7 @@ def list_cmd(
             patch.get('id'),
             arrow.get(patch.get('date')).humanize(),
             utils.trim(patch.get('name')),
-            '%s (%s)'
-            % (
+            '{} ({})'.format(
                 patch.get('submitter').get('name'),
                 patch.get('submitter').get('email'),
             ),

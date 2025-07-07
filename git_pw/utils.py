@@ -52,7 +52,7 @@ def git_config(value: str) -> str:
     return output.decode('utf-8').strip()
 
 
-def git_am(mbox: str, args: ty.Tuple[str, ...]) -> None:
+def git_am(mbox: str, args: tuple[str, ...]) -> None:
     """Execute git-am on a given mbox file."""
     cmd = ['git', 'am']
     if args:
@@ -74,8 +74,8 @@ def git_am(mbox: str, args: ty.Tuple[str, ...]) -> None:
 
 
 def _tabulate(
-    output: ty.List[ty.Tuple[str, ty.Any]],
-    headers: ty.List[str],
+    output: list[tuple[str, ty.Any]],
+    headers: list[str],
     fmt: str,
 ) -> str:
     fmt = fmt or git_config('pw.format') or 'table'
@@ -115,7 +115,7 @@ def _echo_via_pager(pager: str, output: str) -> None:
 
     try:
         proc.communicate(input=output.encode('utf-8', 'strict'))
-    except (IOError, KeyboardInterrupt):
+    except (OSError, KeyboardInterrupt):
         pass
     else:
         if proc.stdin:
@@ -131,8 +131,8 @@ def _echo_via_pager(pager: str, output: str) -> None:
 
 
 def echo_via_pager(
-    output: ty.List[ty.Tuple[str, ty.Any]],
-    headers: ty.List[str],
+    output: list[tuple[str, ty.Any]],
+    headers: list[str],
     fmt: str,
 ) -> None:
     """Echo using git's default pager.
@@ -165,15 +165,15 @@ def echo_via_pager(
 
 
 def echo(
-    output: ty.List[ty.Tuple[str, ty.Any]],
-    headers: ty.List[str],
+    output: list[tuple[str, ty.Any]],
+    headers: list[str],
     fmt: str,
 ) -> None:
     click.echo(_tabulate(output, headers, fmt))
 
 
 def pagination_options(
-    sort_fields: ty.Tuple[str, ...],
+    sort_fields: tuple[str, ...],
     default_sort: str,
 ) -> ty.Callable:
     """Shared pagination options."""
@@ -230,8 +230,8 @@ def date_options() -> ty.Callable:
 
 
 def format_options(
-    original_function: ty.Optional[ty.Callable] = None,
-    headers: ty.Optional[ty.Tuple[str, ...]] = None,
+    original_function: ty.Callable | None = None,
+    headers: tuple[str, ...] | None = None,
 ) -> ty.Callable:
     """Shared output format options."""
 

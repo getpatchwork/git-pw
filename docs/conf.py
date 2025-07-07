@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # git-pw documentation build configuration file
 
