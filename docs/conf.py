@@ -24,15 +24,12 @@ extensions = [
     'reno.sphinxext',
 ]
 
-# Add any paths that contain templates here, relative to this directory.
-templates_path = []
-
 # The master toctree document.
 master_doc = 'contents'
 
 # General information about the project.
 project = 'git-pw'
-copyright = '2018, Stephen Finucane'
+copyright = '2018-present, Stephen Finucane'
 author = 'Stephen Finucane'
 
 # The version info for the project you're documenting, acts as replacement for

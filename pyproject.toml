@@ -59,3 +59,24 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S"]
+
+[tool.mypy]
+show_column_numbers = true
+show_error_context = true
+ignore_missing_imports = true
+follow_imports = "normal"
+check_untyped_defs = false
+warn_unused_ignores = true
+# many of the following are false while we incrementally add typing
+warn_return_any = false
+warn_unused_configs = true
+warn_redundant_casts = true
+strict_equality = true
+disallow_untyped_decorators = false
+disallow_any_generics = false
+disallow_subclassing_any = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = true
+disallow_untyped_defs = false
+no_implicit_reexport = false
+extra_checks = true

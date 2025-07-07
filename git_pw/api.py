@@ -152,7 +152,7 @@ def _get(
             headers=_get_headers(),
             stream=stream,
             params=params,
-        )  # type: ignore
+        )
         rsp.raise_for_status()
     except requests.exceptions.RequestException as exc:
         _handle_error('fetch', exc)
