@@ -2,6 +2,41 @@
 requires = ["pbr>=6.1.1"]
 build-backend = "pbr.build"
 
+[project]
+name = "git-pw"
+description = "Git-Patchwork integration tool"
+authors = [
+    {name = "Stephen Finucane", email = "stephen@that.guru"},
+]
+readme = {file = "README.rst", content-type = "text/x-rst"}
+license = {text = "MIT"}
+dynamic = ["version", "dependencies"]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/getpatchwork/git-pw/issues"
+"Source Code" = "https://github.com/getpatchwork/git-pw"
+"Documentation" = "https://git-pw.readthedocs.io"
+
+[project.scripts]
+git-pw = "git_pw.shell:cli"
+
+[tool.setuptools]
+packages = [
+    "git_pw"
+]
+
 [tool.ruff]
 line-length = 79
 
