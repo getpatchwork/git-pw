@@ -25,8 +25,7 @@ CONF = config.CONF
     metavar='TOKEN',
     envvar='PW_TOKEN',
     help=(
-        "Authentication token. "
-        "Defaults to the value of 'git config pw.token'."
+        "Authentication token. Defaults to the value of 'git config pw.token'."
     ),
 )
 @click.option(

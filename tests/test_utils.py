@@ -26,7 +26,7 @@ def test_git_config(mock_subprocess):
 def test_git_config_unicode(mock_subprocess):
     value = utils.git_config('foo')
 
-    assert value == u'\U0001f937'
+    assert value == '\U0001f937'
     mock_subprocess.assert_called_once_with(['git', 'config', 'foo'])
 
 
@@ -90,7 +90,7 @@ def test_echo_via_pager_env_default(mock_inner, mock_tabulate, mock_config):
 
 
 def _test_tabulate(fmt):
-    output = [(b'foo', 'bar', u'baz', '😀', None, 1)]
+    output = [(b'foo', 'bar', 'baz', '😀', None, 1)]
     headers = ('col1', 'colb', 'colIII', 'colX', 'colY', 'colZ')
 
     result = utils._tabulate(output, headers, fmt)
@@ -136,7 +136,7 @@ def test_tabulate_yaml(mock_dump):
             {
                 'col1': b'foo',
                 'colb': 'bar',
-                'coliii': u'baz',
+                'coliii': 'baz',
                 'colx': '😀',
                 'coly': None,
                 'colz': 1,

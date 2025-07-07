@@ -123,8 +123,7 @@ def _handle_error(
 
     else:
         LOG.error(
-            'Failed to %s resource. Is your configuration '
-            'correct?' % operation
+            'Failed to %s resource. Is your configuration correct?' % operation
         )
         LOG.error("Use the '--debug' flag for more information")
 

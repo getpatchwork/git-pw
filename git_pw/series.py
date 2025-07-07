@@ -186,8 +186,7 @@ def show_cmd(fmt, series_id):
     metavar='SUBMITTER',
     multiple=True,
     help=(
-        'Show only series by these submitters. Should be an '
-        'email, name or ID.'
+        'Show only series by these submitters. Should be an email, name or ID.'
     ),
 )
 @utils.date_options()

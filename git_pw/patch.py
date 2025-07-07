@@ -248,7 +248,7 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
     """
     for patch_id in patch_ids:
         LOG.debug(
-            'Updating patch: id=%d, commit_ref=%s, state=%s, ' 'archived=%s',
+            'Updating patch: id=%d, commit_ref=%s, state=%s, archived=%s',
             patch_id,
             commit_ref,
             state,
