@@ -9,11 +9,13 @@ import logging
 import os
 import subprocess
 import sys
-from typing import Any
+from typing import Any, TypeVar, overload
 
 import click
 from tabulate import tabulate
 import yaml
+
+FC = TypeVar('FC', bound=Callable[..., Any])
 
 LOG = logging.getLogger(__name__)
 
@@ -176,10 +178,10 @@ def echo(
 def pagination_options(
     sort_fields: tuple[str, ...],
     default_sort: str,
-) -> Callable:
+) -> Callable[[FC], FC]:
     """Shared pagination options."""
 
-    def _pagination_options(f):
+    def _pagination_options(f: FC) -> FC:
         f = click.option(
             '--limit',
             metavar='LIMIT',
@@ -208,10 +210,10 @@ def pagination_options(
     return _pagination_options
 
 
-def date_options() -> Callable:
+def date_options() -> Callable[[FC], FC]:
     """Shared date bounding options."""
 
-    def _date_options(f):
+    def _date_options(f: FC) -> FC:
         f = click.option(
             '--since',
             metavar='SINCE',
@@ -230,13 +232,27 @@ def date_options() -> Callable:
     return _date_options
 
 
+@overload
 def format_options(
-    original_function: Callable | None = None,
+    original_function: FC,
+    headers: tuple[str, ...] | None = ...,
+) -> FC: ...
+
+
+@overload
+def format_options(
+    original_function: None = ...,
+    headers: tuple[str, ...] | None = ...,
+) -> Callable[[FC], FC]: ...
+
+
+def format_options(
+    original_function: Any = None,
     headers: tuple[str, ...] | None = None,
-) -> Callable:
+) -> Any:
     """Shared output format options."""
 
-    def _format_options(f):
+    def _format_options(f: FC) -> FC:
         f = click.option(
             '--format',
             '-f',

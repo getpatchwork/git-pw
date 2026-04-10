@@ -4,6 +4,7 @@ Bundle subcommands.
 
 import logging
 import sys
+from typing import Any
 
 import click
 
@@ -16,7 +17,7 @@ _list_headers = ('ID', 'Name', 'Owner', 'Public')
 _sort_fields = ('id', '-id', 'name', '-name')
 
 
-def _get_bundle(bundle_id: str) -> dict:
+def _get_bundle(bundle_id: str) -> dict[str, Any]:
     """Fetch bundle by ID or name.
 
     Allow users to provide a string to search for bundles. This doesn't make
@@ -85,7 +86,7 @@ def download_cmd(bundle_id: str, output: str | None) -> None:
         LOG.info('Downloaded bundle to %s', path)
 
 
-def _show_bundle(bundle: dict, fmt: str) -> None:
+def _show_bundle(bundle: dict[str, Any], fmt: str) -> None:
     def _format_patch(patch):
         return '%-4d %s' % (patch.get('id'), patch.get('name'))
 

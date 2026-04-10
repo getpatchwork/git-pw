@@ -9,7 +9,7 @@ import os.path
 import re
 import sys
 import tempfile
-from typing import Any
+from typing import Any, TypeVar, cast
 
 import click
 import requests
@@ -19,6 +19,8 @@ from git_pw import config
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
+
+FC = TypeVar('FC', bound=Callable[..., Any])
 
 Filters = list[tuple[str, str]]
 
@@ -232,7 +234,7 @@ def version() -> tuple[int, int]:
     return (1, 0)
 
 
-def get(url: str, params: Filters | None) -> dict:
+def get(url: str, params: Filters | None) -> dict[str, Any]:
     """Get a JSON document from the API and return it as a dict."""
     return _get(url, params, stream=False).json()
 
@@ -296,7 +298,9 @@ def download(
     return output_path
 
 
-def index(resource_type: str, params: Filters | None = None) -> dict:
+def index(
+    resource_type: str, params: Filters | None = None
+) -> list[dict[str, Any]]:
     """List API resources.
 
     GET /{resource}/
@@ -326,7 +330,7 @@ def detail(
     resource_type: str,
     resource_id: str | int,
     params: Filters | None = None,
-) -> dict:
+) -> dict[str, Any]:
     """Retrieve a specific API resource.
 
     GET /{resource}/{resourceID}/
@@ -348,7 +352,7 @@ def detail(
 def create(
     resource_type: str,
     data: list[tuple[str, Any]],
-) -> dict:
+) -> dict[str, Any]:
     """Create a new API resource.
 
     POST /{resource}/
@@ -388,7 +392,7 @@ def update(
     resource_type: str,
     resource_id: str | int,
     data: list[tuple[str, Any]],
-) -> dict:
+) -> dict[str, Any]:
     """Update a specific API resource.
 
     PATCH /{resource}/{resourceID}/
@@ -425,7 +429,7 @@ def validate_minimum_version(
     return inner
 
 
-def validate_multiple_filter_support(f: Callable) -> Callable:
+def validate_multiple_filter_support(f: FC) -> FC:
     @click.pass_context
     def new_func(ctx, *args, **kwargs):
         if version() >= (1, 1):
@@ -452,7 +456,7 @@ def validate_multiple_filter_support(f: Callable) -> Callable:
 
         return ctx.invoke(f, *args, **kwargs)
 
-    return update_wrapper(new_func, f)
+    return cast(FC, update_wrapper(new_func, f))
 
 
 def retrieve_filter_ids(
