@@ -24,7 +24,7 @@ class ApplyTestCase(unittest.TestCase):
 
         assert result.exit_code == 0, result
         mock_detail.assert_called_once_with('patches', 123)
-        mock_download.assert_called_once_with(rsp['mbox'], {'series': '*'})
+        mock_download.assert_called_once_with(rsp['mbox'], [('series', '*')])
         mock_git_am.assert_called_once_with(mock_download.return_value, ())
 
     def test_apply_with_series(self, mock_git_am, mock_download, mock_detail):
@@ -39,7 +39,7 @@ class ApplyTestCase(unittest.TestCase):
 
         assert result.exit_code == 0, result
         mock_detail.assert_called_once_with('patches', 123)
-        mock_download.assert_called_once_with(rsp['mbox'], {'series': 3})
+        mock_download.assert_called_once_with(rsp['mbox'], [('series', '3')])
         mock_git_am.assert_called_once_with(mock_download.return_value, ())
 
     def test_apply_without_deps(self, mock_git_am, mock_download, mock_detail):
@@ -54,7 +54,7 @@ class ApplyTestCase(unittest.TestCase):
 
         assert result.exit_code == 0, result
         mock_detail.assert_called_once_with('patches', 123)
-        mock_download.assert_called_once_with(rsp['mbox'], {'series': None})
+        mock_download.assert_called_once_with(rsp['mbox'], None)
         mock_git_am.assert_called_once_with(mock_download.return_value, ())
 
     def test_apply_with_args(self, mock_git_am, mock_download, mock_detail):
@@ -69,7 +69,7 @@ class ApplyTestCase(unittest.TestCase):
 
         assert result.exit_code == 0, result
         mock_detail.assert_called_once_with('patches', 123)
-        mock_download.assert_called_once_with(rsp['mbox'], {'series': '*'})
+        mock_download.assert_called_once_with(rsp['mbox'], [('series', '*')])
         mock_git_am.assert_called_once_with(
             mock_download.return_value, ('-3',)
         )

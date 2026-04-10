@@ -3,14 +3,15 @@ Series subcommands.
 """
 
 import logging
+import os.path
+import sys
+from typing import Any
 
 import arrow
 import click
 
 from git_pw import api
 from git_pw import utils
-import os.path
-import sys
 
 LOG = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ def apply_cmd(series_id, args, deps):
     series = api.detail('series', series_id)
 
     # .mbox files are applied in the order they appear in this list.
-    to_apply = []
+    to_apply: list[Any] = []
 
     if deps:
         if dependencies := series.get('dependencies'):
@@ -66,7 +67,8 @@ def apply_cmd(series_id, args, deps):
 
     for mbox_url in to_apply:
         mbox = api.download(mbox_url)
-        utils.git_am(mbox, args)
+        if mbox:
+            utils.git_am(mbox, args)
 
 
 @click.command(name='download')
@@ -109,7 +111,7 @@ def download_cmd(series_id, output, fmt):
             )
             sys.exit(1)
 
-        for patch in series.get('patches'):
+        for patch in series.get('patches') or []:
             path = api.download(patch['mbox'], output=output)
             if path:
                 LOG.info(
@@ -149,15 +151,15 @@ def show_cmd(fmt, series_id):
         (
             'Submitter',
             '{} ({})'.format(
-                series.get('submitter').get('name'),
-                series.get('submitter').get('email'),
+                (series.get('submitter') or {}).get('name'),
+                (series.get('submitter') or {}).get('email'),
             ),
         ),
-        ('Project', series.get('project').get('name')),
+        ('Project', (series.get('project') or {}).get('name')),
         ('Version', series.get('version')),
         (
             'Received',
-            '%d of %d' % (series.get('received_total'), series.get('total')),
+            '%d of %d' % (series['received_total'], series['total']),
         ),
         ('Complete', series.get('received_all')),
         (
@@ -171,7 +173,7 @@ def show_cmd(fmt, series_id):
     ]
 
     prefix = 'Patches'
-    for patch in series.get('patches'):
+    for patch in series.get('patches') or []:
         output.append((prefix, _format_submission(patch)))
         prefix = ''
 
@@ -239,17 +241,17 @@ def list_cmd(submitters, limit, page, sort, fmt, headers, name, since, before):
 
     # Format and print output
 
-    output = []
+    output: list[Any] = []
 
     for series_ in series:
         item = [
             series_.get('id'),
-            arrow.get(series_.get('date')).humanize(),
+            arrow.get(series_['date']).humanize(),
             utils.trim(series_.get('name') or ''),
             series_.get('version'),
             '{} ({})'.format(
-                series_.get('submitter').get('name'),
-                series_.get('submitter').get('email'),
+                (series_.get('submitter') or {}).get('name'),
+                (series_.get('submitter') or {}).get('email'),
             ),
         ]
 

@@ -234,7 +234,7 @@ def version() -> tuple[int, int]:
     return (1, 0)
 
 
-def get(url: str, params: Filters | None) -> dict[str, Any]:
+def get(url: str, params: Filters | None = None) -> dict[str, Any]:
     """Get a JSON document from the API and return it as a dict."""
     return _get(url, params, stream=False).json()
 

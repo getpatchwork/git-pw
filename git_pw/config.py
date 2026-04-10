@@ -25,20 +25,20 @@ def parse_boolean(value: str) -> bool:
 
 
 class Config:
+    debug: bool
+    token: str | None
+    username: str | None
+    password: str | None
+    server: str | None
+    project: str | None
+    applyPatchDeps: str
+    states: str
+
     def __init__(self) -> None:
         self._git_config: dict[str, str] = {}
 
-    def __getattribute__(self, name: str) -> str:
-        # attempt to use any attributes first
-        try:
-            value = super().__getattribute__(name)
-        except AttributeError:
-            value = None
-        if value:
-            LOG.debug(f"Retrieved '{name}' setting from cache")
-            return value
-
-        # fallback to reading from git config otherwise
+    def __getattr__(self, name: str) -> str:
+        # fallback to reading from git config
         value = utils.git_config(f'pw.{name}')
         if value:
             LOG.debug(f"Retrieved '{name}' setting from git-config")

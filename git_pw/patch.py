@@ -5,6 +5,7 @@ Patch subcommands.
 import logging
 import os
 import sys
+from typing import Any
 
 import arrow
 import click
@@ -90,9 +91,13 @@ def apply_cmd(patch_id, series, deps, args):
     elif not deps:
         series = None
 
-    mbox = api.download(patch['mbox'], {'series': series})
+    mbox = api.download(
+        patch['mbox'],
+        [('series', str(series))] if series is not None else None,
+    )
 
-    utils.git_am(mbox, args)
+    if mbox:
+        utils.git_am(mbox, args)
 
 
 @click.command(name='download')
@@ -415,16 +420,16 @@ def list_cmd(
 
     # Format and print output
 
-    output = []
+    output: list[Any] = []
 
     for patch in patches:
         item = [
             patch.get('id'),
-            arrow.get(patch.get('date')).humanize(),
-            utils.trim(patch.get('name')),
+            arrow.get(patch['date']).humanize(),
+            utils.trim(patch.get('name') or ''),
             '{} ({})'.format(
-                patch.get('submitter').get('name'),
-                patch.get('submitter').get('email'),
+                (patch.get('submitter') or {}).get('name'),
+                (patch.get('submitter') or {}).get('email'),
             ),
             patch.get('state'),
             'yes' if patch.get('archived') else 'no',

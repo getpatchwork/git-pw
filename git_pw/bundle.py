@@ -172,13 +172,13 @@ def list_cmd(owners, limit, page, sort, fmt, headers, name):
 
     # Format and print output
 
-    output = []
+    output: list[Any] = []
 
     for bundle in bundles:
         item = [
             bundle.get('id'),
             utils.trim(bundle.get('name') or ''),
-            bundle.get('owner').get('username'),
+            (bundle.get('owner') or {}).get('username'),
             'yes' if bundle.get('public') else 'no',
         ]
 
