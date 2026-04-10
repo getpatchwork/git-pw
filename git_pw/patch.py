@@ -2,6 +2,7 @@
 Patch subcommands.
 """
 
+import datetime
 import logging
 import os
 import sys
@@ -70,7 +71,12 @@ def _get_apply_patch_deps() -> bool:
     ),
 )
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
-def apply_cmd(patch_id, series, deps, args):
+def apply_cmd(
+    patch_id: int,
+    series: int | None,
+    deps: bool,
+    args: tuple[str, ...],
+) -> None:
     """Apply patch.
 
     Apply a patch locally using the 'git-am' command. Any additional ARGS
@@ -86,14 +92,17 @@ def apply_cmd(patch_id, series, deps, args):
 
     patch = api.detail('patches', patch_id)
 
+    series_filter: int | str | None = series
     if deps and not series:
-        series = '*'
+        series_filter = '*'
     elif not deps:
-        series = None
+        series_filter = None
 
     mbox = api.download(
         patch['mbox'],
-        [('series', str(series))] if series is not None else None,
+        [('series', str(series_filter))]
+        if series_filter is not None
+        else None,
     )
 
     if mbox:
@@ -117,7 +126,7 @@ def apply_cmd(patch_id, series, deps, args):
     default=True,
     help='Show patch in mbox format.',
 )
-def download_cmd(patch_id, output, fmt):
+def download_cmd(patch_id: int, output: str | None, fmt: str) -> None:
     """Download patch in diff or mbox format.
 
     Download a patch but do not apply it. ``OUTPUT`` is optional and can be an
@@ -131,6 +140,7 @@ def download_cmd(patch_id, output, fmt):
 
     if fmt == 'diff':
         if output and not os.path.isdir(output):
+            output_path: int | str
             if output == '-':
                 output_path = 0  # stdout fd
             else:
@@ -154,9 +164,9 @@ def download_cmd(patch_id, output, fmt):
         LOG.info('Downloaded patch to %s', path)
 
 
-def _show_patch(patch, fmt):
-    def _format_series(series):
-        return '%-4d %s' % (series.get('id'), series.get('name') or '-')
+def _show_patch(patch: dict[str, Any], fmt: str | None) -> None:
+    def _format_series(series: dict[str, Any]) -> str:
+        return '%-4d %s' % (series['id'], series.get('name') or '-')
 
     output = [
         ('ID', patch.get('id')),
@@ -167,17 +177,17 @@ def _show_patch(patch, fmt):
         (
             'Submitter',
             '{} ({})'.format(
-                patch.get('submitter').get('name'),
-                patch.get('submitter').get('email'),
+                (patch.get('submitter') or {}).get('name'),
+                (patch.get('submitter') or {}).get('email'),
             ),
         ),
         ('State', patch.get('state')),
         ('Archived', patch.get('archived')),
-        ('Project', patch.get('project').get('name')),
+        ('Project', (patch.get('project') or {}).get('name')),
         (
             'Delegate',
             (
-                patch.get('delegate').get('username')
+                (patch.get('delegate') or {}).get('username')
                 if patch.get('delegate')
                 else ''
             ),
@@ -186,7 +196,7 @@ def _show_patch(patch, fmt):
     ]
 
     prefix = 'Series'
-    for series in patch.get('series'):
+    for series in patch.get('series') or []:
         output.append((prefix, _format_series(series)))
         prefix = ''
 
@@ -196,7 +206,7 @@ def _show_patch(patch, fmt):
 @click.command(name='show')
 @utils.format_options
 @click.argument('patch_id', type=click.INT)
-def show_cmd(fmt, patch_id):
+def show_cmd(fmt: str | None, patch_id: int) -> None:
     """Show information about patch.
 
     Retrieve Patchwork metadata for a patch.
@@ -208,7 +218,7 @@ def show_cmd(fmt, patch_id):
     _show_patch(patch, fmt)
 
 
-def _get_states():
+def _get_states() -> list[str] | tuple[str, ...]:
     return CONF.states.split(',') if CONF.states else _default_states
 
 
@@ -244,7 +254,14 @@ def _get_states():
     help='Set the patch archived state.',
 )
 @utils.format_options
-def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
+def update_cmd(
+    patch_ids: tuple[int, ...],
+    commit_ref: str | None,
+    state: str | None,
+    delegate: str | None,
+    archived: bool | None,
+    fmt: str | None,
+) -> None:
     """Update one or more patches.
 
     Updates one or more Patches on the Patchwork instance. Some operations may
@@ -339,20 +356,20 @@ def update_cmd(patch_ids, commit_ref, state, delegate, archived, fmt):
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
 def list_cmd(
-    states,
-    submitters,
-    delegates,
-    hashes,
-    archived,
-    since,
-    before,
-    limit,
-    page,
-    sort,
-    fmt,
-    headers,
-    name,
-):
+    states: tuple[str, ...],
+    submitters: tuple[str, ...],
+    delegates: tuple[str, ...],
+    hashes: tuple[str, ...],
+    archived: bool,
+    since: datetime.datetime | None,
+    before: datetime.datetime | None,
+    limit: int | None,
+    page: int | None,
+    sort: str,
+    fmt: str | None,
+    headers: tuple[str, ...],
+    name: str | None,
+) -> None:
     """List patches.
 
     List patches on the Patchwork instance.
@@ -367,7 +384,7 @@ def list_cmd(
         archived,
     )
 
-    params = []
+    params: list[tuple[str, str | int | None]] = []
 
     for state in states:
         params.append(('state', state))

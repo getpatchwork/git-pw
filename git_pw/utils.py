@@ -2,7 +2,7 @@
 Utility functions.
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 import csv
 import io
 import logging
@@ -22,12 +22,11 @@ LOG = logging.getLogger(__name__)
 
 def ensure_str(s: Any) -> str:
     if s is None:
-        s = ''
-    elif isinstance(s, bytes):
-        s = s.decode('utf-8', 'strict')
-    elif not isinstance(s, str):
-        s = str(s)
-
+        return ''
+    if isinstance(s, bytes):
+        return s.decode('utf-8', 'strict')
+    if not isinstance(s, str):
+        return str(s)
     return s
 
 
@@ -78,8 +77,8 @@ def git_am(mbox: str, args: tuple[str, ...]) -> None:
 
 def _tabulate(
     output: list[tuple[str, Any]],
-    headers: list[str],
-    fmt: str,
+    headers: Sequence[str],
+    fmt: str | None,
 ) -> str:
     fmt = fmt or git_config('pw.format') or 'table'
 
@@ -135,8 +134,8 @@ def _echo_via_pager(pager: str, output: str) -> None:
 
 def echo_via_pager(
     output: list[tuple[str, Any]],
-    headers: list[str],
-    fmt: str,
+    headers: Sequence[str],
+    fmt: str | None,
 ) -> None:
     """Echo using git's default pager.
 
@@ -169,8 +168,8 @@ def echo_via_pager(
 
 def echo(
     output: list[tuple[str, Any]],
-    headers: list[str],
-    fmt: str,
+    headers: Sequence[str],
+    fmt: str | None,
 ) -> None:
     click.echo(_tabulate(output, headers, fmt))
 

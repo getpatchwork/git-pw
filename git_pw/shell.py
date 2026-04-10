@@ -64,7 +64,14 @@ CONF = config.CONF
     ),
 )
 @click.version_option()
-def cli(debug, token, username, password, server, project):
+def cli(
+    debug: bool,
+    token: str | None,
+    username: str | None,
+    password: str | None,
+    server: str | None,
+    project: str | None,
+) -> None:
     """git-pw is a tool for integrating Git with Patchwork.
 
     git-pw can interact with individual patches, complete patch series, and
@@ -99,7 +106,7 @@ def cli(debug, token, username, password, server, project):
 
 
 @cli.group()
-def patch():
+def patch() -> None:
     """Interact with patches.
 
     Patches are the central object in Patchwork structure. A patch
@@ -113,7 +120,7 @@ def patch():
 
 
 @cli.group()
-def series():
+def series() -> None:
     """Interact with series.
 
     Series are groups of patches, along with an optional cover letter.
@@ -126,7 +133,7 @@ def series():
 
 
 @cli.group()
-def bundle():
+def bundle() -> None:
     """Interact with bundles.
 
     Bundles are custom, user-defined groups of patches. Bundles can be

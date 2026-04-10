@@ -22,7 +22,7 @@ LOG = logging.getLogger(__name__)
 
 FC = TypeVar('FC', bound=Callable[..., Any])
 
-Filters = list[tuple[str, str]]
+Filters = list[tuple[str, str | int | None]]
 
 
 class HTTPTokenAuth(requests.auth.AuthBase):
@@ -236,7 +236,7 @@ def version() -> tuple[int, int]:
 
 def get(url: str, params: Filters | None = None) -> dict[str, Any]:
     """Get a JSON document from the API and return it as a dict."""
-    return _get(url, params, stream=False).json()
+    return cast(dict[str, Any], _get(url, params, stream=False).json())
 
 
 def download(
@@ -323,7 +323,7 @@ def index(
     params = params or []
     params.append(('project', _get_project()))
 
-    return _get(url, params).json()
+    return cast(list[dict[str, Any]], _get(url, params).json())
 
 
 def detail(
@@ -346,7 +346,7 @@ def detail(
     # NOTE(stephenfin): All resources must have a trailing '/'
     url = '/'.join([_get_server(), resource_type, str(resource_id), ''])
 
-    return _get(url, params, stream=False).json()
+    return cast(dict[str, Any], _get(url, params, stream=False).json())
 
 
 def create(
@@ -367,7 +367,7 @@ def create(
     # NOTE(stephenfin): All resources must have a trailing '/'
     url = '/'.join([_get_server(), resource_type, ''])
 
-    return _post(url, data).json()
+    return cast(dict[str, Any], _post(url, data).json())
 
 
 def delete(resource_type: str, resource_id: str | int) -> None:
@@ -408,30 +408,30 @@ def update(
     # NOTE(stephenfin): All resources must have a trailing '/'
     url = '/'.join([_get_server(), resource_type, str(resource_id), ''])
 
-    return _patch(url, data).json()
+    return cast(dict[str, Any], _patch(url, data).json())
 
 
 def validate_minimum_version(
     min_version: tuple[int, int],
     msg: str,
-) -> Callable[[Any], Any]:
-    def inner(f):
+) -> Callable[[FC], FC]:
+    def inner(f: FC) -> FC:
         @click.pass_context
-        def new_func(ctx, *args, **kwargs):
+        def new_func(ctx: click.Context, *args: Any, **kwargs: Any) -> Any:
             if version() < min_version:
                 LOG.error(msg)
                 sys.exit(1)
 
             return ctx.invoke(f, *args, **kwargs)
 
-        return update_wrapper(new_func, f)
+        return cast(FC, update_wrapper(new_func, f))
 
     return inner
 
 
 def validate_multiple_filter_support(f: FC) -> FC:
     @click.pass_context
-    def new_func(ctx, *args, **kwargs):
+    def new_func(ctx: click.Context, *args: Any, **kwargs: Any) -> Any:
         if version() >= (1, 1):
             return ctx.invoke(f, *args, **kwargs)
 
@@ -439,7 +439,7 @@ def validate_multiple_filter_support(f: FC) -> FC:
             if not param.multiple:
                 continue
 
-            if param.name in ('headers'):
+            if param.name is None or param.name == 'headers':
                 continue
 
             value = list(kwargs[param.name] or [])

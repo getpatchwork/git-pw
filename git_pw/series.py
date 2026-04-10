@@ -2,6 +2,7 @@
 Series subcommands.
 """
 
+import datetime
 import logging
 import os.path
 import sys
@@ -34,7 +35,7 @@ _sort_fields = ('id', '-id', 'name', '-name', 'date', '-date')
     'first.',
 )
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
-def apply_cmd(series_id, args, deps):
+def apply_cmd(series_id: int, args: tuple[str, ...], deps: bool) -> None:
     """Apply series.
 
     Apply a series locally using the 'git-am' command. Any additional ARGS
@@ -91,7 +92,7 @@ def apply_cmd(series_id, args, deps):
     default=True,
     help='Download all series patches to one file',
 )
-def download_cmd(series_id, output, fmt):
+def download_cmd(series_id: int, output: str | None, fmt: str) -> None:
     """Download series in mbox format.
 
     Download a series but do not apply it. ``OUTPUT`` is optional and can be an
@@ -131,7 +132,7 @@ def download_cmd(series_id, output, fmt):
 @click.command(name='show')
 @utils.format_options
 @click.argument('series_id', type=click.INT)
-def show_cmd(fmt, series_id):
+def show_cmd(fmt: str | None, series_id: int) -> None:
     """Show information about series.
 
     Retrieve Patchwork metadata for a series.
@@ -140,8 +141,8 @@ def show_cmd(fmt, series_id):
 
     series = api.detail('series', series_id)
 
-    def _format_submission(submission):
-        return '%-4d %s' % (submission.get('id'), submission.get('name'))
+    def _format_submission(submission: dict[str, Any]) -> str:
+        return '%-4d %s' % (submission['id'], submission.get('name'))
 
     output = [
         ('ID', series.get('id')),
@@ -165,7 +166,7 @@ def show_cmd(fmt, series_id):
         (
             'Cover',
             (
-                _format_submission(series.get('cover_letter'))
+                _format_submission(series['cover_letter'])
                 if series.get('cover_letter')
                 else ''
             ),
@@ -195,7 +196,17 @@ def show_cmd(fmt, series_id):
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(submitters, limit, page, sort, fmt, headers, name, since, before):
+def list_cmd(
+    submitters: tuple[str, ...],
+    limit: int | None,
+    page: int | None,
+    sort: str,
+    fmt: str | None,
+    headers: tuple[str, ...],
+    name: str | None,
+    since: datetime.datetime | None,
+    before: datetime.datetime | None,
+) -> None:
     """List series.
 
     List series on the Patchwork instance.
@@ -208,7 +219,7 @@ def list_cmd(submitters, limit, page, sort, fmt, headers, name, since, before):
         sort,
     )
 
-    params = []
+    params: list[tuple[str, str | int | None]] = []
 
     for submitter in submitters:
         if submitter.isdigit():

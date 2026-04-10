@@ -86,9 +86,9 @@ def download_cmd(bundle_id: str, output: str | None) -> None:
         LOG.info('Downloaded bundle to %s', path)
 
 
-def _show_bundle(bundle: dict[str, Any], fmt: str) -> None:
-    def _format_patch(patch):
-        return '%-4d %s' % (patch.get('id'), patch.get('name'))
+def _show_bundle(bundle: dict[str, Any], fmt: str | None) -> None:
+    def _format_patch(patch: dict[str, Any]) -> str:
+        return '%-4d %s' % (patch['id'], patch.get('name'))
 
     output = [
         ('ID', bundle.get('id')),
@@ -137,7 +137,15 @@ def show_cmd(fmt: str, bundle_id: str) -> None:
 @utils.format_options(headers=_list_headers)
 @click.argument('name', required=False)
 @api.validate_multiple_filter_support
-def list_cmd(owners, limit, page, sort, fmt, headers, name):
+def list_cmd(
+    owners: tuple[str, ...],
+    limit: int | None,
+    page: int | None,
+    sort: str,
+    fmt: str | None,
+    headers: tuple[str, ...],
+    name: str | None,
+) -> None:
     """List bundles.
 
     List bundles on the Patchwork instance.
@@ -150,7 +158,7 @@ def list_cmd(owners, limit, page, sort, fmt, headers, name):
         sort,
     )
 
-    params = []
+    params: list[tuple[str, str | int | None]] = []
 
     for owner in owners:
         # we support server-side filtering by username (but not email) in 1.1
