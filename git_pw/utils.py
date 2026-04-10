@@ -2,13 +2,14 @@
 Utility functions.
 """
 
+from collections.abc import Callable
 import csv
 import io
 import logging
 import os
 import subprocess
 import sys
-import typing as ty
+from typing import Any
 
 import click
 from tabulate import tabulate
@@ -17,7 +18,7 @@ import yaml
 LOG = logging.getLogger(__name__)
 
 
-def ensure_str(s: ty.Any) -> str:
+def ensure_str(s: Any) -> str:
     if s is None:
         s = ''
     elif isinstance(s, bytes):
@@ -74,7 +75,7 @@ def git_am(mbox: str, args: tuple[str, ...]) -> None:
 
 
 def _tabulate(
-    output: list[tuple[str, ty.Any]],
+    output: list[tuple[str, Any]],
     headers: list[str],
     fmt: str,
 ) -> str:
@@ -131,7 +132,7 @@ def _echo_via_pager(pager: str, output: str) -> None:
 
 
 def echo_via_pager(
-    output: list[tuple[str, ty.Any]],
+    output: list[tuple[str, Any]],
     headers: list[str],
     fmt: str,
 ) -> None:
@@ -165,7 +166,7 @@ def echo_via_pager(
 
 
 def echo(
-    output: list[tuple[str, ty.Any]],
+    output: list[tuple[str, Any]],
     headers: list[str],
     fmt: str,
 ) -> None:
@@ -175,7 +176,7 @@ def echo(
 def pagination_options(
     sort_fields: tuple[str, ...],
     default_sort: str,
-) -> ty.Callable:
+) -> Callable:
     """Shared pagination options."""
 
     def _pagination_options(f):
@@ -207,7 +208,7 @@ def pagination_options(
     return _pagination_options
 
 
-def date_options() -> ty.Callable:
+def date_options() -> Callable:
     """Shared date bounding options."""
 
     def _date_options(f):
@@ -230,9 +231,9 @@ def date_options() -> ty.Callable:
 
 
 def format_options(
-    original_function: ty.Callable | None = None,
+    original_function: Callable | None = None,
     headers: tuple[str, ...] | None = None,
-) -> ty.Callable:
+) -> Callable:
     """Shared output format options."""
 
     def _format_options(f):

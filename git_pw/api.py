@@ -2,13 +2,14 @@
 Simple wrappers around request methods.
 """
 
+from collections.abc import Callable
 from functools import update_wrapper
 import logging
 import os.path
 import re
 import sys
 import tempfile
-import typing as ty
+from typing import Any
 
 import click
 import requests
@@ -163,7 +164,7 @@ def _get(
 
 def _post(
     url: str,
-    data: list[tuple[str, ty.Any]],
+    data: list[tuple[str, Any]],
 ) -> requests.Response:
     """Make POST request and handle errors."""
     LOG.debug('POST %s, data=%r', url, data)
@@ -183,7 +184,7 @@ def _post(
 
 def _patch(
     url: str,
-    data: list[tuple[str, ty.Any]],
+    data: list[tuple[str, Any]],
 ) -> requests.Response:
     """Make PATCH request and handle errors."""
     LOG.debug('PATCH %s, data=%r', url, data)
@@ -346,7 +347,7 @@ def detail(
 
 def create(
     resource_type: str,
-    data: list[tuple[str, ty.Any]],
+    data: list[tuple[str, Any]],
 ) -> dict:
     """Create a new API resource.
 
@@ -386,7 +387,7 @@ def delete(resource_type: str, resource_id: str | int) -> None:
 def update(
     resource_type: str,
     resource_id: str | int,
-    data: list[tuple[str, ty.Any]],
+    data: list[tuple[str, Any]],
 ) -> dict:
     """Update a specific API resource.
 
@@ -409,7 +410,7 @@ def update(
 def validate_minimum_version(
     min_version: tuple[int, int],
     msg: str,
-) -> ty.Callable[[ty.Any], ty.Any]:
+) -> Callable[[Any], Any]:
     def inner(f):
         @click.pass_context
         def new_func(ctx, *args, **kwargs):
@@ -424,7 +425,7 @@ def validate_minimum_version(
     return inner
 
 
-def validate_multiple_filter_support(f: ty.Callable) -> ty.Callable:
+def validate_multiple_filter_support(f: Callable) -> Callable:
     @click.pass_context
     def new_func(ctx, *args, **kwargs):
         if version() >= (1, 1):
