@@ -97,12 +97,18 @@ def cli(
     """
     logger.configure_verbosity(debug)
 
-    CONF.debug = debug
-    CONF.token = token
-    CONF.username = username
-    CONF.password = password
-    CONF.server = server
-    CONF.project = project
+    if debug:
+        CONF.debug = debug
+    if token:
+        CONF.token = token
+    if username:
+        CONF.username = username
+    if password:
+        CONF.password = password
+    if server:
+        CONF.server = server
+    if project:
+        CONF.project = project
 
 
 @cli.group()
