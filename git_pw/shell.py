@@ -16,7 +16,7 @@ CONF = config.CONF
 @click.group()
 @click.option(
     '--debug',
-    default=False,
+    default=None,
     is_flag=True,
     help="Output more information about what's going on.",
 )
@@ -65,7 +65,7 @@ CONF = config.CONF
 )
 @click.version_option()
 def cli(
-    debug: bool,
+    debug: bool | None,
     token: str | None,
     username: str | None,
     password: str | None,
@@ -97,12 +97,18 @@ def cli(
     """
     logger.configure_verbosity(debug)
 
-    CONF.debug = debug
-    CONF.token = token
-    CONF.username = username
-    CONF.password = password
-    CONF.server = server
-    CONF.project = project
+    if debug is not None:
+        CONF.debug = debug
+    if token is not None:
+        CONF.token = token
+    if username is not None:
+        CONF.username = username
+    if password is not None:
+        CONF.password = password
+    if server is not None:
+        CONF.server = server
+    if project is not None:
+        CONF.project = project
 
 
 @cli.group()
