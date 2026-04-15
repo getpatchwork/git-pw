@@ -95,7 +95,7 @@ def cli(
     For more information on any of the commands, simply pass ``--help`` to the
     appropriate command.
     """
-    logger.configure_verbosity(debug)
+    logger.configure_verbosity(debug or CONF.debug)
 
     if debug is not None:
         CONF.debug = debug
