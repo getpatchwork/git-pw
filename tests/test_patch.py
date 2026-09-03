@@ -351,6 +351,22 @@ class ListTestCase(unittest.TestCase):
             mock.ANY, ('ID', 'Name'), fmt='simple'
         )
 
+    def test_list_with_series_column(
+        self, mock_echo, mock_index, mock_version
+    ):
+        """Validate that the series ID is included in the output."""
+
+        rsp = [self._get_patch()]
+        mock_index.return_value = rsp
+
+        runner = CLIRunner()
+        result = runner.invoke(patch.list_cmd, [])
+
+        assert result.exit_code == 0, result
+
+        output = mock_echo.call_args[0][0]
+        assert output[0][-1] == '321'
+
     def test_list_with_filters(self, mock_echo, mock_index, mock_version):
         """Validate behavior with filters applied.
 
