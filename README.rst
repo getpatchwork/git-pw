@@ -81,7 +81,7 @@ settings are **required**:
   `documentation`__. For example, if your server is running Patchwork version
   3.2.x, you should use API version 1.3.
 
-  .. __: https://patchwork.readthedocs.io/en/stable-3.2/api/rest/#rest-api-versions
+  .. __: https://patchwork.readthedocs.io/en/latest/api/rest/#supported-versions
 
 ``pw.project``
   The project name or list-id. This will appear in the URL when using the web
