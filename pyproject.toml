@@ -1,5 +1,5 @@
 [build-system]
-requires = ["pbr>=6.1.1"]
+requires = ["pbr>=7.1.0"]
 build-backend = "pbr.build"
 
 [project]
@@ -9,9 +9,16 @@ authors = [
     {name = "Stephen Finucane", email = "stephen@that.guru"},
 ]
 readme = {file = "README.rst", content-type = "text/x-rst"}
-license = {text = "MIT"}
-dynamic = ["version", "dependencies"]
-requires-python = ">=3.10"
+license = "MIT"
+dynamic = ["version"]
+dependencies = [
+    "arrow>=0.10",
+    "click>=8.0",
+    "PyYAML>=5.1",
+    "requests>=2.0",
+    "tabulate>=0.8",
+]
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
@@ -20,8 +27,20 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+]
+
+[dependency-groups]
+test = [
+    "pytest>=3.0",
+    "pytest-cov",
+]
+typing = [
+    "mypy",
+    "types-PyYAML",
+    "types-requests",
+    "types-setuptools",
+    "types-tabulate",
 ]
 
 [project.urls]
@@ -32,10 +51,8 @@ classifiers = [
 [project.scripts]
 git-pw = "git_pw.shell:cli"
 
-[tool.setuptools]
-packages = [
-    "git_pw"
-]
+[tool.setuptools.packages.find]
+include = ["git_pw*"]
 
 [tool.ruff]
 line-length = 79
