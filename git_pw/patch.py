@@ -26,6 +26,7 @@ _list_headers = (
     'State',
     'Archived',
     'Delegate',
+    'Series',
 )
 _sort_fields = ('id', '-id', 'name', '-name', 'date', '-date')
 _default_states = (
@@ -451,6 +452,9 @@ def list_cmd(
             patch.get('state'),
             'yes' if patch.get('archived') else 'no',
             (patch.get('delegate') or {}).get('username', ''),
+            ','.join(
+                str(series.get('id')) for series in patch.get('series') or []
+            ),
         ]
 
         output.append([])
