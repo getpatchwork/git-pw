@@ -1,3 +1,5 @@
+import os
+import tempfile
 import unittest
 from unittest import mock
 
@@ -135,14 +137,15 @@ class DownloadTestCase(unittest.TestCase):
         mock_detail.return_value = rsp
 
         runner = CLIRunner()
-        with runner.isolated_filesystem():
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output_file = os.path.join(temp_dir, 'test.diff')
             result = runner.invoke(
-                patch.download_cmd, ['123', '--diff', 'test.diff']
+                patch.download_cmd, ['123', '--diff', output_file]
             )
 
             assert result.exit_code == 0, result
 
-            with open('test.diff') as output:
+            with open(output_file) as output:
                 assert [rsp['diff'].decode()] == output.readlines()
 
         mock_detail.assert_called_once_with('patches', 123)
