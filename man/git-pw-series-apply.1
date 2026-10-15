@@ -1,4 +1,4 @@
-.TH "GIT-PW SERIES APPLY" "1" "2024-10-23" "2.7.0" "git-pw series apply Manual"
+.TH "GIT-PW SERIES APPLY" "1" "2026-10-15" "2.9.0" "git-pw series apply Manual"
 .SH NAME
 git-pw\-series\-apply \- Apply series.
 .SH SYNOPSIS
@@ -7,5 +7,9 @@ git-pw\-series\-apply \- Apply series.
 .SH DESCRIPTION
 Apply series.
 .PP
-    Apply a series locally using the 'git-am' command. Any additional ARGS
-    provided will be passed to the 'git-am' command.
+Apply a series locally using the 'git-am' command. Any additional ARGS
+provided will be passed to the 'git-am' command.
+.SH OPTIONS
+.TP
+\fB\-\-deps\fP / \-\-no\-deps
+Download any dependencies this series may have, and apply themfirst.
