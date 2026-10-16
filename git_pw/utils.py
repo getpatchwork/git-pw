@@ -4,6 +4,7 @@ Utility functions.
 
 from collections.abc import Callable, Sequence
 import csv
+import datetime
 import io
 import logging
 import os
@@ -12,6 +13,7 @@ import sys
 from typing import Any, TypeVar, overload
 
 import click
+import humanize
 from tabulate import tabulate
 import yaml
 
@@ -33,6 +35,14 @@ def ensure_str(s: Any) -> str:
 def trim(string: str, length: int = 70) -> str:
     """Trim a string to the given length."""
     return (string[: length - 1] + '...') if len(string) > length else string
+
+
+def humanize_date(value: str) -> str:
+    """Format an API timestamp as a relative date, assuming UTC if naive."""
+    date = datetime.datetime.fromisoformat(value)
+    if date.tzinfo is None:
+        date = date.replace(tzinfo=datetime.UTC)
+    return humanize.naturaltime(datetime.datetime.now(datetime.UTC) - date)
 
 
 def git_config(value: str) -> str:

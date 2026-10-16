@@ -1,13 +1,36 @@
 """Unit tests for ``git_pw/utils.py``."""
 
+import datetime
 import subprocess
 import textwrap
 import os
 
+import pytest
 import yaml
 from unittest import mock
 
 from git_pw import utils
+
+
+@pytest.mark.parametrize(
+    'value',
+    [
+        '2026-01-02 10:00:00',
+        '2026-01-02T10:00:00Z',
+        '2026-01-02T12:00:00+02:00',
+    ],
+)
+@mock.patch.object(utils.humanize, 'naturaltime')
+def test_humanize_date(mock_naturaltime, value):
+    now = datetime.datetime(2026, 1, 2, 12, tzinfo=datetime.UTC)
+    with mock.patch.object(utils, 'datetime', wraps=datetime) as mock_datetime:
+        mock_datetime.UTC = datetime.UTC
+        mock_datetime.datetime.now.return_value = now
+
+        assert utils.humanize_date(value) == mock_naturaltime.return_value
+        mock_datetime.datetime.now.assert_called_once_with(datetime.UTC)
+
+    mock_naturaltime.assert_called_once_with(datetime.timedelta(hours=2))
 
 
 @mock.patch.object(utils.subprocess, 'check_output', return_value=b' bar ')

@@ -8,7 +8,6 @@ import os.path
 import sys
 from typing import Any
 
-import arrow
 import click
 
 from git_pw import api
@@ -257,7 +256,7 @@ def list_cmd(
     for series_ in series:
         item = [
             series_.get('id'),
-            arrow.get(series_['date']).humanize(),
+            utils.humanize_date(series_['date']),
             utils.trim(series_.get('name') or ''),
             series_.get('version'),
             '{} ({})'.format(

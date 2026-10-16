@@ -47,14 +47,14 @@ dependencies.  On Fedora, run:
 .. code-block:: bash
 
    $ sudo dnf install python3-requests python3-click python3-pbr \
-       python3-arrow python3-tabulate python3-yaml
+       python3-humanize python3-tabulate python3-yaml
 
 On Ubuntu, run:
 
 .. code-block:: bash
 
    $ sudo apt-get install python3-requests python3-click python3-pbr \
-       python3-arrow python3-tabulate python3-yaml
+       python3-humanize python3-tabulate python3-yaml
 
 Once dependencies are installed, clone this repo and install with ``pip``:
 

@@ -12,8 +12,8 @@ readme = {file = "README.rst", content-type = "text/x-rst"}
 license = "MIT"
 dynamic = ["version"]
 dependencies = [
-    "arrow>=0.10",
     "click>=8.0",
+    "humanize>=4.0",
     "PyYAML>=5.1",
     "requests>=2.0",
     "tabulate>=0.8",

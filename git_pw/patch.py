@@ -8,7 +8,6 @@ import os
 import sys
 from typing import Any
 
-import arrow
 import click
 
 from git_pw import api
@@ -442,7 +441,7 @@ def list_cmd(
     for patch in patches:
         item = [
             patch.get('id'),
-            arrow.get(patch['date']).humanize(),
+            utils.humanize_date(patch['date']),
             utils.trim(patch.get('name') or ''),
             '{} ({})'.format(
                 (patch.get('submitter') or {}).get('name'),
